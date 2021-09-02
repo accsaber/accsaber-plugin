@@ -5,6 +5,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using IPA.Utilities;
 using SiraUtil.Tools;
+using AccSaber.Models;
 
 namespace AccSaber.UI.Leaderboard.Panel
 {
@@ -19,14 +20,7 @@ namespace AccSaber.UI.Leaderboard.Panel
             _log = log;
         }
 
-        private enum AccTypes
-        {
-            True,
-            Standard,
-            Tech
-        }
-
         [UIValue("acc-list")]
-        private List<object> AccOptions = Enum.GetValues(typeof(AccTypes)).Cast<object>().ToList();
+        private List<object> AccOptions = Enum.GetValues(typeof(AccTypesList.AccTypes)).Cast<object>().ToList();
     }
 }
