@@ -1,9 +1,8 @@
-﻿using AccSaber.Configuration;
-using AccSaber.Installers;
+﻿using AccSaber.Installers;
 using IPA;
 using IPA.Config;
-using IPA.Config.Stores;
 using IPA.Logging;
+using SiraUtil;
 using SiraUtil.Zenject;
 
 namespace AccSaber
@@ -14,7 +13,8 @@ namespace AccSaber
 		[Init]
 		public void Init(Logger logger, Config config, Zenjector zenjector)
 		{
-			zenjector.OnMenu<MenuInstaller>();
+			zenjector.On<PCAppInit>().Pseudo(Container => Container.BindLoggerAsSiraLogger(logger));
+			zenjector.OnMenu<MenuInstaller>().ShortCircuitForMultiplayer();
 		}
 
 		[OnEnable, OnDisable]
