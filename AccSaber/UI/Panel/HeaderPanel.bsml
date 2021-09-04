@@ -18,6 +18,6 @@
     </horizontal>
     
     <horizontal pad-left="10">
-        <dropdown-list-setting text=" " value="acc-list"/>
+        <dropdown-list-setting text=" " choices="acc-list" />
     </horizontal>
 </bg>

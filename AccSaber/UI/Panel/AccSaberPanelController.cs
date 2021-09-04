@@ -22,5 +22,8 @@ namespace AccSaber.UI.Leaderboard.Panel
 
         [UIValue("acc-list")]
         private List<object> AccOptions = Enum.GetValues(typeof(AccTypesList.AccTypes)).Cast<object>().ToList();
+        
+        // [UIValue("list-choice")]
+        // private string listChoice = "True";
     }
 }
