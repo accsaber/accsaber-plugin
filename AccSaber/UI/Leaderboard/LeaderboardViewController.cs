@@ -7,6 +7,8 @@ namespace AccSaber.UI.Leaderboard
     [HotReload(RelativePathToLayout = @".\LeaderboardUI.bsml")]
     public class AccSaberLeaderboardViewController : BSMLAutomaticViewController
     {
-        
+        [UIComponent("leaderboard")]
+        internal LeaderboardTableView table;
+        public string lastClicked = "";
     }
 }
