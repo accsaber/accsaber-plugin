@@ -6,6 +6,7 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using IPA.Utilities;
 using SiraUtil.Tools;
 using AccSaber.Models;
+using Zenject;
 
 namespace AccSaber.UI.Leaderboard.Panel
 {
@@ -13,17 +14,13 @@ namespace AccSaber.UI.Leaderboard.Panel
     [HotReload(RelativePathToLayout = @".\HeaderPanel.bsml")]
     public class AccSaberPanelController : BSMLAutomaticViewController
     {
+        [Inject]
         private SiraLog _log;
-        
-        private AccSaberPanelController(SiraLog log)
-        {
-            _log = log;
-        }
 
         [UIValue("acc-list")]
         private List<object> AccOptions = Enum.GetValues(typeof(AccTypesList.AccTypes)).Cast<object>().ToList();
         
-        // [UIValue("list-choice")]
-        // private string listChoice = "True";
+        [UIValue("list-choice")]
+        private string listChoice = "True";
     }
 }
