@@ -1,4 +1,4 @@
-# Accaber-Plugin
+# AccSaber-Plugin
 Plugin for the AccSaber leaderboards
 
 ## Reporting Issues
