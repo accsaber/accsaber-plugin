@@ -1,14 +1,58 @@
-﻿using BeatSaberMarkupLanguage.Attributes;
+﻿using System;
+using System.Collections.Generic;
 using BeatSaberMarkupLanguage.ViewControllers;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using LeaderboardCore.Models.UI.ViewControllers;
+using SiraUtil.Tools;
+using Zenject;
+
 
 namespace AccSaber.UI.Leaderboard
 {
-    [ViewDefinition("AccSaber.UI.Leaderboard.LeaderboardUI.bsml")]
-    [HotReload(RelativePathToLayout = @".\LeaderboardUI.bsml")]
-    public class AccSaberLeaderboardViewController : BSMLAutomaticViewController
+    public class AccSaberLeaderboardViewController : BasicLeaderboardViewController, INotifyPropertyChanged
     {
-        [UIComponent("leaderboard")]
-        internal LeaderboardTableView table;
-        public string lastClicked = "";
+        [Inject] private SiraLog _log;
+        protected override bool useAroundPlayer => true;
+
+        protected override bool useFriends => true;
+
+        public void OnEnable()
+        {
+            isLoaded = false;
+            didSelectLeaderboardScopeEvent += OnSelectLeaderboardScope;
+        }
+
+        private void OnSelectLeaderboardScope(LeaderboardScope scope)
+        {
+            switch (scope)
+            {
+                case LeaderboardScope.Global:
+                    _log.Info("Set scope to Global");
+                    break;
+                case LeaderboardScope.AroundPlayer:
+                    _log.Info("Set scope to Around Player");
+                    break;
+                case LeaderboardScope.Friends:
+                    _log.Info("Set scope to Friends");
+                    break;
+            }
+        }
+
+        public void SetScoresInternal(List<LeaderboardTableView.ScoreData> scores, int scorePosition)
+        {
+            SetScores(scores, scorePosition);
+            isLoaded = true;
+        }
+
+        protected override void OnUpClicked()
+        {
+            _log.Debug("Up Clicked");
+        }
+        
+        protected override void OnDownClicked()
+        {
+            _log.Debug("Down Clicked");
+        }
     }
 }
