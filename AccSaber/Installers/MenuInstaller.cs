@@ -9,16 +9,14 @@ namespace AccSaber.Installers
 {
     public class MenuInstaller : Installer
     {
-        private readonly SiraLog _log;
-        public MenuInstaller(SiraLog log)
+        public MenuInstaller()
         {
-            _log = log;
         }
         
         public override void InstallBindings()
         {
-            Container.BindInterfacesAndSelfTo<AccSaberLeaderboardViewController>().FromNewComponentAsViewController().AsSingle().NonLazy();
-            Container.BindInterfacesAndSelfTo<AccSaberPanelController>().FromNewComponentAsViewController().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<AccSaberLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<AccSaberPanelController>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<AccSaberManager>().AsSingle().NonLazy();
         }
     }
