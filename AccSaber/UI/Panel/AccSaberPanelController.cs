@@ -1,26 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using AccSaber.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
-using IPA.Utilities;
+using HMUI;
+using LeaderboardCore.Models.UI.ViewControllers;
+using SiraUtil;
 using SiraUtil.Tools;
-using AccSaber.Models;
 using Zenject;
 
-namespace AccSaber.UI.Leaderboard.Panel
+namespace AccSaber.UI.Panel
 {
-    [ViewDefinition("AccSaber.UI.Panel.HeaderPanel.bsml")]
-    [HotReload(RelativePathToLayout = @".\HeaderPanel.bsml")]
-    public class AccSaberPanelController : BSMLAutomaticViewController
+    public class AccSaberPanelController : BasicPanelViewController
     {
-        [Inject]
-        private SiraLog _log;
-
-        [UIValue("acc-list")]
-        private List<object> AccOptions = Enum.GetValues(typeof(AccTypesList.AccTypes)).Cast<object>().ToList();
-        
-        [UIValue("list-choice")]
-        private string listChoice = "True";
+        protected override string LogoSource => "AccSaber.Resources.Logos.AccSaber.png";
+        protected string ExtraResourceName => "AccSaber.UI.Panel.HeaderPanel.bsml";
+        protected override string customBSML => 
+            Utilities.GetResourceContent(Assembly.GetAssembly(typeof(AccSaberPanelController)),
+                ExtraResourceName);
+        protected override object customHost => this;
     }
 }

@@ -1,29 +1,19 @@
 ﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
-    <horizontal bg="round-rect-panel">
-        <vertical pad-left="5">
-            <clickable-image id="accsaber-logo" pref-width="10" pref-height="10" src="AccSaber.Resources.Logos.AccSaber.png" on-click="clicked-logo" preserve-aspect="true" hover-hint="Clicking this takes you to the AccSaber website!" />
+    <horizontal id='outer' horizontal-fit='PreferredSize' vertical-fit='PreferredSize' bg='round-rect-panel' spacing='3' pad='2' pref-width='91'>
+        <vertical pref-width='10' pref-height='10'>
+            <clickable-image active='~is-logo-clickable' id='clickable-logo' src='~logo-source' on-click='clicked-logo' hover-hint='~logo-hoverhint'/>
+            <image active='~is-logo-plain' id='plain-logo' src='~logo-source' hover-hint='~logo-hoverhint' preserve-aspect="true"/>
         </vertical>
-        
-        <vertical pad-right="50">
-            <horizontal>
-                <text color="Yellow" text="Global Rank:" />
-                <text pad-left="5" text="N/A (N/A ap)" />
-            </horizontal>
-            
-            <horizontal>
-                <text color="Yellow" text="Ranked Status:" />
-                <text pad-left="5" text="N/A" />
-            </horizontal>
+        <vertical pref-width='0.5' pref-height='10'>
+            <image id='separator' src='LeaderboardCore.UI.Resources.pixel.png'/>
         </vertical>
-    </horizontal>
-    
-    <vertical pad-left="20" >
-        <horizontal>
-            <text color="Yellow" text="Pool:" />
-        </horizontal>
-    </vertical>
-    
-    <horizontal pad-left="10">
-        <dropdown-list-setting text=" " choices="acc-list" />
+        <vertical active='~is-loaded' id='panel-custom' pref-width='70' pref-height='10'>
+            <clickable-text />
+        </vertical>
+        <vertical active='~is-loading' pref-width='70' pref-height='10' >
+            <vertical pref-width='10'>
+                <loading-indicator preserve-aspect='true'/>
+            </vertical>
+        </vertical>
     </horizontal>
 </bg>
