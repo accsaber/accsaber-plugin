@@ -8,7 +8,7 @@
             <image id='separator' src='LeaderboardCore.UI.Resources.pixel.png'/>
         </vertical>
         <vertical active='~is-loaded' id='panel-custom' pref-width='70' pref-height='10'>
-            <clickable-text />
+            
         </vertical>
         <vertical active='~is-loading' pref-width='70' pref-height='10' >
             <vertical pref-width='10'>
