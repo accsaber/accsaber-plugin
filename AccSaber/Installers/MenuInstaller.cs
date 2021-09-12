@@ -1,6 +1,6 @@
 ﻿using AccSaber.UI.Leaderboard;
-using AccSaber.UI.Leaderboard.Panel;
 using AccSaber.Managers;
+using AccSaber.UI.Panel;
 using SiraUtil;
 using SiraUtil.Tools;
 using Zenject;
@@ -17,8 +17,8 @@ namespace AccSaber.Installers
         
         public override void InstallBindings()
         {
-            Container.BindInterfacesAndSelfTo<AccSaberLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
-            Container.BindInterfacesAndSelfTo<AccSaberPanelController>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<AccSaberLeaderboardViewController>().FromNewComponentAsViewController().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<AccSaberPanelController>().FromNewComponentAsViewController().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<AccSaberManager>().AsSingle().NonLazy();
         }
     }
