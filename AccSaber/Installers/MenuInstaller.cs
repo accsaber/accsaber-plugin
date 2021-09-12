@@ -9,10 +9,6 @@ namespace AccSaber.Installers
 {
     public class MenuInstaller : Installer
     {
-        public MenuInstaller()
-        {
-        }
-        
         public override void InstallBindings()
         {
             Container.BindInterfacesAndSelfTo<AccSaberLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
