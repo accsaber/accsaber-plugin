@@ -2,13 +2,14 @@
   "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
   "id": "AccSaber",
   "name": "AccSaber",
-  "author": "Raine",
-  "version": "1.0.0",
+  "author": "AccSaber Team",
+  "version": "0.0.1",
   "description": "Plugin for AccSaber in-game leaderboard.",
-  "gameVersion": "1.17.0",
+  "gameVersion": "1.17.1",
   "dependsOn": {
     "BSIPA": "^4.2.0",
     "BeatSaberMarkupLanguage": "^1.5.5",
-    "SiraUtil": "^2.5.8"
+    "SiraUtil": "^2.5.8",
+    "LeaderboardCore": "^1.0.0"
   }
 }
