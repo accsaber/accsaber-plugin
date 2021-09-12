@@ -93,7 +93,6 @@
         <EmbeddedResource Include="manifest.json" />
         <EmbeddedResource Include="UI\Panel\HeaderPanel.bsml" />
         <None Remove="UI\Leaderboard\LeaderboardUI.bsml" />
-        <EmbeddedResource Include="UI\Leaderboard\LeaderboardUI.bsml" />
         <None Remove="Resources\Logos\AccSaber.png" />
         <EmbeddedResource Include="Resources\Logos\AccSaber.png" />
     </ItemGroup>
