@@ -18,6 +18,7 @@ namespace AccSaber.Managers
         private readonly ViewController _mainLeaderboardViewController;
         protected override ViewController leaderboardViewController => _mainLeaderboardViewController;
         private SiraLog _log;
+        
         public AccSaberManager(AccSaberPanelController accSaberPanelController, AccSaberLeaderboardViewController mainLeaderboardViewController, CustomLeaderboardManager customLeaderboardManager, SiraLog log)
         {
             _customLeaderboardManager = customLeaderboardManager;
