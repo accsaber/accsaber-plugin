@@ -10,9 +10,10 @@ using Zenject;
 
 namespace AccSaber.UI.Leaderboard
 {
-    public class AccSaberLeaderboardViewController : BasicLeaderboardViewController, INotifyPropertyChanged
+    public class AccSaberLeaderboardViewController : BasicLeaderboardViewController
     {
-        [Inject] private SiraLog _log;
+        [Inject] 
+        private SiraLog _log;
         protected override bool useAroundPlayer => true;
 
         protected override bool useFriends => true;
@@ -20,6 +21,7 @@ namespace AccSaber.UI.Leaderboard
         public void OnEnable()
         {
             isLoaded = false;
+            didSelectLeaderboardScopeEvent -= OnSelectLeaderboardScope;
             didSelectLeaderboardScopeEvent += OnSelectLeaderboardScope;
         }
 
@@ -47,12 +49,12 @@ namespace AccSaber.UI.Leaderboard
 
         protected override void OnUpClicked()
         {
-            _log.Debug("Up Clicked");
+            _log.Info("Up Clicked");
         }
         
         protected override void OnDownClicked()
         {
-            _log.Debug("Down Clicked");
+            _log.Info("Down Clicked");
         }
     }
 }
