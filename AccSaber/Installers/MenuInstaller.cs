@@ -1,8 +1,8 @@
-﻿using AccSaber.UI.Leaderboard;
+﻿using AccSaber.Downloaders;
 using AccSaber.Managers;
-using AccSaber.UI.Panel;
+using AccSaber.UI.MenuButton;
+using AccSaber.UI.MenuButton.ViewControllers;
 using SiraUtil;
-using SiraUtil.Tools;
 using Zenject;
 
 namespace AccSaber.Installers
@@ -11,9 +11,12 @@ namespace AccSaber.Installers
     {
         public override void InstallBindings()
         {
-            Container.BindInterfacesAndSelfTo<AccSaberLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
-            Container.BindInterfacesAndSelfTo<AccSaberPanelController>().FromNewComponentAsViewController().AsSingle();
-            Container.BindInterfacesAndSelfTo<AccSaberManager>().AsSingle().NonLazy();
+            Container.Bind<AccSaberDownloader>().AsSingle();
+            Container.Bind<BeatSaverDownloader>().AsSingle();
+            Container.BindInterfacesTo<MenuButtonManager>().AsSingle();
+            Container.Bind<RankedMapsView>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<SelectedMapView>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<AccSaberMainFlowCoordinator>().FromNewComponentOnNewGameObject(nameof(AccSaberMainFlowCoordinator)).AsSingle();
         }
     }
 }
