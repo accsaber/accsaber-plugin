@@ -1,0 +1,17 @@
+﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+  <vertical active='~song-select-ready' pref-width='50'>
+    <horizontal spacing='15' child-control-width='false'>
+     <image id='cover' preserve-aspect='true' pref-width='30' pref-height='30'/>
+      <vertical spacing='-20'>
+        <text id='artistSongNameString' align='Center' font-size='4'/>
+        <text id='levelAuthorName' align='Center' font-size='3.5'/>
+      </vertical>
+    </horizontal>
+    <horizontal>
+      <!-- macro.for-each -->
+    </horizontal>
+    <action-button active='true' id='downloadButton' text='Download' pref-width='30' pref-height='10' on-click='clicked-download'/>
+    <!-- maybe later...-->
+    <!--<action-button active='false' id='playButton' text='Play' pref-width='30' pref-height='10' on-click='clicked-play' /> -->
+  </vertical>
+</bg>
