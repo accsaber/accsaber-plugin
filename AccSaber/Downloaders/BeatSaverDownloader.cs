@@ -90,6 +90,11 @@ namespace AccSaber.Downloaders
                     // if this is inefficient then you need to stop downloading the same song
                     while (Directory.Exists(path))
                     {
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            throw new TaskCanceledException();
+                        }
+
                         if (c == 0)
                         {
                             path += $" ({c + 1})";
@@ -100,6 +105,12 @@ namespace AccSaber.Downloaders
                         }
                         c++; // 😊
                     }
+                }
+
+                // cancel just before extracting - don't cancel if mid-extraction
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    throw new TaskCanceledException();
                 }
                 Stream zipStream = new MemoryStream(www.downloadHandler.data);
 

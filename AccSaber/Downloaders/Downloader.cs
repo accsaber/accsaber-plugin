@@ -100,7 +100,7 @@ namespace AccSaber.Downloaders
                 if (cancellationToken.IsCancellationRequested)
                 {
                     www.Abort();
-                    return null;
+                    throw new TaskCanceledException();
                 }
                 progressCallback?.Invoke(www.downloadProgress);
                 await Task.Yield();
