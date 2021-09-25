@@ -90,10 +90,10 @@ namespace AccSaber.UI.MenuButton
             _rankedMapsView.SetFilters(categories);
         }
 
-        private List<AccSaberSong> CreateAccSaberSongs(List<AccSaberAPISong> rankedMaps)
+        private List<AccSaberSongBSML> CreateAccSaberSongs(List<AccSaberAPISong> rankedMaps)
         {
-            Dictionary<string, AccSaberSong> songsByHash = new Dictionary<string, AccSaberSong>();
-            List<AccSaberSong> songs = new List<AccSaberSong>();
+            Dictionary<string, AccSaberSongBSML> songsByHash = new Dictionary<string, AccSaberSongBSML>();
+            List<AccSaberSongBSML> songs = new List<AccSaberSongBSML>();
 
             foreach (var apiSong in rankedMaps)
             {
@@ -109,7 +109,7 @@ namespace AccSaber.UI.MenuButton
                     var diff = new AccSaberSongDiff(apiSong.categoryDisplayName, apiSong.difficulty, apiSong.complexity);
                     var diffs = new List<AccSaberSongDiff>() { diff };
                     //var cover = await _accsaberDownloader.GetCoverImageAsync("B70AEEF2EE915CED48593422931E8BA2A1F4E973");
-                    var accSaberSong = new AccSaberSong(apiSong.songName, apiSong.songSubName, apiSong.songAuthorName, apiSong.levelAuthorName, apiSong.beatSaverKey, apiSong.songHash, diffs);
+                    var accSaberSong = new AccSaberSongBSML(apiSong.songName, apiSong.songSubName, apiSong.songAuthorName, apiSong.levelAuthorName, apiSong.beatSaverKey, apiSong.songHash, diffs);
                     songsByHash.Add(apiSong.songHash, accSaberSong);
                     songs.Add(accSaberSong);
                 }
