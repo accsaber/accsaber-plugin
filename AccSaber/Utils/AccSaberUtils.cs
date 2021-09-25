@@ -92,7 +92,16 @@ namespace AccSaber.Utils
                 difficulty = inDifficulty;
                 complexity = inComplexity;
 
-                categoryComplexityString = $"{categoryDisplayName} - {complexity.ToString("F1", CultureInfo.InvariantCulture)}";
+                categoryComplexityString = $"<color=#{GetCategoryColor(categoryDisplayName)}>{categoryDisplayName} - {complexity.ToString("F1", CultureInfo.InvariantCulture)}";
+            }
+
+            private string GetCategoryColor(string categoryDisplayName)
+            {
+               if (CategoryColors.ContainsKey(categoryDisplayName))
+               {
+                    return ColorUtility.ToHtmlStringRGB(CategoryColors[categoryDisplayName]);
+               }
+                return "FFFFFF";
             }
         }
 
@@ -108,6 +117,13 @@ namespace AccSaber.Utils
                 return MemberwiseClone();
             }
         }
+
+        internal static Dictionary<string, Color> CategoryColors = new Dictionary<string, Color>()
+        {
+            { "True Acc", new Color(0.015f, 0.906f, 0.176f, 1) },
+            { "Standard Acc", new Color(0.039f, 0.573f, 0.918f, 1) },
+            { "Tech Acc", new Color(0.902f, 0.027f, 0.027f, 1) }
+        };
 
         internal static void SetKnownCategory(AccSaberCategory category)
         {

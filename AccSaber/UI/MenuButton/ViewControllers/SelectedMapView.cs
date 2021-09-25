@@ -30,7 +30,6 @@ namespace AccSaber.UI.MenuButton.ViewControllers
 
         AccSaberSong _selectedSong = null;
 
-        private bool _downloadedSong = false;
         private bool _songCoreReady = false;
 
         private static CancellationTokenSource coverCancel { get; set; } = null;
