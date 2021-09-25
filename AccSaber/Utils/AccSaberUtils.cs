@@ -66,13 +66,11 @@ namespace AccSaber.Utils
 
             internal bool IsDownloaded()
             {
-                if (!downloaded)
+                bool oldStatus = downloaded;
+                downloaded = SongCore.Collections.songWithHashPresent(songHash);
+                if (oldStatus != downloaded)
                 {
-                    downloaded = SongCore.Collections.songWithHashPresent(songHash);
-                    if (downloaded)
-                    {
-                        formattedName = "<color=#474949>" + artistSongNameString;
-                    }
+                    formattedName = (downloaded ? "<color=#474949>" : "") + artistSongNameString;
                 }
                 return downloaded;
             }
