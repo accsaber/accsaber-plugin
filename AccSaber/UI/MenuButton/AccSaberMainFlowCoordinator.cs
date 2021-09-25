@@ -6,6 +6,7 @@ using HMUI;
 using SiraUtil.Tools;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Zenject;
 using static AccSaber.Utils.AccSaberUtils;
@@ -22,6 +23,8 @@ namespace AccSaber.UI.MenuButton
         private RankedMapsView _rankedMapsView;
         private static SelectedMapView _selectedMapView;
 
+        internal static CancellationTokenSource closeCancellationTokenSource;
+
         [Inject]
         protected void Construct(SiraLog siraLog, MainFlowCoordinator mainFlowCoordinator, RankedMapsView rankedMapsView, SelectedMapView selectedMapView, AccSaberDownloader accSaberDownloader, BeatSaverDownloader beatSaverDownloader)
         {
@@ -37,6 +40,7 @@ namespace AccSaber.UI.MenuButton
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
+            closeCancellationTokenSource = new CancellationTokenSource();
             if (firstActivation)
             {
                 SetTitle("AccSaber");
@@ -48,6 +52,21 @@ namespace AccSaber.UI.MenuButton
                 FetchAccSaberCategories();
             }
 
+            else
+            {
+                // fetching might have been cancelled
+                if (_rankedMapsView.rankedSongs == null || _rankedMapsView.rankedSongs.Count == 0)
+                {
+                    FetchRankedMaps();
+                }
+
+                if (RankedMapsView.filteringOptions == null | RankedMapsView.filteringOptions.Count < 6)
+                {
+                    FetchAccSaberCategories();
+                }
+            }
+            
+
             if (addedToHierarchy)
             {
 
@@ -56,6 +75,21 @@ namespace AccSaber.UI.MenuButton
 
         protected override void BackButtonWasPressed(ViewController topViewController)
         {
+            if (IsDownloading())
+            {
+                _rankedMapsView.ShowCancelConfirmation();
+            }
+            else
+            {
+                ForceClose();
+            }
+        }
+
+        internal void ForceClose()
+        {
+            closeCancellationTokenSource?.Cancel();
+            closeCancellationTokenSource = null;
+            SelectedMapView.coverCancel?.Cancel();
             _mainFlowCoordinator.DismissFlowCoordinator(this);
         }
 
@@ -77,14 +111,14 @@ namespace AccSaber.UI.MenuButton
 
         private async void FetchRankedMaps()
         {
-            List<AccSaberAPISong> rankedMaps = await _accSaberDownloader.GetRankedMapsAsync();
+            List<AccSaberAPISong> rankedMaps = await _accSaberDownloader.GetRankedMapsAsync(closeCancellationTokenSource.Token);
             var songs = CreateAccSaberSongs(rankedMaps);
             _rankedMapsView.SetRankedMaps(songs);
         }
 
         private async void FetchAccSaberCategories()
         {
-            List<AccSaberCategory> categories = await _accSaberDownloader.GetCategoriesAsync();
+            List<AccSaberCategory> categories = await _accSaberDownloader.GetCategoriesAsync(closeCancellationTokenSource.Token);
             foreach (var category in categories)
             {
                 AccSaberUtils.SetKnownCategory(category);
@@ -110,7 +144,6 @@ namespace AccSaber.UI.MenuButton
                 {
                     var diff = new AccSaberSongDiff(apiSong.categoryDisplayName, apiSong.difficulty, apiSong.complexity);
                     var diffs = new List<AccSaberSongDiff>() { diff };
-                    //var cover = await _accsaberDownloader.GetCoverImageAsync("B70AEEF2EE915CED48593422931E8BA2A1F4E973");
                     var accSaberSong = new AccSaberSongBSML(apiSong.songName, apiSong.songSubName, apiSong.songAuthorName, apiSong.levelAuthorName, apiSong.beatSaverKey, apiSong.songHash, diffs);
                     songsByHash.Add(apiSong.songHash, accSaberSong);
                     songs.Add(accSaberSong);
@@ -122,7 +155,7 @@ namespace AccSaber.UI.MenuButton
 
         internal async Task<bool> DownloadSong(AccSaberSong song, Action<float> progressCallback, Action<string> statusCallback)
         {
-            return await _beatSaverDownloader.DownloadOldVersionByHash(song.songHash, song, progressCallback, statusCallback);
+            return await _beatSaverDownloader.DownloadOldVersionByHash(song.songHash, closeCancellationTokenSource.Token, song, progressCallback, statusCallback);
         }
 
         internal bool IsDownloading()

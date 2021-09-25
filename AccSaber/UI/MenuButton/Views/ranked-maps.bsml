@@ -4,6 +4,13 @@
       <dropdown-list-setting id='sort-dropdown' text='Sort' apply-on-change='true' choices='sortOptions' value='selectedSort' on-change='update-sort'/>
       <dropdown-list-setting id='filter-dropdown' text='Filter' apply-on-change='true' choices='filterOptions' value='selectedFilter' on-change='update-filter'/>
     </horizontal>
+    <modal clickerino-offerino-closerino='true' move-to-center='true' show-event='confirm-download-cancel' hide-event='close-download-cancel' size-delta-x='80' size-delta-y='60'>
+      <vertical horizontal-fit='PreferredSize' vertical-fit='PreferredSize' pad='8' pref-width='80' pref-height='60' child-expand-width='true'>
+        <text text='You still have pending downloads which will be aborted if you close this view. Are you sure you want to continue?' word-wrapping='true'/>
+        <action-button text='Yes - Cancel Downloads' on-click='forced-downloads-cancel' click-event='close-download-cancel'/>
+        <button text='No - Keep Downloading' click-event='close-download-cancel'/>
+      </vertical>
+    </modal>
     <horizontal pad-top='0' pad-bottom='5' pref-height='60'>
       <vertical pref-width='80'>
         <custom-list id='ranked-songs-list' visible-cells='6' cell-size='9.6' select-cell='selected-cell'>

@@ -33,7 +33,7 @@ namespace AccSaber.UI.MenuButton.ViewControllers
 
         private bool _songCoreReady = false;
 
-        private static CancellationTokenSource coverCancel { get; set; } = null;
+        internal static CancellationTokenSource coverCancel { get; set; } = null;
 
         [UIValue("song-select-ready")]
         public bool SongSelectReady
@@ -123,7 +123,7 @@ namespace AccSaber.UI.MenuButton.ViewControllers
                     }
                     else
                     {
-                        song.cover = await _accSaberDownloader.GetCoverImageAsync(song.songHash);
+                        song.cover = await _accSaberDownloader.GetCoverImageAsync(song.songHash, coverCancel.Token);
                     }
                     if (_selectedSong == song)
                     {

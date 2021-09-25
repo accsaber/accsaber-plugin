@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using SiraUtil.Tools;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -24,18 +25,23 @@ namespace AccSaber.Downloaders
 
         ~Downloader()
         {
-            if (_ongoingWebRequests.Count > 0)
+            foreach (var webRequest in _ongoingWebRequests)
             {
-                foreach (var webRequest in _ongoingWebRequests)
-                {
-                    webRequest.Abort();
-                }
+                webRequest.Abort();
             }
         }
 
-        internal async Task<T> MakeJsonRequestAsync<T>(string url, Action<float> progressCallback = null)
+        public void CancelAllDownloads()
         {
-            var www = await MakeRequestAsync(url, progressCallback);
+            foreach (var webRequest in _ongoingWebRequests)
+            {
+                webRequest.Abort();
+            }
+        }
+
+        internal async Task<T> MakeJsonRequestAsync<T>(string url, CancellationToken cancellationToken, Action<float> progressCallback = null)
+        {
+            var www = await MakeRequestAsync(url, cancellationToken, progressCallback);
 
             if (www == null)
             {
@@ -55,9 +61,9 @@ namespace AccSaber.Downloaders
             }
         }
 
-        internal async Task<Sprite> MakeImageRequestAsync(string url, Action<float> progressCallback = null)
+        internal async Task<Sprite> MakeImageRequestAsync(string url, CancellationToken cancellationToken, Action<float> progressCallback = null)
         {
-            var www = await MakeRequestAsync(url, progressCallback);
+            var www = await MakeRequestAsync(url, cancellationToken, progressCallback);
 
             if (www == null)
             {
@@ -76,7 +82,7 @@ namespace AccSaber.Downloaders
             }
         }
 
-        internal async Task<UnityWebRequest> MakeRequestAsync(string url, Action<float> progressCallback = null)
+        internal async Task<UnityWebRequest> MakeRequestAsync(string url, CancellationToken cancellationToken, Action<float> progressCallback = null)
         {
             var www = UnityWebRequest.Get(url);
             www.SetRequestHeader("User-Agent", USER_AGENT);
@@ -91,6 +97,11 @@ namespace AccSaber.Downloaders
 
             while (!www.isDone)
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    www.Abort();
+                    return null;
+                }
                 progressCallback?.Invoke(www.downloadProgress);
                 await Task.Yield();
             }
