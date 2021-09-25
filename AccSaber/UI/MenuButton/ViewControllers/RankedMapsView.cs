@@ -148,6 +148,16 @@ namespace AccSaber.UI.MenuButton.ViewControllers
             }
         }
 
+        internal void RefreshSongs()
+        {
+            foreach (var map in rankedSongs)
+            {
+                map.IsDownloaded();
+            }
+
+            SetMissingDownloadButtonStatus();
+        }
+
         [UIAction("#post-parse")]
         void Parsed()
         {
@@ -265,6 +275,12 @@ namespace AccSaber.UI.MenuButton.ViewControllers
             {
                 return;
             }
+
+            if (downloadMissingButton == null)
+            {
+                return;
+            }
+
             missingSongs.Clear();
             lock (filteredSongs)
             {

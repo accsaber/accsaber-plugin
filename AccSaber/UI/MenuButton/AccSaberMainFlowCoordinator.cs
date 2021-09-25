@@ -43,7 +43,7 @@ namespace AccSaber.UI.MenuButton
             closeCancellationTokenSource = new CancellationTokenSource();
             if (firstActivation)
             {
-                SetTitle("AccSaber");
+                SetTitle("AccSaber Map Downloader");
                 showBackButton = true;
                 ProvideInitialViewControllers(_rankedMapsView, null, _selectedMapView);
 
@@ -65,7 +65,8 @@ namespace AccSaber.UI.MenuButton
                     FetchAccSaberCategories();
                 }
             }
-            
+
+            _rankedMapsView.RefreshSongs();
 
             if (addedToHierarchy)
             {
