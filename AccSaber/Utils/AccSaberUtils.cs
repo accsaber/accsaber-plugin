@@ -97,10 +97,10 @@ namespace AccSaber.Utils
 
             private string GetCategoryColor(string categoryDisplayName)
             {
-               if (CategoryColors.ContainsKey(categoryDisplayName))
-               {
+                if (CategoryColors.ContainsKey(categoryDisplayName))
+                {
                     return ColorUtility.ToHtmlStringRGB(CategoryColors[categoryDisplayName]);
-               }
+                }
                 return "FFFFFF";
             }
         }
@@ -136,7 +136,7 @@ namespace AccSaber.Utils
             {
                 if (category.categoryDisplayName == categoryDisplayName)
                 {
-                    return (AccSaberCategory) category.Clone();
+                    return (AccSaberCategory)category.Clone();
                 }
             }
 

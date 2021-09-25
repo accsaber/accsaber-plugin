@@ -3,12 +3,11 @@ using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Components.Settings;
+using BeatSaberMarkupLanguage.Parser;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
-using IPA.Utilities;
 using SiraUtil.Tools;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -35,6 +34,9 @@ namespace AccSaber.UI.MenuButton.ViewControllers
         private bool _dataLoading = true;
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        [UIParams]
+        readonly BSMLParserParams parserParams = null;
 
         internal List<AccSaberSongBSML> rankedSongs = new List<AccSaberSongBSML>();
 
@@ -105,7 +107,7 @@ namespace AccSaber.UI.MenuButton.ViewControllers
             {"Category", song => song.diffs.Min(diff => diff.categoryDisplayName)}
         };
 
-        static Dictionary<string, Func<AccSaberSongBSML, bool>> filteringOptions = new Dictionary<string, Func<AccSaberSongBSML, bool>>()
+        internal static Dictionary<string, Func<AccSaberSongBSML, bool>> filteringOptions = new Dictionary<string, Func<AccSaberSongBSML, bool>>()
         {
             {"All", song => true },
             {"Not Downloaded", song => !song.IsDownloaded() },
@@ -153,7 +155,7 @@ namespace AccSaber.UI.MenuButton.ViewControllers
             _progressBackground.material = Utilities.ImageResources.NoGlowMat;
             _progressBackground.type = Image.Type.Filled;
             _progressBackground.fillMethod = Image.FillMethod.Horizontal;
-            _progressBackground.fillOrigin = (int) Image.OriginHorizontal.Left;
+            _progressBackground.fillOrigin = (int)Image.OriginHorizontal.Left;
             HideProgressBar();
 
             filterOptions = filteringOptions.Select(x => x.Key).ToList<object>();
@@ -189,10 +191,23 @@ namespace AccSaber.UI.MenuButton.ViewControllers
         [UIComponent("download-missing-button")]
         Button downloadMissingButton;
 
-        [UIComponent("progress-bar")] 
+        [UIComponent("progress-bar")]
         Backgroundable progressBar = null;
 
         private ImageView _progressBackground;
+
+        #region Canceling
+        public void ShowCancelConfirmation()
+        {
+            parserParams.EmitEvent("confirm-download-cancel");
+        }
+
+        [UIAction("forced-downloads-cancel")]
+        public void ForcedDownloadsCancel()
+        {
+            _accSaberMainFlowCoordinator.ForceClose();
+        }
+        #endregion
 
         [UIAction("clicked-download-missing")]
         public void ClickedDownloadMissing()
@@ -212,7 +227,7 @@ namespace AccSaber.UI.MenuButton.ViewControllers
             downloadMissingButton.interactable = false;
 
             DownloadSongs(missingSongsCopy);
-            
+
         }
 
         private async void DownloadSongs(HashSet<AccSaberSong> missingSongsCopy)
@@ -315,7 +330,8 @@ namespace AccSaber.UI.MenuButton.ViewControllers
     public class AccSaberSongBSML : AccSaberSong
     {
         public AccSaberSongBSML(string inSongName, string inSongSubName, string inSongAuthorName, string inLevelAuthorName, string inBeatSaverKey, string inSongHash, List<AccSaberSongDiff> inDiffs) :
-            base(inSongName, inSongSubName, inSongAuthorName, inLevelAuthorName, inBeatSaverKey, inSongHash, inDiffs) {}
+            base(inSongName, inSongSubName, inSongAuthorName, inLevelAuthorName, inBeatSaverKey, inSongHash, inDiffs)
+        { }
 
         #region Background
         [UIComponent("background-container")]

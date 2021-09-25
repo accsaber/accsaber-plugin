@@ -1,5 +1,6 @@
 ﻿using SiraUtil.Tools;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using static AccSaber.Utils.AccSaberUtils;
@@ -22,19 +23,19 @@ namespace AccSaber.Downloaders
             _siraLog = siraLog;
         }
 
-        public async Task<List<AccSaberAPISong>> GetRankedMapsAsync()
+        public async Task<List<AccSaberAPISong>> GetRankedMapsAsync(CancellationToken cancellationToken)
         {
             string url = API_URL + RANKED_ENDPOINT;
-            return await MakeJsonRequestAsync<List<AccSaberAPISong>>(url);
+            return await MakeJsonRequestAsync<List<AccSaberAPISong>>(url, cancellationToken);
         }
 
-        public async Task<List<AccSaberCategory>> GetCategoriesAsync()
+        public async Task<List<AccSaberCategory>> GetCategoriesAsync(CancellationToken cancellationToken)
         {
             string url = API_URL + CATEGORY_ENDPOINT;
-            return await MakeJsonRequestAsync<List<AccSaberCategory>>(url);
+            return await MakeJsonRequestAsync<List<AccSaberCategory>>(url, cancellationToken);
         }
 
-        public async Task<Sprite> GetCoverImageAsync(string hash)
+        public async Task<Sprite> GetCoverImageAsync(string hash, CancellationToken cancellationToken)
         {
             hash = hash.ToUpper();
             if (_spriteCache.ContainsKey(hash))
@@ -43,7 +44,7 @@ namespace AccSaber.Downloaders
             }
             string url = CDN_URL + COVERS_ENDPOINT + hash + ".png";
 
-            var sprite = await MakeImageRequestAsync(url);
+            var sprite = await MakeImageRequestAsync(url, cancellationToken);
             if (sprite != null)
             {
                 _spriteCache.Add(hash, sprite);

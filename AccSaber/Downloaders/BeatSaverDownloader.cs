@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Threading;
 using System.Threading.Tasks;
 using static AccSaber.Utils.AccSaberUtils;
 using static AccSaber.Utils.BeatSaverUtils;
@@ -29,7 +30,7 @@ namespace AccSaber.Downloaders
         }
 
         /// <returns>True iff the song could be successfully downloaded</returns>
-        public async Task<bool> DownloadOldVersionByHash(string hash, AccSaberSong accSaberSong = null, Action<float> progressCallback = null, Action<string> statusCallback = null)
+        public async Task<bool> DownloadOldVersionByHash(string hash, CancellationToken cancellationToken, AccSaberSong accSaberSong = null, Action<float> progressCallback = null, Action<string> statusCallback = null)
         {
             if (_cdnURL == null)
             {
@@ -38,12 +39,12 @@ namespace AccSaber.Downloaders
                 {
                     statusCallback?.Invoke("Finding cdn...");
                     string knownURL = API_URL + HASH_ENDPOINT + KNOWN_HASH;
-                    BeatSaverAPISong apiSong = await MakeJsonRequestAsync<BeatSaverAPISong>(knownURL);
+                    BeatSaverAPISong apiSong = await MakeJsonRequestAsync<BeatSaverAPISong>(knownURL, cancellationToken);
                     if (apiSong.versions.Count == 0)
                     {
                         // backup time
                         knownURL = API_URL + HASH_ENDPOINT + BACKUP_HASH;
-                        apiSong = await MakeJsonRequestAsync<BeatSaverAPISong>(knownURL);
+                        apiSong = await MakeJsonRequestAsync<BeatSaverAPISong>(knownURL, cancellationToken);
                         if (apiSong.versions.Count == 0)
                         {
                             _siraLog.Debug("Could not get download link for either known hash");
@@ -67,7 +68,7 @@ namespace AccSaber.Downloaders
 
             statusCallback?.Invoke("Downloading song...");
             string url = _cdnURL.Replace(TEMPLATE_STRING, hash.ToLower());
-            var www = await MakeRequestAsync(url, progressCallback);
+            var www = await MakeRequestAsync(url, cancellationToken, progressCallback);
 
             if (www == null)
             {
@@ -95,7 +96,7 @@ namespace AccSaber.Downloaders
                         }
                         else
                         {
-                            path.Replace($"({c})", $"({c+1})");
+                            path.Replace($"({c})", $"({c + 1})");
                         }
                         c++; // 😊
                     }
@@ -116,7 +117,7 @@ namespace AccSaber.Downloaders
         private async Task ExtractZipAsync(Stream zipStream, string path)
         {
             // throw error back up
-            
+
             ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Read);
             await Task.Run(() => archive.ExtractToDirectory(path)).ConfigureAwait(false);
             archive.Dispose();

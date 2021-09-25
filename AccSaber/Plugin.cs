@@ -69,7 +69,7 @@ namespace AccSaber
             {
                 return false;
             }
-            
+
         }
     }
 }
