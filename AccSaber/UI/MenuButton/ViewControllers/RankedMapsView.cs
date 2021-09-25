@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using UnityEngine;
 using Zenject;
 using static AccSaber.Utils.AccSaberUtils;
 
@@ -26,7 +27,7 @@ namespace AccSaber.UI.MenuButton.ViewControllers
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        internal List<AccSaberSong> rankedSongs = new List<AccSaberSong>();
+        internal List<AccSaberSongBSML> rankedSongs = new List<AccSaberSongBSML>();
 
         [UIComponent("ranked-songs-list")]
         public CustomCellListTableData rankedSongsList = null;
@@ -50,7 +51,7 @@ namespace AccSaber.UI.MenuButton.ViewControllers
         }
 
         #region SortAndFilter
-        internal List<AccSaberSong> filteredSongs = new List<AccSaberSong>();
+        internal List<AccSaberSongBSML> filteredSongs = new List<AccSaberSongBSML>();
 
         [UIComponent("sort-dropdown")]
         private DropdownWithTableView _sortDropdown = null;
@@ -80,7 +81,7 @@ namespace AccSaber.UI.MenuButton.ViewControllers
             UpdateSort(null);
         }
 
-        static readonly IReadOnlyDictionary<string, Func<AccSaberSong, IComparable>> sortingOptions = new Dictionary<string, Func<AccSaberSong, IComparable>>()
+        static readonly IReadOnlyDictionary<string, Func<AccSaberSongBSML, IComparable>> sortingOptions = new Dictionary<string, Func<AccSaberSongBSML, IComparable>>()
         {
             {"Title", song => song.songName},
             {"Lowest Complexity", song => song.diffs.Min(diff => diff.complexity)},
@@ -88,7 +89,7 @@ namespace AccSaber.UI.MenuButton.ViewControllers
             {"Category", song => song.diffs.Min(diff => diff.categoryDisplayName)}
         };
 
-        static Dictionary<string, Func<AccSaberSong, bool>> filteringOptions = new Dictionary<string, Func<AccSaberSong, bool>>()
+        static Dictionary<string, Func<AccSaberSongBSML, bool>> filteringOptions = new Dictionary<string, Func<AccSaberSongBSML, bool>>()
         {
             {"All", song => true },
             {"Not Downloaded", song => !song.IsDownloaded() },
@@ -114,7 +115,7 @@ namespace AccSaber.UI.MenuButton.ViewControllers
         }
         #endregion
 
-        internal void SetRankedMaps(List<AccSaberSong> songs)
+        internal void SetRankedMaps(List<AccSaberSongBSML> songs)
         {
 #if DEBUG
             _siraLog.Debug("setting ranked maps");
@@ -153,5 +154,23 @@ namespace AccSaber.UI.MenuButton.ViewControllers
                 rankedSongsList.tableView.ReloadData();
             }
         }
+    }
+
+    public class AccSaberSongBSML : AccSaberSong
+    {
+        public AccSaberSongBSML(string inSongName, string inSongSubName, string inSongAuthorName, string inLevelAuthorName, string inBeatSaverKey, string inSongHash, List<AccSaberSongDiff> inDiffs) :
+            base(inSongName, inSongSubName, inSongAuthorName, inLevelAuthorName, inBeatSaverKey, inSongHash, inDiffs) {}
+
+        #region Background
+        [UIComponent("background-container")]
+        private ImageView bg = null;
+
+        [UIAction("refresh-visuals")]
+        public void Refresh(bool selected, bool highlighted)
+        {
+            var alpha = selected ? 0.8f : highlighted ? 0.7f : 0.5f;
+            bg.color = new Color(0, 0, 0, alpha);
+        }
+        #endregion
     }
 }
