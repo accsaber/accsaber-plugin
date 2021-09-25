@@ -1,21 +1,21 @@
 ﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
   <vertical pref-width='120' active='~data-loaded' pad-top='2'>
-    <horizontal pad-bottom='4' spacing='35'>
+    <horizontal pad-bottom='4' spacing='30'>
       <dropdown-list-setting id='sort-dropdown' text='Sort' apply-on-change='true' choices='sortOptions' value='selectedSort' on-change='update-sort'/>
       <dropdown-list-setting id='filter-dropdown' text='Filter' apply-on-change='true' choices='filterOptions' value='selectedFilter' on-change='update-filter'/>
     </horizontal>
     <horizontal pad-top='15' pad-bottom='15' pref-height='100'>
-      <vertical pref-width='75'>
-        <custom-list id='ranked-songs-list' visible-cells='6' cell-size='9.6' select-cell='selected-cell'>
+      <vertical pref-width='80'>
+        <custom-list id='ranked-songs-list' visible-cells='8' cell-size='9.6' select-cell='selected-cell'>
           <vertical id='background-container' bg='round-rect-panel' horizontal-fit='Unconstrained' pad='1' pad-bottom='2'>
-            <horizontal horizontal-fit='PreferredSize'>
-              <vertical pad-top='2' pad-bottom='2' pref-width='50'>
-                <text text='~formattedName' align='Left' font-size='2' overflow-mode='Ellipsis' word-wrapping='false'/>
+            <horizontal>
+              <vertical pad-top='2' pad-bottom='2' pref-width='60' pad-left='5'>
+                <text text='~formattedName' align='Left' font-size='3' overflow-mode='Ellipsis' word-wrapping='false'/>
                 <text text='~levelAuthorName' align='Left' font-size='2' overflow-mode='Ellipsis' word-wrapping='false'/>
               </vertical>
-              <vertical pad-top='2' pad-bottom='2'>
+              <vertical pad-top='2' pad-bottom='2' pref-width='20' pad-right='5'>
                 <macro.for-each items='diffs'>
-                  <text text='~categoryComplexityString' font-size='3' align='Right' overflow-mode='Truncate'/>
+                  <text text='~categoryComplexityString' font-size='2.5' align='Right' overflow-mode='Truncate'/>
                 </macro.for-each>
               </vertical>
             </horizontal>
