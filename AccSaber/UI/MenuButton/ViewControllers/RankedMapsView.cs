@@ -1,8 +1,10 @@
 ﻿using AccSaber.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
+using BeatSaberMarkupLanguage.Components.Settings;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
+using IPA.Utilities;
 using SiraUtil.Tools;
 using System;
 using System.Collections.Generic;
@@ -53,7 +55,7 @@ namespace AccSaber.UI.MenuButton.ViewControllers
         [UIComponent("sort-dropdown")]
         private DropdownWithTableView _sortDropdown = null;
         [UIComponent("filter-dropdown")]
-        private DropdownWithTableView _filterDropdown = null;
+        private DropDownListSetting _filterDropdown = null;
 
         [UIAction("update-sort")]
         public void UpdateSort(string sort)
@@ -75,8 +77,7 @@ namespace AccSaber.UI.MenuButton.ViewControllers
                 filter = selectedFilter;
             }
             filteredSongs = rankedSongs.Where(song => filteringOptions[filter](song)).ToList();
-            rankedSongsList.data = filteredSongs.ToList<object>();
-            rankedSongsList.tableView.ReloadData();
+            UpdateSort(null);
         }
 
         static readonly IReadOnlyDictionary<string, Func<AccSaberSong, IComparable>> sortingOptions = new Dictionary<string, Func<AccSaberSong, IComparable>>()
@@ -107,7 +108,9 @@ namespace AccSaber.UI.MenuButton.ViewControllers
                 filteringOptions.Add(category.categoryDisplayName, song => song.diffs.Any(diff => diff.categoryDisplayName == category.categoryDisplayName));
             }
             filterOptions = filteringOptions.Select(x => x.Key).ToList<object>();
-            _filterDropdown.ReloadData();
+
+            _filterDropdown.values = filterOptions;
+            _filterDropdown.UpdateChoices();
         }
         #endregion
 
@@ -133,7 +136,6 @@ namespace AccSaber.UI.MenuButton.ViewControllers
             if (rankedSongs.Count > 0)
             {
                 UpdateFilter(null);
-                UpdateSort(null);
                 DataLoading = false;
             }
         }
@@ -146,10 +148,10 @@ namespace AccSaber.UI.MenuButton.ViewControllers
 
         internal void SongCoreReady()
         {
-           if (rankedSongsList != null)
-           {
+            if (rankedSongsList != null)
+            {
                 rankedSongsList.tableView.ReloadData();
-           }
+            }
         }
     }
 }
