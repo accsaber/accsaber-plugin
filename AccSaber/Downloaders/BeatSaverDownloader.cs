@@ -29,13 +29,14 @@ namespace AccSaber.Downloaders
         }
 
         /// <returns>True iff the song could be successfully downloaded</returns>
-        public async Task<bool> DownloadOldVersionByHash(string hash, AccSaberSong accSaberSong = null)
+        public async Task<bool> DownloadOldVersionByHash(string hash, AccSaberSong accSaberSong = null, Action<float> progressCallback = null, Action<string> statusCallback = null)
         {
             if (_cdnURL == null)
             {
                 // haven't found template yet, make it
                 try
                 {
+                    statusCallback?.Invoke("Finding cdn...");
                     string knownURL = API_URL + HASH_ENDPOINT + KNOWN_HASH;
                     BeatSaverAPISong apiSong = await MakeJsonRequestAsync<BeatSaverAPISong>(knownURL);
                     if (apiSong.versions.Count == 0)
@@ -64,9 +65,9 @@ namespace AccSaber.Downloaders
                 }
             }
 
+            statusCallback?.Invoke("Downloading song...");
             string url = _cdnURL.Replace(TEMPLATE_STRING, hash.ToLower());
-            var www = await MakeRequestAsync(url);
-
+            var www = await MakeRequestAsync(url, progressCallback);
 
             if (www == null)
             {
@@ -85,11 +86,9 @@ namespace AccSaber.Downloaders
                     path = Path.Combine(CustomLevelPathHelper.customLevelsDirectoryPath, $"{accSaberSong.beatSaverKey} ({accSaberSong.songName} - {accSaberSong.levelAuthorName})");
                     int c = 0;
 
-                    _siraLog.Debug($"{path}");
                     // if this is inefficient then you need to stop downloading the same song
                     while (Directory.Exists(path))
                     {
-                        _siraLog.Debug($"directory exists: {c}");
                         if (c == 0)
                         {
                             path += $" ({c + 1})";
@@ -103,6 +102,7 @@ namespace AccSaber.Downloaders
                 }
                 Stream zipStream = new MemoryStream(www.downloadHandler.data);
 
+                statusCallback?.Invoke("Extracting song...");
                 await ExtractZipAsync(zipStream, path);
                 return true;
             }

@@ -23,8 +23,9 @@ namespace AccSaber.UI.MenuButton.ViewControllers
 
         [Inject]
         AccSaberDownloader _accSaberDownloader;
+
         [Inject]
-        BeatSaverDownloader _beatSaverDownloader;
+        private AccSaberMainFlowCoordinator _accSaberMainFlowCoordinator;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -60,16 +61,6 @@ namespace AccSaber.UI.MenuButton.ViewControllers
         public List<AccSaberSongDiff> Diffs
         {
             get => _selectedSong != null ? _selectedSong.diffs : null;
-        }
-
-        [UIAction("clicked-download")]
-        public void ClickedDownload()
-        {
-            lock (_selectedSong)
-                _siraLog.Debug("download");
-            downloadButton.SetButtonText("Downloading...");
-            downloadButton.interactable = false;
-            DownloadSong(_selectedSong);
         }
 
         //[UIAction("clicked-play")]
@@ -113,7 +104,10 @@ namespace AccSaber.UI.MenuButton.ViewControllers
             {
                 if (coverImage)
                 {
-                    coverImage.sprite = song.cover != null ? song.cover : SongCore.Loader.defaultCoverImage;
+                    if (_selectedSong == song)
+                    {
+                        coverImage.sprite = song.cover != null ? song.cover : SongCore.Loader.defaultCoverImage;
+                    }
                 }
 
                 _songCoreReady = true;
@@ -131,7 +125,10 @@ namespace AccSaber.UI.MenuButton.ViewControllers
                     {
                         song.cover = await _accSaberDownloader.GetCoverImageAsync(song.songHash);
                     }
-                    coverImage.sprite = song.cover;
+                    if (_selectedSong == song)
+                    {
+                        coverImage.sprite = song.cover;
+                    }
                 }
 
             }
@@ -163,28 +160,46 @@ namespace AccSaber.UI.MenuButton.ViewControllers
             }
 
         }
+
+        internal void MultiDownloadStarted()
+        {
+            if (downloadButton != null && downloadButton.interactable)
+            {
+                SetDownloadButtonDownloading();
+            }
+        }
         #endregion
 
         private void SetActiveButton(bool download)
         {
+            if (download)
+            {
+                if (_accSaberMainFlowCoordinator.IsDownloading())
+                {
+                    SetDownloadButtonDownloading();
+                }
+            }
             downloadButton.interactable = download;
             downloadButton.SetButtonText($"{(download ? "Download" : "Downloaded")}");
             //downloadButton.gameObject.SetActive(download);
             //playButton.gameObject.SetActive(!download);
         }
 
-        private async void DownloadSong(AccSaberSong song)
+        private void SetDownloadButtonDownloading()
         {
-            var successfulDownload = await _beatSaverDownloader.DownloadOldVersionByHash(song.songHash, song);
-            if (successfulDownload)
-            {
-                SongCore.Loader.Instance.RefreshSongs();
-            }
-            else
-            {
-                downloadButton.SetButtonText("Download");
-                downloadButton.interactable = true;
-            }
+            downloadButton.interactable = false;
+            downloadButton.SetButtonText("Downloading...");
         }
+
+        #region Downloading
+        [UIAction("clicked-download")]
+        public void ClickedDownload()
+        {
+            var song = _selectedSong;
+            downloadButton.SetButtonText("Downloading...");
+            downloadButton.interactable = false;
+            _accSaberMainFlowCoordinator.StartDownloading(false, song);
+        }
+        #endregion
     }
 }

@@ -33,9 +33,9 @@ namespace AccSaber.Downloaders
             }
         }
 
-        internal async Task<T> MakeJsonRequestAsync<T>(string url)
+        internal async Task<T> MakeJsonRequestAsync<T>(string url, Action<float> progressCallback = null)
         {
-            var www = await MakeRequestAsync(url);
+            var www = await MakeRequestAsync(url, progressCallback);
 
             if (www == null)
             {
@@ -55,9 +55,9 @@ namespace AccSaber.Downloaders
             }
         }
 
-        internal async Task<Sprite> MakeImageRequestAsync(string url)
+        internal async Task<Sprite> MakeImageRequestAsync(string url, Action<float> progressCallback = null)
         {
-            var www = await MakeRequestAsync(url);
+            var www = await MakeRequestAsync(url, progressCallback);
 
             if (www == null)
             {
@@ -76,22 +76,28 @@ namespace AccSaber.Downloaders
             }
         }
 
-        internal async Task<UnityWebRequest> MakeRequestAsync(string url)
+        internal async Task<UnityWebRequest> MakeRequestAsync(string url, Action<float> progressCallback = null)
         {
             var www = UnityWebRequest.Get(url);
             www.SetRequestHeader("User-Agent", USER_AGENT);
             www.timeout = 15;
 
-            #if DEBUG
+#if DEBUG
             _siraLog.Debug($"Making web request: {url}");
-            #endif
+#endif
             _ongoingWebRequests.Add(www);
 
-            await www.SendWebRequest();
+            www.SendWebRequest();
 
-            #if DEBUG
+            while (!www.isDone)
+            {
+                progressCallback?.Invoke(www.downloadProgress);
+                await Task.Yield();
+            }
+
+#if DEBUG
             _siraLog.Debug("Web request finished");
-            #endif
+#endif
             _ongoingWebRequests.Remove(www);
 
             if (www.isNetworkError || www.isHttpError)

@@ -1,4 +1,5 @@
 ﻿using AccSaber.Utils;
+using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Components.Settings;
@@ -7,10 +8,14 @@ using HMUI;
 using IPA.Utilities;
 using SiraUtil.Tools;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using Zenject;
 using static AccSaber.Utils.AccSaberUtils;
 
@@ -22,6 +27,10 @@ namespace AccSaber.UI.MenuButton.ViewControllers
     {
         [Inject]
         private SiraLog _siraLog;
+
+        // Circular injection my beloved
+        [Inject]
+        private AccSaberMainFlowCoordinator _accSaberMainFlowCoordinator;
 
         private bool _dataLoading = true;
 
@@ -65,9 +74,12 @@ namespace AccSaber.UI.MenuButton.ViewControllers
             {
                 sort = selectedSort;
             }
-            filteredSongs = filteredSongs.OrderBy(sortingOptions[sort]).ToList();
-            rankedSongsList.data = filteredSongs.ToList<object>();
-            rankedSongsList.tableView.ReloadData();
+            lock (filteredSongs)
+            {
+                filteredSongs = filteredSongs.OrderBy(sortingOptions[sort]).ToList();
+                rankedSongsList.data = filteredSongs.ToList<object>();
+                rankedSongsList.tableView.ReloadData();
+            }
         }
 
         [UIAction("update-filter")]
@@ -77,7 +89,11 @@ namespace AccSaber.UI.MenuButton.ViewControllers
             {
                 filter = selectedFilter;
             }
-            filteredSongs = rankedSongs.Where(song => filteringOptions[filter](song)).ToList();
+            lock (filteredSongs)
+            {
+                filteredSongs = rankedSongs.Where(song => filteringOptions[filter](song)).ToList();
+            }
+            SetMissingDownloadButtonStatus();
             UpdateSort(null);
         }
 
@@ -133,6 +149,13 @@ namespace AccSaber.UI.MenuButton.ViewControllers
         [UIAction("#post-parse")]
         void Parsed()
         {
+            _progressBackground = progressBar.background as ImageView;
+            _progressBackground.material = Utilities.ImageResources.NoGlowMat;
+            _progressBackground.type = Image.Type.Filled;
+            _progressBackground.fillMethod = Image.FillMethod.Horizontal;
+            _progressBackground.fillOrigin = (int) Image.OriginHorizontal.Left;
+            HideProgressBar();
+
             filterOptions = filteringOptions.Select(x => x.Key).ToList<object>();
             if (rankedSongs.Count > 0)
             {
@@ -152,8 +175,141 @@ namespace AccSaber.UI.MenuButton.ViewControllers
             if (rankedSongsList != null)
             {
                 rankedSongsList.tableView.ReloadData();
+                SetMissingDownloadButtonStatus();
             }
         }
+
+        #region Downloading
+        private HashSet<AccSaberSong> missingSongs = new HashSet<AccSaberSong>();
+        private bool _isDownloading = false;
+
+        [UIComponent("download-status")]
+        TextMeshProUGUI downloadStatus;
+
+        [UIComponent("download-missing-button")]
+        Button downloadMissingButton;
+
+        [UIComponent("progress-bar")] 
+        Backgroundable progressBar = null;
+
+        private ImageView _progressBackground;
+
+        [UIAction("clicked-download-missing")]
+        public void ClickedDownloadMissing()
+        {
+            _isDownloading = true;
+            _accSaberMainFlowCoordinator.StartDownloading(true);
+#if DEBUG
+            _siraLog.Debug("clicked download missing");
+#endif
+            HashSet<AccSaberSong> missingSongsCopy = new HashSet<AccSaberSong>();
+            lock (missingSongs)
+            {
+                AccSaberSong[] missingSongsArrayCopy = new AccSaberSong[missingSongs.Count];
+                missingSongs.CopyTo(missingSongsArrayCopy);
+                missingSongsCopy = missingSongsArrayCopy.ToHashSet<AccSaberSong>();
+            }
+            downloadMissingButton.interactable = false;
+
+            DownloadSongs(missingSongsCopy);
+            
+        }
+
+        private async void DownloadSongs(HashSet<AccSaberSong> missingSongsCopy)
+        {
+            var count = 1;
+            foreach (var song in missingSongsCopy)
+            {
+#if DEBUG
+                _siraLog.Debug($"Downloading {count} / {missingSongsCopy.Count}");
+#endif
+                downloadMissingButton.SetButtonText($"Downloading {count} / {missingSongsCopy.Count}");
+                await DownloadSong(song);
+                count++;
+            }
+#if DEBUG
+            _siraLog.Debug("Done downloading");
+#endif
+            HideProgressBar();
+            downloadStatus.text = "";
+            _isDownloading = false;
+            SongCore.Loader.Instance.RefreshSongs(false);
+        }
+
+        private void HideProgressBar()
+        {
+            var progressBarColor = Color.white;
+            progressBarColor.a = 0;
+            _progressBackground.fillAmount = 0;
+            _progressBackground.color = progressBarColor;
+        }
+
+        private void SetMissingDownloadButtonStatus()
+        {
+            if (_isDownloading)
+            {
+                return;
+            }
+            missingSongs.Clear();
+            lock (filteredSongs)
+            {
+                foreach (var song in filteredSongs)
+                {
+                    if (!song.IsDownloaded())
+                    {
+                        missingSongs.Add(song);
+                    }
+                }
+            }
+
+            if (missingSongs.Count > 0)
+            {
+                downloadMissingButton.interactable = true;
+                downloadMissingButton.SetButtonText($"Download {missingSongs.Count} missing song{(missingSongs.Count > 1 ? "s" : "")}");
+            }
+            else
+            {
+                downloadMissingButton.interactable = false;
+                downloadMissingButton.SetButtonText("All songs downloaded");
+            }
+        }
+
+        internal async void DownloadSongInternal(AccSaberSong song)
+        {
+            _isDownloading = true;
+            downloadMissingButton.interactable = false;
+            downloadMissingButton.SetButtonText("Downloading...");
+            await DownloadSong(song);
+            HideProgressBar();
+            downloadStatus.text = "";
+            _isDownloading = false;
+            SongCore.Loader.Instance.RefreshSongs(false);
+        }
+
+        private async Task DownloadSong(AccSaberSong song)
+        {
+            if (!song.IsDownloaded())
+            {
+                var successfulDownload = await _accSaberMainFlowCoordinator.DownloadSong(song, RefreshProgress, RefreshStatus);
+            }
+        }
+
+        private void RefreshProgress(float progress)
+        {
+            _progressBackground.color = progress < 0.33f ? new Color(0.91f, 0.57f, 0.06f, 1) : progress < 0.67f ? Color.yellow : Color.green;
+            _progressBackground.fillAmount = progress;
+        }
+
+        private void RefreshStatus(string status)
+        {
+            downloadStatus.text = status;
+        }
+
+        internal bool IsDownloading()
+        {
+            return _isDownloading;
+        }
+        #endregion
     }
 
     public class AccSaberSongBSML : AccSaberSong
@@ -163,13 +319,13 @@ namespace AccSaber.UI.MenuButton.ViewControllers
 
         #region Background
         [UIComponent("background-container")]
-        private ImageView bg = null;
+        private ImageView _background = null;
 
         [UIAction("refresh-visuals")]
         public void Refresh(bool selected, bool highlighted)
         {
             var alpha = selected ? 0.8f : highlighted ? 0.7f : 0.5f;
-            bg.color = new Color(0, 0, 0, alpha);
+            _background.color = new Color(0, 0, 0, alpha);
         }
         #endregion
     }

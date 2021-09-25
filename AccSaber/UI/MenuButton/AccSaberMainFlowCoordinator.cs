@@ -6,6 +6,7 @@ using HMUI;
 using SiraUtil.Tools;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Zenject;
 using static AccSaber.Utils.AccSaberUtils;
 
@@ -14,14 +15,15 @@ namespace AccSaber.UI.MenuButton
     class AccSaberMainFlowCoordinator : FlowCoordinator
     {
         private SiraLog _siraLog;
-        private AccSaberDownloader _accsaberDownloader;
+        private AccSaberDownloader _accSaberDownloader;
+        private BeatSaverDownloader _beatSaverDownloader;
 
         private MainFlowCoordinator _mainFlowCoordinator;
         private RankedMapsView _rankedMapsView;
         private static SelectedMapView _selectedMapView;
 
         [Inject]
-        protected void Construct(SiraLog siraLog, MainFlowCoordinator mainFlowCoordinator, RankedMapsView rankedMapsView, SelectedMapView selectedMapView, AccSaberDownloader accSaberDownloader)
+        protected void Construct(SiraLog siraLog, MainFlowCoordinator mainFlowCoordinator, RankedMapsView rankedMapsView, SelectedMapView selectedMapView, AccSaberDownloader accSaberDownloader, BeatSaverDownloader beatSaverDownloader)
         {
             _siraLog = siraLog;
 
@@ -29,7 +31,8 @@ namespace AccSaber.UI.MenuButton
             _rankedMapsView = rankedMapsView;
             _selectedMapView = selectedMapView;
 
-            _accsaberDownloader = accSaberDownloader;
+            _accSaberDownloader = accSaberDownloader;
+            _beatSaverDownloader = beatSaverDownloader;
         }
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -74,15 +77,14 @@ namespace AccSaber.UI.MenuButton
 
         private async void FetchRankedMaps()
         {
-            List<AccSaberAPISong> rankedMaps = await _accsaberDownloader.GetRankedMapsAsync();
+            List<AccSaberAPISong> rankedMaps = await _accSaberDownloader.GetRankedMapsAsync();
             var songs = CreateAccSaberSongs(rankedMaps);
-            _siraLog.Debug(songs.Count);
             _rankedMapsView.SetRankedMaps(songs);
         }
 
         private async void FetchAccSaberCategories()
         {
-            List<AccSaberCategory> categories = await _accsaberDownloader.GetCategoriesAsync();
+            List<AccSaberCategory> categories = await _accSaberDownloader.GetCategoriesAsync();
             foreach (var category in categories)
             {
                 AccSaberUtils.SetKnownCategory(category);
@@ -116,6 +118,28 @@ namespace AccSaber.UI.MenuButton
             }
 
             return songs;
+        }
+
+        internal async Task<bool> DownloadSong(AccSaberSong song, Action<float> progressCallback, Action<string> statusCallback)
+        {
+            return await _beatSaverDownloader.DownloadOldVersionByHash(song.songHash, song, progressCallback, statusCallback);
+        }
+
+        internal bool IsDownloading()
+        {
+            return _rankedMapsView.IsDownloading();
+        }
+
+        internal void StartDownloading(bool multiDownload, AccSaberSong song = null)
+        {
+            if (multiDownload)
+            {
+                _selectedMapView.MultiDownloadStarted();
+            }
+            else
+            {
+                _rankedMapsView.DownloadSongInternal(song);
+            }
         }
     }
 }
