@@ -1,4 +1,5 @@
 ﻿using AccSaber.Downloaders;
+using AccSaber.HarmonyPatches;
 using AccSaber.Managers;
 using AccSaber.UI.MenuButton;
 using AccSaber.UI.MenuButton.ViewControllers;
@@ -17,6 +18,10 @@ namespace AccSaber.Installers
             Container.Bind<RankedMapsView>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<SelectedMapView>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<AccSaberMainFlowCoordinator>().FromNewComponentOnNewGameObject(nameof(AccSaberMainFlowCoordinator)).AsSingle();
+            if (Plugin.playlistManagerPatching)
+            {
+                Container.Bind<PlaylistManagerPatcher>().AsSingle().NonLazy();
+            }
         }
     }
 }

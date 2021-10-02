@@ -1,37 +1,35 @@
-﻿//using BeatSaberPlaylistsLib.Types;
-//using HarmonyLib;
-//using IPA.Utilities;
-//using PlaylistManager.UI;
+﻿using BeatSaberPlaylistsLib.Types;
+using IPA.Utilities;
+using PlaylistManager.UI;
+using System;
 
-//namespace AccSaber.HarmonyPatches
-//{
-//    [HarmonyPatch(typeof(PlaylistViewButtonsController), "DownloadPlaylistAsync")]
-//    class DownloadPlaylistAsyncPatch
-//    {
-//        // Will probably switch this to transpiler
-//        public static bool Prefix(PlaylistViewButtonsController __instance)
-//        {
-//            var selectedPlaylist = __instance.GetField<Playlist, PlaylistViewButtonsController>("selectedPlaylist");
-//            if (!selectedPlaylist.TryGetCustomData("syncURL", out object outSyncURL))
-//            {
-//                return true;
-//            }
+namespace AccSaber.HarmonyPatches
+{
+    class DownloadPlaylistAsyncPatch
+    {
+        public static Action<PlaylistViewButtonsController> downloadMissingSongsCallback;
 
-//            string syncURL = (string)outSyncURL;
-//            if (!IsAccSaberSyncURL(syncURL))
-//            {
-//                return true;
-//            }
+        public static bool Prefix(PlaylistViewButtonsController __instance)
+        {
+            var selectedPlaylist = __instance.GetField<Playlist, PlaylistViewButtonsController>("selectedPlaylist");
+            if (!selectedPlaylist.TryGetCustomData("syncURL", out object outSyncURL))
+            {
+                return true;
+            }
 
-//            // AccSaber sync playlist, it's go time
+            string syncURL = (string)outSyncURL;
+            if (IsAccSaberSyncURL(syncURL))
+            {
+                downloadMissingSongsCallback?.Invoke(__instance);
+                return false;
+            }
 
+            return true;
+        }
 
-//            return false;
-//        }
-
-//        private static bool IsAccSaberSyncURL(string syncURL)
-//        {
-//            return syncURL.Contains("api.accsaber.com/playlists/");
-//        }
-//    }
-//}
+        private static bool IsAccSaberSyncURL(string syncURL)
+        {
+            return syncURL.Contains("api.accsaber.com/playlists/");
+        }
+    }
+}
