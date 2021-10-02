@@ -1,4 +1,5 @@
-﻿using AccSaber.Installers;
+﻿using AccSaber.HarmonyPatches;
+using AccSaber.Installers;
 using HarmonyLib;
 using IPA;
 using IPA.Config;
@@ -8,6 +9,7 @@ using SiraUtil;
 using SiraUtil.Zenject;
 using System;
 using System.Linq;
+using System.Reflection;
 
 namespace AccSaber
 {
@@ -18,7 +20,8 @@ namespace AccSaber
 
         private readonly Harmony _harmony;
         private const string _harmonyID = "com.accsaber.plugin";
-        private Logger _logger;
+        public static Logger _logger;
+        internal static bool playlistManagerPatching = false;
 
         [Init]
         public Plugin(Logger logger, Config config, PluginMetadata metadata, Zenjector zenjector)
@@ -48,13 +51,26 @@ namespace AccSaber
             if (IsPlaylistManagerInstalled())
             {
                 _logger.Debug("PlaylistManager installed, using Harmony patches");
+                playlistManagerPatching = true;
                 HarmonyPatchPlaylistManager();
+            }
+            else
+            {
+                _logger.Debug("No playlist manager");
             }
         }
 
         private void HarmonyPatchPlaylistManager()
         {
-            throw new NotImplementedException();
+            // DownloadPlaylistAsync
+            var originalDownloadPlaylistAsync = typeof(PlaylistManager.UI.PlaylistViewButtonsController).GetMethod("DownloadPlaylistAsync", (BindingFlags)(-1));
+            HarmonyMethod harmonyDownloadPlaylistAsyncPrefix = new HarmonyMethod(typeof(DownloadPlaylistAsyncPatch).GetMethod("Prefix", (BindingFlags)(-1)));
+            _harmony.Patch(originalDownloadPlaylistAsync, harmonyDownloadPlaylistAsyncPrefix);
+
+            // UpdateSecondChildControllerContent
+            var originalUpdateSecondChildControllerContent = typeof(LevelFilteringNavigationController).GetMethod("UpdateSecondChildControllerContent", (BindingFlags)(-1));
+            HarmonyMethod harmonyUpdateSecondChildControllerContentPostfix = new HarmonyMethod(typeof(UpdateSecondChildControllerContentPatch).GetMethod("Postfix", (BindingFlags)(-1)));
+            _harmony.Patch(originalUpdateSecondChildControllerContent, null, harmonyUpdateSecondChildControllerContentPostfix);
         }
 
         private bool IsPlaylistManagerInstalled()
@@ -62,11 +78,12 @@ namespace AccSaber
             try
             {
                 PluginMetadata playlistManagerPlugin = PluginManager.EnabledPlugins.First(x => x.Id == "PlaylistManager");
-                Hive.Versioning.Version invalidVersionRange = new Hive.Versioning.Version("1.5.0");
+                Hive.Versioning.Version invalidVersionRange = new Hive.Versioning.Version("1.6.0");
                 return playlistManagerPlugin.HVersion < invalidVersionRange;
             }
-            catch
+            catch (Exception e)
             {
+                _logger.Debug($"{e.Message}");
                 return false;
             }
 
