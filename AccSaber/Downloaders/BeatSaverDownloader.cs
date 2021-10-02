@@ -78,13 +78,28 @@ namespace AccSaber.Downloaders
             try
             {
                 string path = CustomLevelPathHelper.customLevelsDirectoryPath;
-                if (accSaberSong == null)
+                BeatSaverAdditionalInfo additionalInfo = new BeatSaverAdditionalInfo();
+                if (accSaberSong != null)
                 {
-                    path = Path.Combine(path, hash.ToLower());
+                    var metadata = new BeatSaverMetadata(accSaberSong.songName, accSaberSong.levelAuthorName);
+                    additionalInfo = new BeatSaverAdditionalInfo(accSaberSong.beatSaverKey, metadata);
                 }
                 else
                 {
-                    path = Path.Combine(CustomLevelPathHelper.customLevelsDirectoryPath, $"{accSaberSong.beatSaverKey} ({accSaberSong.songName} - {accSaberSong.levelAuthorName})");
+                    try
+                    {
+                        additionalInfo = await GetAdditionalInfo(hash, cancellationToken);
+                    }
+                    catch (Exception e)
+                    {
+                        _siraLog.Warning($"Could not get beatsaver info: {e.Message}");
+                        path = Path.Combine(path, hash.ToLower());
+                    }
+                }
+
+                if (path == CustomLevelPathHelper.customLevelsDirectoryPath)
+                {
+                    path = Path.Combine(CustomLevelPathHelper.customLevelsDirectoryPath, $"{additionalInfo.id} ({additionalInfo.metadata.songName} - {additionalInfo.metadata.levelAuthorName})");
                     int c = 0;
 
                     // if this is inefficient then you need to stop downloading the same song
@@ -125,6 +140,12 @@ namespace AccSaber.Downloaders
             }
         }
 
+        private async Task<BeatSaverAdditionalInfo> GetAdditionalInfo(string hash, CancellationToken cancellationToken)
+        {
+            string url = API_URL + HASH_ENDPOINT + hash;
+            return await MakeJsonRequestAsync<BeatSaverAdditionalInfo>(url, cancellationToken);
+        }
+
         private async Task ExtractZipAsync(Stream zipStream, string path)
         {
             // throw error back up
@@ -133,6 +154,35 @@ namespace AccSaber.Downloaders
             await Task.Run(() => archive.ExtractToDirectory(path)).ConfigureAwait(false);
             archive.Dispose();
             zipStream.Close();
+        }
+    }
+
+    class BeatSaverAdditionalInfo
+    {
+        public string id;
+        public BeatSaverMetadata metadata;
+
+        public BeatSaverAdditionalInfo(string inId, BeatSaverMetadata inMetadata)
+        {
+            id = inId;
+            metadata = inMetadata;
+        }
+
+        public BeatSaverAdditionalInfo()
+        {
+            id = "";
+        }
+    }
+
+    class BeatSaverMetadata
+    {
+        public string songName;
+        public string levelAuthorName;
+
+        public BeatSaverMetadata(string inSongName, string inLevelAuthorName)
+        {
+            songName = inSongName;
+            levelAuthorName = inLevelAuthorName;
         }
     }
 }
