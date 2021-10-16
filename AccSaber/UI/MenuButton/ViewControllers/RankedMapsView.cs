@@ -93,25 +93,26 @@ namespace AccSaber.UI.MenuButton.ViewControllers
             }
             lock (filteredSongs)
             {
-                filteredSongs = rankedSongs.Where(song => filteringOptions[filter](song)).ToList();
+                filteredSongs = rankedSongs.Where(song => filteringOptions[filter](song).Count > 0).ToList();
             }
             SetMissingDownloadButtonStatus();
+            selectedFilter = filter;
             UpdateSort(null);
         }
 
         static readonly IReadOnlyDictionary<string, Func<AccSaberSongBSML, IComparable>> sortingOptions = new Dictionary<string, Func<AccSaberSongBSML, IComparable>>()
         {
             {"Title", song => song.songName},
-            {"Lowest Complexity", song => song.diffs.Min(diff => diff.complexity)},
-            {"Highest Complexity", song => -song.diffs.Max(diff => diff.complexity)},
-            {"Category", song => song.diffs.Min(diff => diff.categoryDisplayName)}
+            {"Lowest Complexity", song => GetFilteredDiffs(song).Min(diff => diff.complexity)},
+            {"Highest Complexity", song => -GetFilteredDiffs(song).Max(diff => diff.complexity)},
+            {"Category", song => GetFilteredDiffs(song).Min(diff => diff.categoryDisplayName)}
         };
 
-        internal static Dictionary<string, Func<AccSaberSongBSML, bool>> filteringOptions = new Dictionary<string, Func<AccSaberSongBSML, bool>>()
+        internal static Dictionary<string, Func<AccSaberSongBSML, HashSet<AccSaberSongDiff>>> filteringOptions = new Dictionary<string, Func<AccSaberSongBSML, HashSet<AccSaberSongDiff>>>()
         {
-            {"All", song => true },
-            {"Not Downloaded", song => !song.IsDownloaded() },
-            {"Overall Ranked", song => song.diffs.Any(diff => AccSaberUtils.GetCategoryByDisplayName(diff.categoryDisplayName).countsTowardsOverall) }
+            {"All", song => song.diffs.ToHashSet() },
+            {"Not Downloaded", song => song.IsDownloaded() ? new HashSet<AccSaberSongDiff>() : song.diffs.ToHashSet() },
+            {"Overall Ranked", song => song.diffs.Where(diff => AccSaberUtils.GetCategoryByDisplayName(diff.categoryDisplayName).countsTowardsOverall).ToHashSet() }
         };
 
         static readonly IReadOnlyList<object> sortOptions = sortingOptions.Select(x => x.Key).ToList<object>();
@@ -124,12 +125,17 @@ namespace AccSaber.UI.MenuButton.ViewControllers
         {
             foreach (var category in categories)
             {
-                filteringOptions.Add(category.categoryDisplayName, song => song.diffs.Any(diff => diff.categoryDisplayName == category.categoryDisplayName));
+                filteringOptions.Add(category.categoryDisplayName, song => song.diffs.Where(diff => diff.categoryDisplayName == category.categoryDisplayName).ToHashSet());
             }
             filterOptions = filteringOptions.Select(x => x.Key).ToList<object>();
 
             _filterDropdown.values = filterOptions;
             _filterDropdown.UpdateChoices();
+        }
+
+        private static HashSet<AccSaberSongDiff> GetFilteredDiffs(AccSaberSongBSML song)
+        {
+            return filteringOptions[selectedFilter](song);
         }
         #endregion
 
@@ -143,7 +149,6 @@ namespace AccSaber.UI.MenuButton.ViewControllers
             if (rankedSongsList != null)
             {
                 UpdateFilter(null);
-                UpdateSort(null);
                 DataLoading = false;
             }
         }
@@ -237,7 +242,6 @@ namespace AccSaber.UI.MenuButton.ViewControllers
             downloadMissingButton.interactable = false;
 
             DownloadSongs(missingSongsCopy);
-
         }
 
         private async void DownloadSongs(HashSet<AccSaberSong> missingSongsCopy)
