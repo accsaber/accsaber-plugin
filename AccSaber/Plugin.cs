@@ -24,7 +24,7 @@ namespace AccSaber
         internal static bool playlistManagerPatching = false;
 
         [Init]
-        public Plugin(Logger logger, Config config, PluginMetadata metadata, Zenjector zenjector)
+        public Plugin(Logger logger, PluginMetadata metadata, Zenjector zenjector)
         {
             version = metadata.HVersion;
             _logger = logger;
