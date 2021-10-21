@@ -1,0 +1,47 @@
+﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+  <vertical pref-width='120' active='~data-loaded'>
+    <horizontal pad-bottom='4' spacing='30'>
+      <dropdown-list-setting id='sort-dropdown' text='Sort' apply-on-change='true' choices='sortOptions' value='selectedSort' on-change='update-sort'/>
+      <dropdown-list-setting id='filter-dropdown' text='Filter' apply-on-change='true' choices='filterOptions' value='selectedFilter' on-change='update-filter'/>
+    </horizontal>
+    <modal clickerino-offerino-closerino='true' move-to-center='true' show-event='confirm-download-cancel' hide-event='close-download-cancel' size-delta-x='80' size-delta-y='60'>
+      <vertical horizontal-fit='PreferredSize' vertical-fit='PreferredSize' pad='8' pref-width='80' pref-height='60' child-expand-width='true'>
+        <text text='You still have pending downloads which will be aborted if you close this view. Are you sure you want to continue?' word-wrapping='true'/>
+        <action-button text='Yes - Cancel Downloads' on-click='forced-downloads-cancel' click-event='close-download-cancel'/>
+        <button text='No - Keep Downloading' click-event='close-download-cancel'/>
+      </vertical>
+    </modal>
+    <horizontal pad-top='0' pad-bottom='5' pref-height='60'>
+      <vertical pref-width='80'>
+        <custom-list id='ranked-songs-list' visible-cells='6' cell-size='9.6' select-cell='selected-cell'>
+          <vertical id='background-container' bg='round-rect-panel' horizontal-fit='Unconstrained' pad='1' pad-bottom='2'>
+            <horizontal>
+              <vertical pad-top='2' pad-bottom='2' pref-width='60' pad-left='5'>
+                <text text='~formattedName' align='Left' font-size='3' overflow-mode='Ellipsis' word-wrapping='false'/>
+                <text text='~levelAuthorName' align='Left' font-size='2' overflow-mode='Ellipsis' word-wrapping='false'/>
+              </vertical>
+              <vertical pad-top='2' pad-bottom='2' pref-width='20' pad-right='5'>
+                <macro.for-each items='diffs'>
+                  <text text='~categoryComplexityString' font-size='2.5' align='Right' overflow-mode='Truncate'/>
+                </macro.for-each>
+              </vertical>
+            </horizontal>
+          </vertical>
+        </custom-list>
+      </vertical>
+      <vertical pref-width='5' spacing='50'>
+        <pg-button dir='Up' click-event='ranked-songs-list#PageUp' pref-width='5'/>
+        <pg-button dir='Down' click-event='ranked-songs-list#PageDown' pref-width='5'/>
+      </vertical>
+    </horizontal>
+    <action-button active='true' id='download-missing-button' text='' pref-width='50' pref-height='10' on-click='clicked-download-missing' pad-bottom='2' />
+    <horizontal spacing='3'>
+      <text id='download-status' font-size='4' text=''/>
+      <horizontal id='progress-bar' horizontal-fit='PreferredSize' pref-width='50' preferred-height='1' vertical-fit='PreferredSize' background='round-rect-panel'/>
+    </horizontal>
+  </vertical>
+  <vertical pref-width='80' active='~data-loading'>
+    <text text='Loading data...' font-size='15' align='Center'/>
+    <loading-indicator preserve-aspect='true'/>
+  </vertical>
+</bg>
