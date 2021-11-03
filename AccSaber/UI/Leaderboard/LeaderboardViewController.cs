@@ -15,7 +15,6 @@ namespace AccSaber.UI.Leaderboard
         [Inject] 
         private SiraLog _log;
         protected override bool useAroundPlayer => true;
-
         protected override bool useFriends => true;
 
         public void OnEnable()

@@ -13,7 +13,8 @@ namespace AccSaber
 		[Init]
 		public void Init(Logger logger, Config config, Zenjector zenjector)
 		{
-			zenjector.On<PCAppInit>().Pseudo(Container => Container.BindLoggerAsSiraLogger(logger));
+			zenjector.On<PCAppInit>().Pseudo(Container =>
+				Container.BindLoggerAsSiraLogger(logger));
 			zenjector.OnMenu<MenuInstaller>();
 		}
 	}
