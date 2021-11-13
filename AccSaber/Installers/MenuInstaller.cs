@@ -1,4 +1,5 @@
-﻿using AccSaber.Downloaders;
+﻿using AccSaber.Data;
+using AccSaber.Downloaders;
 using AccSaber.HarmonyPatches;
 using AccSaber.Managers;
 using AccSaber.UI.Leaderboard;
@@ -15,6 +16,10 @@ namespace AccSaber.Installers
     {
         public override void InstallBindings()
         {
+            // Data
+            Container.BindInterfacesAndSelfTo<AccSaberData>()
+                .AsSingle();
+
             // Leaderboard
             Container.BindInterfacesAndSelfTo<AccSaberManager>()
                 .AsSingle()

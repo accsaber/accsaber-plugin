@@ -10,6 +10,7 @@ using LeaderboardCore.Managers;
 using LeaderboardCore.Models;
 using SiraUtil.Tools;
 using Zenject;
+using AccSaber.Data;
 
 namespace AccSaber.Managers
 {
@@ -24,10 +25,7 @@ namespace AccSaber.Managers
         protected override ViewController leaderboardViewController => _mainLeaderboardViewController;
         
         private LevelCollectionNavigationController _navigationController;
-        private AccSaberDownloader _accSaberDownloader;
-        private List<AccSaberUtils.AccSaberAPISong> _apiSongList;
-
-        internal static CancellationTokenSource closeCancellationTokenSource;
+        private AccSaberData _accSaberData;
 
         [Inject]
         private SiraLog _log;
@@ -36,22 +34,20 @@ namespace AccSaber.Managers
             AccSaberLeaderboardViewController mainLeaderboardViewController, 
             CustomLeaderboardManager customLeaderboardManager, SiraLog log,
             LevelCollectionNavigationController navigationController,
-            AccSaberDownloader accSaberDownloader)
+            AccSaberData accSaberData)
         {
             _customLeaderboardManager = customLeaderboardManager;
             _log = log;
             _mainLeaderboardViewController = mainLeaderboardViewController;
             _accSaberPanelController = accSaberPanelController;
             _navigationController = navigationController;
-            _accSaberDownloader = accSaberDownloader;
+            _accSaberData = accSaberData;
         }
 
         public void Initialize()
         {
             _navigationController.didChangeLevelDetailContentEvent += OnSongChange;
             _navigationController.didChangeDifficultyBeatmapEvent += OnBeatmapChange;
-            _log.Debug("Getting Ranked maps..");
-            GetRankedMaps();
             _log.Debug("Registering Leaderboard..");
             RegisterRankedSongLeaderboard(_navigationController);
         }
@@ -60,13 +56,6 @@ namespace AccSaber.Managers
         {
             _navigationController.didChangeLevelDetailContentEvent -= OnSongChange;
             _navigationController.didChangeDifficultyBeatmapEvent -= OnBeatmapChange;
-            closeCancellationTokenSource?.Cancel();
-        }
-
-        private async void GetRankedMaps()
-        {
-            closeCancellationTokenSource = new CancellationTokenSource();
-            _apiSongList = await _accSaberDownloader.GetRankedMapsAsync(closeCancellationTokenSource.Token);
         }
 
         private void OnBeatmapChange(LevelCollectionNavigationController collectionNavigationController, IDifficultyBeatmap difficultyBeatmap)
@@ -77,15 +66,14 @@ namespace AccSaber.Managers
 
         private void RegisterRankedSongLeaderboard(LevelCollectionNavigationController collectionNavigationController)
         {
-            if (collectionNavigationController.selectedDifficultyBeatmap == null) return;
-            foreach (var RankedSong in _apiSongList)
+            if (collectionNavigationController.selectedDifficultyBeatmap == null)
             {
-                _log.Debug($"{System.Reflection.MethodBase.GetCurrentMethod().Name}: Registering Leaderboard");
-                if (String.Equals(GetRankedSongHash(collectionNavigationController.selectedBeatmapLevel.levelID),
-                    RankedSong.songHash, StringComparison.CurrentCultureIgnoreCase)
-                    && 
-                    String.Equals(collectionNavigationController.selectedDifficultyBeatmap.difficulty.ToString(),
-                    RankedSong.difficulty, StringComparison.CurrentCultureIgnoreCase))
+                return;
+            }
+
+            foreach (var rankedSong in _accSaberData.GetMapsFromHash(GetRankedSongHash(collectionNavigationController.selectedBeatmapLevel.levelID)))
+            {
+                if (String.Equals(collectionNavigationController.selectedDifficultyBeatmap.difficulty.ToString(), rankedSong.difficulty, StringComparison.CurrentCultureIgnoreCase))
                 {
                     _log.Debug($"{System.Reflection.MethodBase.GetCurrentMethod().Name}: Registering leaderboard..");
                     _customLeaderboardManager.Register(this);
