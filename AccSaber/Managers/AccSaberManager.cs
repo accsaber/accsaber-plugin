@@ -48,7 +48,6 @@ namespace AccSaber.Managers
         {
             _navigationController.didChangeLevelDetailContentEvent += OnSongChange;
             _navigationController.didChangeDifficultyBeatmapEvent += OnBeatmapChange;
-            _log.Debug("Registering Leaderboard..");
             RegisterRankedSongLeaderboard(_navigationController);
         }
 
@@ -60,7 +59,7 @@ namespace AccSaber.Managers
 
         private void OnBeatmapChange(LevelCollectionNavigationController collectionNavigationController, IDifficultyBeatmap difficultyBeatmap)
         {
-            _log.Info("registering leaderboard.. (OnBeatmapChange)");
+            _log.Info("Registering leaderboard..");
             RegisterRankedSongLeaderboard(_navigationController);
         }
 
@@ -80,6 +79,7 @@ namespace AccSaber.Managers
                     return;
                 }
             }
+            _log.Debug("Unregistering leaderboard..");
             _customLeaderboardManager.Unregister(this);
         }
 

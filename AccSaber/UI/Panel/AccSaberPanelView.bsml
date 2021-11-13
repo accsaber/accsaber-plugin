@@ -8,7 +8,9 @@
             <image id='separator' src='LeaderboardCore.UI.Resources.pixel.png'/>
         </vertical>
         <vertical active='~is-loaded' id='panel-custom' pref-width='70' pref-height='10'>
-            <!-- Custom right-side code goes here-->
+            
+            <text text="Category rank:"/>
+            
         </vertical>
         <vertical active='~is-loading' pref-width='70' pref-height='10' >
             <vertical pref-width='10'>
