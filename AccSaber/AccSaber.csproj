@@ -35,7 +35,7 @@
           <Private>False</Private>
         </Reference>
         <Reference Include="BeatmapCore, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
+          <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
         </Reference>
         <Reference Include="BeatSaberPlaylistsLib">
           <HintPath>$(BeatSaberDir)\Libs\BeatSaberPlaylistsLib.dll</HintPath>
@@ -52,7 +52,7 @@
           <HintPath>$(BeatSaberDir)\Plugins\LeaderboardCore.dll</HintPath>
         </Reference>
         <Reference Include="LeaderboardCore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\LeaderboardCore.dll</HintPath>
+          <HintPath>$(BeatSaberDir)\Plugins\LeaderboardCore.dll</HintPath>
         </Reference>
         <Reference Include="Newtonsoft.Json">
           <HintPath>$(BeatSaberDir)\Libs\Newtonsoft.Json.dll</HintPath>
