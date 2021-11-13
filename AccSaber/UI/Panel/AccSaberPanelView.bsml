@@ -1,0 +1,19 @@
+﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+    <horizontal id='outer' horizontal-fit='PreferredSize' vertical-fit='PreferredSize' bg='round-rect-panel' spacing='3' pad='2' pref-width='91'>
+        <vertical pref-width='10' pref-height='10'>
+            <clickable-image active='~is-logo-clickable' id='clickable-logo' src='~logo-source' on-click='clicked-logo' hover-hint='~logo-hoverhint'/>
+            <image active='~is-logo-plain' id='plain-logo' src='~logo-source' hover-hint='~logo-hoverhint' preserve-aspect="true"/>
+        </vertical>
+        <vertical pref-width='0.5' pref-height='10'>
+            <image id='separator' src='LeaderboardCore.UI.Resources.pixel.png'/>
+        </vertical>
+        <vertical active='~is-loaded' id='panel-custom' pref-width='70' pref-height='10'>
+            <!-- Custom right-side code goes here-->
+        </vertical>
+        <vertical active='~is-loading' pref-width='70' pref-height='10' >
+            <vertical pref-width='10'>
+                <loading-indicator preserve-aspect='true'/>
+            </vertical>
+        </vertical>
+    </horizontal>
+</bg>
