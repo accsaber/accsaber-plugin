@@ -80,12 +80,14 @@ namespace AccSaber.Managers
             if (collectionNavigationController.selectedDifficultyBeatmap == null) return;
             foreach (var RankedSong in _apiSongList)
             {
-                _log.Info("checking hashes..");
-                if (GetRankedSongHash(collectionNavigationController.selectedBeatmapLevel.levelID) ==
-                    RankedSong.songHash && String.Equals(collectionNavigationController.selectedDifficultyBeatmap.difficulty.ToString(),
-                        RankedSong.difficulty, StringComparison.CurrentCultureIgnoreCase))
+                _log.Debug($"{System.Reflection.MethodBase.GetCurrentMethod().Name}: Registering Leaderboard");
+                if (String.Equals(GetRankedSongHash(collectionNavigationController.selectedBeatmapLevel.levelID),
+                    RankedSong.songHash, StringComparison.CurrentCultureIgnoreCase)
+                    && 
+                    String.Equals(collectionNavigationController.selectedDifficultyBeatmap.difficulty.ToString(),
+                    RankedSong.difficulty, StringComparison.CurrentCultureIgnoreCase))
                 {
-                    _log.Info("registering leaderboard.. (RegisterRankedSongLeaderboard)");
+                    _log.Debug($"{System.Reflection.MethodBase.GetCurrentMethod().Name}: Registering leaderboard..");
                     _customLeaderboardManager.Register(this);
                     return;
                 }

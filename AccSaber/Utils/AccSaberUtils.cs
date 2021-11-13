@@ -23,6 +23,22 @@ namespace AccSaber.Utils
             public string categoryDisplayName;
         }
 
+        public class AccSaberAPILeaderboard
+        {
+            [JsonProperty("playerId")] 
+            public string playerId;
+            [JsonProperty("playerName")]
+            public string username;
+            [JsonProperty("accuracy")]
+            public float accuracy;
+            [JsonProperty("score")]
+            public int score;
+            [JsonProperty("ap")]
+            public Dictionary<string, float> ap;
+            [JsonProperty("rank")]
+            public int rank;
+        }
+
         public class AccSaberSong
         {
             public string songName;
