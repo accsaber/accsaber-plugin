@@ -1,9 +1,9 @@
 ﻿using AccSaber.Utils;
 using Newtonsoft.Json;
-using SiraUtil.Tools;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using SiraUtil.Logging;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -56,7 +56,7 @@ namespace AccSaber.Downloaders
             }
             catch (Exception e)
             {
-                _siraLog.Warning($"Error parsing response: {e.Message}");
+                _siraLog.Warn($"Error parsing response: {e.Message}");
                 return default(T);
             }
         }
@@ -77,7 +77,7 @@ namespace AccSaber.Downloaders
             }
             catch (Exception e)
             {
-                _siraLog.Warning($"Error parsing image: {e.Message}");
+                _siraLog.Warn($"Error parsing image: {e.Message}");
                 return null;
             }
         }
@@ -113,7 +113,7 @@ namespace AccSaber.Downloaders
 
             if (www.isNetworkError || www.isHttpError)
             {
-                _siraLog.Warning($"Error making request: {www.error}");
+                _siraLog.Warn($"Error making request: {www.error}");
                 return null;
             }
 
