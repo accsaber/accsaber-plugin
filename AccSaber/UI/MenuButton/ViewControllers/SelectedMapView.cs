@@ -2,11 +2,11 @@
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
-using SiraUtil.Tools;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
+using SiraUtil.Logging;
 using TMPro;
 using UnityEngine.UI;
 using Zenject;

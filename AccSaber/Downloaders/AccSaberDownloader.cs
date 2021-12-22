@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using SiraUtil.Logging;
 using UnityEngine;
 using static AccSaber.Utils.AccSaberUtils;
 
@@ -13,6 +14,7 @@ namespace AccSaber.Downloaders
         private const string CDN_URL = "https://cdn.accsaber.com/";
         private const string COVERS_ENDPOINT = "covers/";
         private const string RANKED_ENDPOINT = "ranked-maps";
+        private const string LEADERBOARD_ENDPOINT = "ranked-maps/";
         private const string CATEGORY_ENDPOINT = "categories";
 
         private readonly SiraLog _siraLog;
@@ -28,6 +30,12 @@ namespace AccSaber.Downloaders
             string url = API_URL + RANKED_ENDPOINT;
             return await MakeJsonRequestAsync<List<AccSaberAPISong>>(url, cancellationToken);
         }
+
+        // public async Task<List<AccSaberAPILeaderboard>> GetLeaderboardsAsync(string hash, CancellationToken cancellationToken)
+        // {
+        //     string url = API_URL + LEADERBOARD_ENDPOINT + hash;
+        //     return await MakeJsonRequestAsync<List<AccSaberAPILeaderboard>>(url, cancellationToken);
+        // }
 
         public async Task<List<AccSaberCategory>> GetCategoriesAsync(CancellationToken cancellationToken)
         {

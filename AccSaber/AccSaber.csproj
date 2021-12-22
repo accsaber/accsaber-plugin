@@ -30,14 +30,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Reference Include="0Harmony">
-          <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="BeatSaberPlaylistsLib">
-          <HintPath>$(BeatSaberDir)\Libs\BeatSaberPlaylistsLib.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
         <Reference Include="BSML">
           <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
         </Reference>
@@ -45,15 +37,8 @@
           <HintPath>$(BeatSaberDir)\Libs\Hive.Versioning.dll</HintPath>
           <Private>False</Private>
         </Reference>
-        <Reference Include="LeaderboardCore">
-          <HintPath>$(BeatSaberDir)\Plugins\LeaderboardCore.dll</HintPath>
-        </Reference>
         <Reference Include="Newtonsoft.Json">
           <HintPath>$(BeatSaberDir)\Libs\Newtonsoft.Json.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="PlaylistManager">
-          <HintPath>$(BeatSaberDir)\Plugins\PlaylistManager.dll</HintPath>
           <Private>False</Private>
         </Reference>
         <Reference Include="SemVer">
