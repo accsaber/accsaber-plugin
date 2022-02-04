@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
+using SiraUtil.Logging;
 using static AccSaber.Utils.AccSaberUtils;
 using static AccSaber.Utils.BeatSaverUtils;
 
@@ -92,7 +93,7 @@ namespace AccSaber.Downloaders
                     }
                     catch (Exception e)
                     {
-                        _siraLog.Warning($"Could not get beatsaver info: {e.Message}");
+                        _siraLog.Warn($"Could not get beatsaver info: {e.Message}");
                         path = Path.Combine(path, hash.ToLower());
                     }
                 }
@@ -135,7 +136,7 @@ namespace AccSaber.Downloaders
             }
             catch (Exception e)
             {
-                _siraLog.Warning($"Error extracting song: {e.Message}");
+                _siraLog.Warn($"Error extracting song: {e.Message}");
                 return false;
             }
         }

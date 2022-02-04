@@ -1,11 +1,7 @@
-﻿using AccSaber.Data;
-using AccSaber.Downloaders;
-using AccSaber.HarmonyPatches;
+﻿using AccSaber.Downloaders;
 using AccSaber.Managers;
-using AccSaber.UI.Leaderboard;
 using AccSaber.UI.MenuButton;
 using AccSaber.UI.MenuButton.ViewControllers;
-using AccSaber.UI.Panel;
 using SiraUtil;
 using Zenject;
 using ASDownloader = AccSaber.Downloaders.AccSaberDownloader;
@@ -16,21 +12,6 @@ namespace AccSaber.Installers
     {
         public override void InstallBindings()
         {
-            // Data
-            Container.BindInterfacesAndSelfTo<AccSaberData>()
-                .AsSingle();
-
-            // Leaderboard
-            Container.BindInterfacesAndSelfTo<AccSaberManager>()
-                .AsSingle()
-                .NonLazy();
-            Container.BindInterfacesAndSelfTo<AccSaberLeaderboardViewController>()
-                .FromNewComponentAsViewController()
-                .AsSingle();
-            Container.BindInterfacesAndSelfTo<AccSaberPanelController>()
-                .FromNewComponentAsViewController()
-                .AsSingle();
-            
             // Song Downloading
             Container.Bind<AccSaberDownloader>()
                 .AsSingle();
@@ -45,14 +26,8 @@ namespace AccSaber.Installers
                 .FromNewComponentAsViewController()
                 .AsSingle();
             Container.Bind<AccSaberMainFlowCoordinator>()
-                .FromNewComponentOnNewGameObject(nameof(AccSaberMainFlowCoordinator))
+                .FromNewComponentOnNewGameObject()
                 .AsSingle();
-            if (Plugin.playlistManagerPatching)
-            {
-                Container.Bind<PlaylistManagerPatcher>()
-                    .AsSingle()
-                    .NonLazy();
-            }
         }
     }
 }

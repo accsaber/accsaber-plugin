@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using SiraUtil.Logging;
 using Zenject;
 using static AccSaber.Utils.AccSaberUtils;
 
