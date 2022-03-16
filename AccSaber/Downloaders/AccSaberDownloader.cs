@@ -1,10 +1,16 @@
 ﻿using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using AccSaber.Models;
 using AccSaber.Utils;
+using IPA.Utilities;
+using Newtonsoft.Json.Linq;
 using static AccSaber.Utils.AccSaberUtils;
 using SiraUtil.Logging;
 using UnityEngine;
+using Zenject;
 
 namespace AccSaber.Downloaders
 {
@@ -14,6 +20,7 @@ namespace AccSaber.Downloaders
         private const string CDN_URL = "https://cdn.accsaber.com/";
         private const string COVERS_ENDPOINT = "covers/";
         private const string RANKED_ENDPOINT = "ranked-maps";
+        private const string LEADERBOARDS_ENDPOINT = "map-leaderboards/";
 
         private const string CATEGORY_ENDPOINT = "categories";
 
@@ -23,18 +30,25 @@ namespace AccSaber.Downloaders
         public AccSaberDownloader(SiraLog siraLog) : base(siraLog)
         {
             _siraLog = siraLog;
+            
         }
 
         public async Task<List<AccSaberAPISong>> GetRankedMapsAsync(CancellationToken cancellationToken)
         {
             string url = API_URL + RANKED_ENDPOINT;
-            return await MakeJsonRequestAsync<List<AccSaberUtils.AccSaberAPISong>>(url, cancellationToken);
+            return await MakeJsonRequestAsync<List<AccSaberAPISong>>(url, cancellationToken);
         }
 
         public async Task<List<AccSaberCategory>> GetCategoriesAsync(CancellationToken cancellationToken)
         {
             string url = API_URL + CATEGORY_ENDPOINT;
             return await MakeJsonRequestAsync<List<AccSaberCategory>>(url, cancellationToken);
+        }
+
+        public async Task<List<AccSaberLeaderboardEntries>> GetLeaderboardsAsync(CancellationToken cancellationToken, string hash, string characteristic, string difficulty)
+        {
+            var url = API_URL + LEADERBOARDS_ENDPOINT + hash + "/" + characteristic + "/" + difficulty + "?page=0&pageSize=10"; ;
+            return await MakeJsonRequestAsync<List<AccSaberLeaderboardEntries>>(url, cancellationToken);
         }
 
         public async Task<Sprite> GetCoverImageAsync(string hash, CancellationToken cancellationToken)

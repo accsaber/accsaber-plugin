@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
+using AccSaber.Models;
 using SiraUtil.Logging;
 using static AccSaber.Utils.AccSaberUtils;
 using static AccSaber.Utils.BeatSaverUtils;
@@ -31,7 +32,7 @@ namespace AccSaber.Downloaders
         }
 
         /// <returns>True iff the song could be successfully downloaded</returns>
-        public async Task<bool> DownloadOldVersionByHash(string hash, CancellationToken cancellationToken, AccSaberSong accSaberSong = null, Action<float> progressCallback = null, Action<string> statusCallback = null)
+        public async Task<bool>DownloadOldVersionByHash(string hash, CancellationToken cancellationToken, AccSaberSong accSaberSong = null, Action<float> progressCallback = null, Action<string> statusCallback = null)
         {
             if (_cdnURL == null)
             {

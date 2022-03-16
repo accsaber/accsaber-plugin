@@ -1,7 +1,11 @@
-﻿using AccSaber.Downloaders;
+﻿using AccSaber.Data;
+using AccSaber.Downloaders;
 using AccSaber.Managers;
+using AccSaber.Models;
+using AccSaber.UI.Leaderboard;
 using AccSaber.UI.MenuButton;
 using AccSaber.UI.MenuButton.ViewControllers;
+using AccSaber.UI.Panel;
 using SiraUtil;
 using Zenject;
 using ASDownloader = AccSaber.Downloaders.AccSaberDownloader;
@@ -12,11 +16,7 @@ namespace AccSaber.Installers
     {
         public override void InstallBindings()
         {
-            // Song Downloading
-            Container.Bind<AccSaberDownloader>()
-                .AsSingle();
-            Container.Bind<BeatSaverDownloader>()
-                .AsSingle();
+            // Song Downloading UI
             Container.BindInterfacesTo<MenuButtonManager>()
                 .AsSingle();
             Container.Bind<RankedMapsView>()
@@ -28,6 +28,16 @@ namespace AccSaber.Installers
             Container.Bind<AccSaberMainFlowCoordinator>()
                 .FromNewComponentOnNewGameObject()
                 .AsSingle();
+            
+            // Leaderboard
+            Container.BindInterfacesAndSelfTo<AccSaberLeaderboardViewController>()
+                .FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<AccSaberPanelController>()
+                .FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<AccSaberManager>()
+                .AsSingle().NonLazy();
+            
+            
         }
     }
 }

@@ -3,29 +3,33 @@ using Newtonsoft.Json;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using IPA.Utilities;
 using SiraUtil.Logging;
 using UnityEngine;
 using UnityEngine.Networking;
+using System.Collections.Concurrent;
 
 namespace AccSaber.Downloaders
 {
     public abstract class Downloader
     {
         internal string USER_AGENT { get; set; }
-
-        internal ConcurrentHashSet<UnityWebRequest> _ongoingWebRequests = new ConcurrentHashSet<UnityWebRequest>();
+        
+        internal ConcurrentDictionary<string, UnityWebRequest> _ongoingWebRequests =
+            new ConcurrentDictionary<string, UnityWebRequest>();
 
         private SiraLog _siraLog;
 
         public Downloader(SiraLog siraLog)
         {
             _siraLog = siraLog;
-            USER_AGENT = $"AccSaberPlugin/v{Plugin.version}";
+            USER_AGENT =
+                $"Unity/{UnityEngine.Application.unityVersion} BeatSaber/{UnityGame.GameVersion} ModelDownloader/{Plugin.version}";
         }
 
         ~Downloader()
         {
-            foreach (var webRequest in _ongoingWebRequests)
+            foreach (var (_, webRequest) in _ongoingWebRequests)
             {
                 webRequest.Abort();
             }
@@ -33,24 +37,26 @@ namespace AccSaber.Downloaders
 
         public void CancelAllDownloads()
         {
-            foreach (var webRequest in _ongoingWebRequests)
+            foreach (var (_, webRequest) in _ongoingWebRequests)
             {
                 webRequest.Abort();
             }
         }
 
-        internal async Task<T> MakeJsonRequestAsync<T>(string url, CancellationToken cancellationToken, Action<float> progressCallback = null)
+        internal async Task<T> MakeJsonRequestAsync<T>(string url, CancellationToken cancellationToken,
+            Action<float> progressCallback = null)
         {
-            var www = await MakeRequestAsync(url, cancellationToken, progressCallback);
+            var webRequest = await MakeRequestAsync(url, cancellationToken, progressCallback);
 
-            if (www == null)
+            if (webRequest == null)
             {
                 return default(T);
             }
 
             try
             {
-                T response = JsonConvert.DeserializeObject<T>(www.downloadHandler.text);
+                _siraLog.Info($"{webRequest.downloadHandler.text}");
+                T response = JsonConvert.DeserializeObject<T>(webRequest.downloadHandler.text);
 
                 return response;
             }
@@ -61,18 +67,19 @@ namespace AccSaber.Downloaders
             }
         }
 
-        internal async Task<Sprite> MakeImageRequestAsync(string url, CancellationToken cancellationToken, Action<float> progressCallback = null)
+        internal async Task<Sprite> MakeImageRequestAsync(string url, CancellationToken cancellationToken,
+            Action<float> progressCallback = null)
         {
-            var www = await MakeRequestAsync(url, cancellationToken, progressCallback);
+            var webRequest = await MakeRequestAsync(url, cancellationToken, progressCallback);
 
-            if (www == null)
+            if (webRequest == null)
             {
                 return null;
             }
 
             try
             {
-                Sprite sprite = BeatSaberMarkupLanguage.Utilities.LoadSpriteRaw(www.downloadHandler.data);
+                Sprite sprite = BeatSaberMarkupLanguage.Utilities.LoadSpriteRaw(webRequest.downloadHandler.data);
                 return sprite;
             }
             catch (Exception e)
@@ -82,42 +89,44 @@ namespace AccSaber.Downloaders
             }
         }
 
-        internal async Task<UnityWebRequest> MakeRequestAsync(string url, CancellationToken cancellationToken, Action<float> progressCallback = null)
+        internal async Task<UnityWebRequest> MakeRequestAsync(string url, CancellationToken cancellationToken,
+            Action<float> progressCallback = null)
         {
-            var www = UnityWebRequest.Get(url);
-            www.SetRequestHeader("User-Agent", USER_AGENT);
-            www.timeout = 15;
+            var webRequest = UnityWebRequest.Get(url);
+            webRequest.SetRequestHeader("User-Agent", USER_AGENT);
+            webRequest.timeout = 15;
 
 #if DEBUG
             _siraLog.Debug($"Making web request: {url}");
 #endif
-            _ongoingWebRequests.Add(www);
+            _ongoingWebRequests.TryAdd(url, webRequest);
 
-            www.SendWebRequest();
+            webRequest.SendWebRequest();
 
-            while (!www.isDone)
+            while (!webRequest.isDone)
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    www.Abort();
+                    webRequest.Abort();
                     throw new TaskCanceledException();
                 }
-                progressCallback?.Invoke(www.downloadProgress);
+
+                progressCallback?.Invoke(webRequest.downloadProgress);
                 await Task.Yield();
             }
 
 #if DEBUG
             _siraLog.Debug("Web request finished");
 #endif
-            _ongoingWebRequests.Remove(www);
+            _ongoingWebRequests.TryRemove(url, out _ );
 
-            if (www.isNetworkError || www.isHttpError)
+            if (webRequest.isNetworkError || webRequest.isHttpError)
             {
-                _siraLog.Warn($"Error making request: {www.error}");
+                _siraLog.Warn($"Error making request: {webRequest.error}");
                 return null;
             }
 
-            return www;
+            return webRequest;
         }
     }
 }

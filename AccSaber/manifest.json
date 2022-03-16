@@ -3,13 +3,14 @@
   "id": "AccSaber",
   "name": "AccSaber",
   "author": "AccSaber Team",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Plugin for AccSaber.",
   "gameVersion": "1.19.0",
   "dependsOn": {
     "BSIPA": "^4.2.0",
     "BeatSaberMarkupLanguage": "^1.6.0",
     "SiraUtil": "^3.0.1",
-    "SongCore": "^3.9.0"
+    "SongCore": "^3.9.0",
+    "LeaderboardCore": "^1.1.0"
   }
 }

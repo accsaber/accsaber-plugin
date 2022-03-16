@@ -1,40 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using AccSaber.UI.Leaderboard;
 using AccSaber.UI.Panel;
 using HMUI;
 using AccSaber.Downloaders;
-using AccSaber.Utils;
 using LeaderboardCore.Managers;
 using LeaderboardCore.Models;
-using SiraUtil.Tools;
 using Zenject;
 using AccSaber.Data;
+using AccSaber.Models;
+using SiraUtil.Logging;
+using static StandardLevelDetailViewController.ContentType;
 
 namespace AccSaber.Managers
 {
     class AccSaberManager : CustomLeaderboard, IInitializable, IDisposable
     {
-        private CustomLeaderboardManager _customLeaderboardManager;
-        
+        private readonly CustomLeaderboardManager _customLeaderboardManager;
+
         private readonly ViewController _accSaberPanelController;
         protected override ViewController panelViewController => _accSaberPanelController;
-        
-        private readonly ViewController _mainLeaderboardViewController;
-        protected override ViewController leaderboardViewController => _mainLeaderboardViewController;
-        
-        private LevelCollectionNavigationController _navigationController;
-        private AccSaberData _accSaberData;
 
-        [Inject]
-        private SiraLog _log;
-        
+        private readonly AccSaberLeaderboardViewController _mainLeaderboardViewController;
+        protected override ViewController leaderboardViewController => _mainLeaderboardViewController;
+
+        private readonly LevelCollectionNavigationController _navigationController;
+
+        private AccSaberData _accSaberData;
+        private AccSaberDownloader _downloader;
+        private readonly AccSaberAPISong _accSaberAPISong;
+        private readonly AccSaberLeaderboardEntries _leaderboardEntries;
+
+        private readonly SiraLog _log;
+
         public AccSaberManager(AccSaberPanelController accSaberPanelController,
-            AccSaberLeaderboardViewController mainLeaderboardViewController, 
-            CustomLeaderboardManager customLeaderboardManager, SiraLog log,
+            AccSaberLeaderboardViewController mainLeaderboardViewController,
+            CustomLeaderboardManager customLeaderboardManager,
+            SiraLog log,
             LevelCollectionNavigationController navigationController,
-            AccSaberData accSaberData)
+            AccSaberData accSaberData,
+            AccSaberDownloader downloader,
+            AccSaberAPISong accSaberAPISong, AccSaberLeaderboardEntries leaderboardEntries)
         {
             _customLeaderboardManager = customLeaderboardManager;
             _log = log;
@@ -42,13 +50,15 @@ namespace AccSaber.Managers
             _accSaberPanelController = accSaberPanelController;
             _navigationController = navigationController;
             _accSaberData = accSaberData;
+            _downloader = downloader;
+            _accSaberAPISong = accSaberAPISong;
+            _leaderboardEntries = leaderboardEntries;
         }
 
         public void Initialize()
         {
             _navigationController.didChangeLevelDetailContentEvent += OnSongChange;
             _navigationController.didChangeDifficultyBeatmapEvent += OnBeatmapChange;
-            RegisterRankedSongLeaderboard(_navigationController);
         }
 
         public void Dispose()
@@ -57,40 +67,54 @@ namespace AccSaber.Managers
             _navigationController.didChangeDifficultyBeatmapEvent -= OnBeatmapChange;
         }
 
-        private void OnBeatmapChange(LevelCollectionNavigationController collectionNavigationController, IDifficultyBeatmap difficultyBeatmap)
+        private void OnBeatmapChange(LevelCollectionNavigationController collectionNavigationController,
+            IDifficultyBeatmap difficultyBeatmap)
         {
             _log.Info("Registering leaderboard..");
-            RegisterRankedSongLeaderboard(_navigationController);
+            HandleRankedSongLeaderboard(_navigationController);
         }
 
-        private void RegisterRankedSongLeaderboard(LevelCollectionNavigationController collectionNavigationController)
+        private void OnSongChange(LevelCollectionNavigationController collectionNavigationController, 
+            StandardLevelDetailViewController.ContentType contentType)
         {
-            if (collectionNavigationController.selectedDifficultyBeatmap == null)
-            {
-                return;
-            }
+            if (contentType == OwnedAndReady) HandleRankedSongLeaderboard(collectionNavigationController);
+        }
+        
 
-            foreach (var rankedSong in _accSaberData.GetMapsFromHash(GetRankedSongHash(collectionNavigationController.selectedBeatmapLevel.levelID)))
-            {
-                if (String.Equals(collectionNavigationController.selectedDifficultyBeatmap.difficulty.ToString(), rankedSong.difficulty, StringComparison.CurrentCultureIgnoreCase))
+        private void HandleRankedSongLeaderboard(LevelCollectionNavigationController collectionNavigationController)
+        {
+            var beatmap = collectionNavigationController.selectedDifficultyBeatmap;
+            
+            try
+            { 
+                if (beatmap == null) return;
+
+                _log.Info("Is data initialized?");
+                _log.Info($"{_accSaberData.IsDataInitialized}");
+
+                if (!_accSaberData.IsDataInitialized)
                 {
-                    _log.Debug($"{System.Reflection.MethodBase.GetCurrentMethod().Name}: Registering leaderboard..");
-                    _customLeaderboardManager.Register(this);
                     return;
                 }
+                foreach (var rankedSong in _accSaberData.GetMapsFromHash(Extensions.GetRankedSongHash(beatmap.level.levelID)))
+                {
+                    if (string.Equals(beatmap.difficulty.ToString(), rankedSong.difficulty, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        _customLeaderboardManager.Register(this);
+                        return;
+                    }
+                }
+
+                _log.Debug("Unregistering leaderboard..");
+                _customLeaderboardManager.Unregister(this);
             }
-            _log.Debug("Unregistering leaderboard..");
-            _customLeaderboardManager.Unregister(this);
-        }
+            catch (Exception e)
+            {
 
-        private static string GetRankedSongHash(string levelId)
-        {
-            return !levelId.Contains("custom_level_") ? levelId : levelId.Substring(13);
-        }
-
-        private void OnSongChange(LevelCollectionNavigationController collectionController, StandardLevelDetailViewController.ContentType contentType)
-        {
-            if (contentType == StandardLevelDetailViewController.ContentType.OwnedAndReady) RegisterRankedSongLeaderboard(collectionController);
+                _log.Warn($"Message: {e}");
+                _log.Warn($"Value: {collectionNavigationController.selectedBeatmapLevel?.levelID.Substring(13)}");
+                _log.Warn($"Value: {_accSaberAPISong.songHash}");
+            }
         }
     }
 }
