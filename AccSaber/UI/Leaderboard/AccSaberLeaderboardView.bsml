@@ -1,7 +1,10 @@
 ﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
     <horizontal horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="100" pref-height="70">
-        <vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="80" pref-height="70">
+        <vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="10" pref-height="25">
             <leaderboard id="leaderboard" cell-size="5.55"/>
         </vertical>
     </horizontal>
+
+    <page-button direction='Up' anchor-pos-x='-42.75' anchor-pos-y='-5.5' active='~up-enabled' pref-width='5' on-click='up-clicked' />
+    <page-button direction='Down' anchor-pos-x='-42.75' anchor-pos-y='-35.5' active='~down-enabled' pref-width='5' on-click='down-clicked' />
 </bg>

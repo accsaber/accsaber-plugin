@@ -26,7 +26,7 @@ namespace AccSaber
             zenjector.Install<MenuInstaller>(Location.Menu);
         }
     }
-
+    
     public static class Extensions
     {
         public static string GetRankedSongHash(this string levelId) => !levelId.Contains("custom_level_") ? levelId : levelId.Substring(13);

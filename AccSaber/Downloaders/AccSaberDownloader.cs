@@ -21,6 +21,8 @@ namespace AccSaber.Downloaders
         private const string COVERS_ENDPOINT = "covers/";
         private const string RANKED_ENDPOINT = "ranked-maps";
         private const string LEADERBOARDS_ENDPOINT = "map-leaderboards/";
+        private const string PAGINATION_PAGE = "?page=";
+        private const string PAGINATION_PAGESIZE = "&pageSize=";
 
         private const string CATEGORY_ENDPOINT = "categories";
 
@@ -30,7 +32,6 @@ namespace AccSaber.Downloaders
         public AccSaberDownloader(SiraLog siraLog) : base(siraLog)
         {
             _siraLog = siraLog;
-            
         }
 
         public async Task<List<AccSaberAPISong>> GetRankedMapsAsync(CancellationToken cancellationToken)
@@ -45,9 +46,11 @@ namespace AccSaber.Downloaders
             return await MakeJsonRequestAsync<List<AccSaberCategory>>(url, cancellationToken);
         }
 
-        public async Task<List<AccSaberLeaderboardEntries>> GetLeaderboardsAsync(CancellationToken cancellationToken, string hash, string characteristic, string difficulty)
+        public async Task<List<AccSaberLeaderboardEntries>> GetLeaderboardsAsync(
+            CancellationToken cancellationToken, string hash, string characteristic, string difficulty, int page, int pageSize)
         {
-            var url = API_URL + LEADERBOARDS_ENDPOINT + hash + "/" + characteristic + "/" + difficulty + "?page=0&pageSize=10"; ;
+            var url = API_URL + LEADERBOARDS_ENDPOINT + hash + "/" + characteristic + "/" + difficulty +
+                      PAGINATION_PAGE + page + PAGINATION_PAGESIZE + pageSize;
             return await MakeJsonRequestAsync<List<AccSaberLeaderboardEntries>>(url, cancellationToken);
         }
 

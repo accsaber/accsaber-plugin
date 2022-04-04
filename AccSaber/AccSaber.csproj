@@ -124,6 +124,10 @@
         <EmbeddedResource Include="Resources\Logos\AccSaber.png" />
         <EmbeddedResource Include="UI\MenuButton\Views\ranked-maps.bsml" />
         <EmbeddedResource Include="UI\MenuButton\Views\selected-map.bsml" />
+        <None Remove="UI\Panel\AccSaberPanelView.bsml" />
+        <EmbeddedResource Include="UI\Panel\AccSaberPanelView.bsml" />
+        <None Remove="UI\Leaderboard\AccSaberLeaderboardView.bsml" />
+        <EmbeddedResource Include="UI\Leaderboard\AccSaberLeaderboardView.bsml" />
     </ItemGroup>
 
     <ItemGroup>

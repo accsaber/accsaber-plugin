@@ -5,7 +5,7 @@ namespace AccSaber.Models
     public class AccSaberLeaderboardEntries
     {
         [JsonProperty("rank")]
-        public string rank;
+        public int rank;
         [JsonProperty("playerId")]
         public string playerId;
         [JsonProperty("playerName")]

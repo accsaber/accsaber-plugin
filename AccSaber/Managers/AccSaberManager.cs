@@ -20,7 +20,7 @@ namespace AccSaber.Managers
     {
         private readonly CustomLeaderboardManager _customLeaderboardManager;
 
-        private readonly ViewController _accSaberPanelController;
+        private readonly AccSaberPanelController _accSaberPanelController;
         protected override ViewController panelViewController => _accSaberPanelController;
 
         private readonly AccSaberLeaderboardViewController _mainLeaderboardViewController;
@@ -28,8 +28,8 @@ namespace AccSaber.Managers
 
         private readonly LevelCollectionNavigationController _navigationController;
 
-        private AccSaberData _accSaberData;
         private AccSaberDownloader _downloader;
+        private readonly AccSaberData _accSaberData;
         private readonly AccSaberAPISong _accSaberAPISong;
         private readonly AccSaberLeaderboardEntries _leaderboardEntries;
 
@@ -89,8 +89,8 @@ namespace AccSaber.Managers
             { 
                 if (beatmap == null) return;
 
-                _log.Info("Is data initialized?");
-                _log.Info($"{_accSaberData.IsDataInitialized}");
+                _log.Debug("Is data initialized?");
+                _log.Debug($"{_accSaberData.IsDataInitialized}");
 
                 if (!_accSaberData.IsDataInitialized)
                 {
@@ -112,8 +112,8 @@ namespace AccSaber.Managers
             {
 
                 _log.Warn($"Message: {e}");
-                _log.Warn($"Value: {collectionNavigationController.selectedBeatmapLevel?.levelID.Substring(13)}");
-                _log.Warn($"Value: {_accSaberAPISong.songHash}");
+                _log.Debug($"Value: {collectionNavigationController.selectedBeatmapLevel?.levelID.Substring(13)}");
+                _log.Debug($"Value: {_accSaberAPISong.songHash}");
             }
         }
     }
