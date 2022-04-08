@@ -1,3 +1,4 @@
+using System;
 using Newtonsoft.Json;
 
 namespace AccSaber.Models
@@ -15,8 +16,10 @@ namespace AccSaber.Models
         [JsonProperty("score")]
         public int score;
         [JsonProperty("ap")]
-        public int ap;
+        public float ap;
         [JsonProperty("accChamp")]
         public bool accChamp;
+        [JsonProperty("timeSet")]
+        public DateTime timeSet;
     }
 }

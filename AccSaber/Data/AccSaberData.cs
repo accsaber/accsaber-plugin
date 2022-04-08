@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using AccSaber.Models;
+using JetBrains.Annotations;
+using SiraUtil.Logging;
 using Zenject;
 
 namespace AccSaber.Data
@@ -13,24 +13,22 @@ namespace AccSaber.Data
     // TODO: Switch over downloader to use this
     class AccSaberData : IInitializable, IDisposable
     {
+        [Inject] private SiraLog _log;
+        
         private AccSaberDownloader _accSaberDownloader;
 
         private List<AccSaberAPISong> _rankedSongs = new List<AccSaberAPISong>();
-        private List<AccSaberLeaderboardEntries> _leaderboardData = new List<AccSaberLeaderboardEntries>();
 
-        private string characteristic;
-        private string difficulty;
-
-        private Dictionary<int, List<AccSaberLeaderboardEntries>> _leaderboardHashMap = new Dictionary<int, List<AccSaberLeaderboardEntries>>();
         private Dictionary<string, List<AccSaberAPISong>> _songHashMap = new Dictionary<string, List<AccSaberAPISong>>();
-        private bool _leaderboardDataInitialized = false;
-        private bool _mapDataInitialized = false;
+        private bool _mapDataInitialized;
 
         private CancellationTokenSource _cancellationTokenSource;
+        
+        
 
-        public bool IsDataInitialized
+        public bool IsMapDataInitialized
         {
-            get => _mapDataInitialized || _leaderboardDataInitialized;
+            get => _mapDataInitialized;
         }
 
         public List<AccSaberAPISong> RankedMaps
@@ -47,7 +45,6 @@ namespace AccSaber.Data
         {
             _cancellationTokenSource = new CancellationTokenSource();
             FetchRankedMaps();
-            // FetchLeaderboardData();
         }
 
         public List<AccSaberAPISong> GetMapsFromHash(string hash)
@@ -76,33 +73,13 @@ namespace AccSaber.Data
                     _songHashMap.Add(hash, new List<AccSaberAPISong>() { rankedSong });
                 }
             }
-
+            _log.Info("Finished caching ranked maps");
             _mapDataInitialized = true;
         }
 
-        // private async void FetchLeaderboardData()
-        // {
-        //     _leaderboardData = await _accSaberDownloader.GetLeaderboardsAsync(_cancellationTokenSource.Token, characteristic, difficulty);
-        //     foreach (var score in _leaderboardData)
-        //     {
-        //         var data = score.score;
-        //         if (_leaderboardHashMap.ContainsKey(data))
-        //         {
-        //             _leaderboardHashMap[data].Add(score);
-        //         }
-        //         else
-        //         {
-        //             _leaderboardHashMap.Add(data, new List<AccSaberLeaderboardEntries>() { score });
-        //         }
-        //
-        //         _leaderboardDataInitialized = true;
-        //     }
-        // }
-
         public void Dispose()
         {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = null;
+            _cancellationTokenSource.Cancel();
         }
     }
 }

@@ -27,6 +27,7 @@ namespace AccSaber.Installers
             Container.Bind<AccSaberLeaderboardEntries>().AsSingle();
             Container.Bind<AccSaberSong>().AsSingle();
             Container.Bind<AccSaberSongDiff>().AsSingle();
+            Container.Bind<AccSaberUserModel>().AsSingle();
         }
     }
 }

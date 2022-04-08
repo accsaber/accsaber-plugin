@@ -128,6 +128,10 @@
         <EmbeddedResource Include="UI\Panel\AccSaberPanelView.bsml" />
         <None Remove="UI\Leaderboard\AccSaberLeaderboardView.bsml" />
         <EmbeddedResource Include="UI\Leaderboard\AccSaberLeaderboardView.bsml" />
+        <None Remove="Resources\pixel.png" />
+        <EmbeddedResource Include="Resources\pixel.png" />
+        <None Remove="Resources\InfoIcon.png" />
+        <EmbeddedResource Include="Resources\InfoIcon.png" />
     </ItemGroup>
 
     <ItemGroup>

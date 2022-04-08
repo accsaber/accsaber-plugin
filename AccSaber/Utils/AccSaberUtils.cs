@@ -11,7 +11,7 @@ namespace AccSaber.Utils
     {
         private static List<AccSaberCategory> knownCategories = new List<AccSaberCategory>();
 
-        internal static Dictionary<string, Color> CategoryColors = new Dictionary<string, Color>()
+        public static Dictionary<string, Color> CategoryColors = new Dictionary<string, Color>()
         {
             { "True Acc", new Color(0.015f, 0.906f, 0.176f, 1) },
             { "Standard Acc", new Color(0.039f, 0.573f, 0.918f, 1) },

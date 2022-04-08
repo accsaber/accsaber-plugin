@@ -19,6 +19,12 @@ namespace AccSaber.UI.Panel
     {
         [Inject]
         private SiraLog _siraLog;
+
+        [Inject] 
+        private AccSaberUserModel _userModel;
+
+        [Inject] 
+        private AccSaberCategory _category;
         
         private Sprite _logoSprite;
         private Sprite _flushedSprite;
@@ -31,6 +37,9 @@ namespace AccSaber.UI.Panel
         
         [UIComponent("separator")]
         private ImageView separator;
+        
+        private string promptText = "";
+        private bool loadingActive;
        
         public void Initialize()
         {
@@ -46,39 +55,58 @@ namespace AccSaber.UI.Panel
                 if (background != null)
                 {
                     background.material = BeatSaberMarkupLanguage.Utilities.ImageResources.NoGlowMat;
-                    _siraLog.Info("1");
-                    background.color0 = new Color(0.015f, 0.906f, 0.176f, 1);
-                    _siraLog.Info("2");
-                    background.color1 = new Color(0.015f, 0.906f, 0.176f, 0);
-                    _siraLog.Info("3");
-                    background.color = Color.white;
-                    _siraLog.Info("4");
+                    background.color0 = new Color(0.902f, 0.027f, 0.027f, 1);
+                    background.color1 = new Color(1f, 1, 1f, 0.01f);
+                    background.color = Color.gray;
                     Accessors.GradientAccessor(ref background) = true;
-                    _siraLog.Info("5");
                     Accessors.SkewAccessor(ref background) = 0.18f;
-                    _siraLog.Info("finished parsing the backgroundable");
                 }
             }
-        
-            _logoSprite = accSaberlogo.sprite;
-            _flushedSprite =
-                BeatSaberMarkupLanguage.Utilities.FindSpriteInAssembly("AccSaber.Resources.Logos.AccSaber.png");
-            _siraLog.Info("knobheadthefirst");
-        
+
+            if (_logoSprite != null)
+            {
+                _logoSprite = accSaberlogo.sprite;
+                _flushedSprite =
+                    BeatSaberMarkupLanguage.Utilities.FindSpriteInAssembly("AccSaber.Resources.Logos.AccSaber.png");
+            }
+
             if (accSaberlogo != null)
             {
-                _siraLog.Info("knobhead");
                 Accessors.SkewAccessor(ref accSaberlogo) = 0.18f;
                 accSaberlogo.SetVerticesDirty();
             }
         
             if (separator != null)
             {
-                _siraLog.Info("knobhead2");
                 Accessors.SkewAccessor(ref separator) = 0.18f;
                 separator.SetVerticesDirty();    
             }
         }
+        
+        [UIValue("loading-active")]
+        public bool LoadingActive
+        {
+            get => loadingActive;
+            set
+            {
+                loadingActive = value;
+                NotifyPropertyChanged(nameof(LoadingActive));
+            }
+        }
+        
+        [UIValue("prompt-text")]
+        public string PromptText
+        {
+            get => promptText;
+            set
+            {
+                promptText = value;
+                NotifyPropertyChanged(nameof(PromptText));
+            }
+        }
+        
+        [UIValue("pool-ranking-text")]
+        private string PoolRankingText => $"<b>Category Ranking:</b> #{_userModel.rank} <size=75%>(<color=#aa6eff>{_userModel.ap:F2}ap</color>)";
 
         public void Dispose()
         {

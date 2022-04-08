@@ -89,10 +89,10 @@ namespace AccSaber.Managers
             { 
                 if (beatmap == null) return;
 
-                _log.Debug("Is data initialized?");
-                _log.Debug($"{_accSaberData.IsDataInitialized}");
+                _log.Debug("Is map data initialized?");
+                _log.Debug($"{_accSaberData.IsMapDataInitialized}");
 
-                if (!_accSaberData.IsDataInitialized)
+                if (!_accSaberData.IsMapDataInitialized)
                 {
                     return;
                 }
