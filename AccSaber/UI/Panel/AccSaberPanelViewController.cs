@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Linq;
+using AccSaber.Data;
 using AccSaber.Models;
+using AccSaber.UI.MenuButton;
 using AccSaber.Utils;
+using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
-using JetBrains.Annotations;
 using SiraUtil.Logging;
 using UnityEngine;
 using Zenject;
@@ -15,32 +18,52 @@ namespace AccSaber.UI.Panel
 {
     [ViewDefinition("AccSaber.UI.Panel.AccSaberPanelView.bsml")]
     [HotReload(RelativePathToLayout = @"..\UI\Panel\AccSaberPanelView.bsml")]
-    public class AccSaberPanelController : BSMLAutomaticViewController, IInitializable, IDisposable
+    public class AccSaberPanelViewController : BSMLAutomaticViewController, IInitializable, IDisposable
     {
+        [Inject] 
+        private AccSaberMainFlowCoordinator _accSaberMainFlowCoordinator;
+        
         [Inject]
         private SiraLog _siraLog;
 
         [Inject] 
         private AccSaberUserModel _userModel;
+        
+        [Inject]
+        private AccSaberData _accSaberData;
+        
+        [Inject]
+        private AccSaberAPISong _APISong;
+
+        [Inject]
+        private AccSaberSongDiff _songDiff;
+
+        [Inject] 
+        private AccSaberSong _selectedSong;
 
         [Inject] 
         private AccSaberCategory _category;
+
+        [Inject] 
+        private LevelCollectionNavigationController _navigation;
         
         private Sprite _logoSprite;
-        private Sprite _flushedSprite;
 
         [UIComponent("container")]
         private readonly Backgroundable backgroundable;
 
         [UIComponent("logo")] 
         private ImageView accSaberlogo;
+
+        [UIComponent("download-image")] 
+        private ClickableImage downloadImage;
         
         [UIComponent("separator")]
         private ImageView separator;
         
-        private string promptText = "";
-        private bool loadingActive;
-       
+        private string _promptText = "";
+        private bool _loadingActive;
+
         public void Initialize()
         {
             
@@ -49,25 +72,30 @@ namespace AccSaber.UI.Panel
         [UIAction("#post-parse")]
         private void PostParse()
         {
+            var rankedSong = _navigation.selectedDifficultyBeatmap;
+            
             _siraLog.Info("Post-parsing started..");
             if (backgroundable.background is ImageView background)
             {
                 if (background != null)
                 {
-                    background.material = BeatSaberMarkupLanguage.Utilities.ImageResources.NoGlowMat;
-                    background.color0 = new Color(0.902f, 0.027f, 0.027f, 1);
-                    background.color1 = new Color(1f, 1, 1f, 0.01f);
-                    background.color = Color.gray;
+                    background.material = Utilities.ImageResources.NoGlowMat;
                     Accessors.GradientAccessor(ref background) = true;
                     Accessors.SkewAccessor(ref background) = 0.18f;
+
+                    BeatmapDifficulty difficulty;
+                    foreach (var category in _songDiff.difficulty)
+                    {
+                        background.color0 = 
+                            background.color1 = new Color(1f, 1f, 1f, 0f);
+                        background.color = Color.gray;
+                    }
                 }
             }
 
             if (_logoSprite != null)
             {
                 _logoSprite = accSaberlogo.sprite;
-                _flushedSprite =
-                    BeatSaberMarkupLanguage.Utilities.FindSpriteInAssembly("AccSaber.Resources.Logos.AccSaber.png");
             }
 
             if (accSaberlogo != null)
@@ -86,10 +114,10 @@ namespace AccSaber.UI.Panel
         [UIValue("loading-active")]
         public bool LoadingActive
         {
-            get => loadingActive;
+            get => _loadingActive;
             set
             {
-                loadingActive = value;
+                _loadingActive = value;
                 NotifyPropertyChanged(nameof(LoadingActive));
             }
         }
@@ -97,17 +125,26 @@ namespace AccSaber.UI.Panel
         [UIValue("prompt-text")]
         public string PromptText
         {
-            get => promptText;
+            get => _promptText;
             set
             {
-                promptText = value;
+                _promptText = value;
                 NotifyPropertyChanged(nameof(PromptText));
             }
         }
         
         [UIValue("pool-ranking-text")]
-        private string PoolRankingText => $"<b>Category Ranking:</b> #{_userModel.rank} <size=75%>(<color=#aa6eff>{_userModel.ap:F2}ap</color>)";
+        private string PoolRankingText => $"<color=#EDFF55>Category Ranking:</color> #{_userModel.rank} <size=75%>(<color=#00FFAE>{_userModel.ap:F2}ap</color>)";
+        
+        [UIValue("average-acc-text")]
+        private string AverageAccText => $"<color=#EDFF55>Map Complexity:</color> {_APISong.complexity}";
 
+        [UIValue("download-hover")]
+        private string DownloadHint => "Download all maps, including the ones \n that have been updated!";
+
+        [UIAction("download-click")]
+        private void DownloadClick() => _accSaberMainFlowCoordinator.Show();
+        
         public void Dispose()
         {
         }

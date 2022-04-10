@@ -1,9 +1,11 @@
+using Newtonsoft.Json;
+
 namespace AccSaber.Models
 {
     public class AccSaberUserModel
     {
         public int rank;
-        public long playerId;
+        public string playerId;
         public string playerName;
         public string hmd;
         public float averageAcc;
@@ -11,5 +13,8 @@ namespace AccSaber.Models
         public float averageApPerMap;
         public int rankedPlays;
         public bool accChamp;
+        
+        [JsonIgnore]
+        public bool Registered { get; internal set; }
     }
 }

@@ -21,6 +21,7 @@ namespace AccSaber.UI.MenuButton
         private AccSaberDownloader _accSaberDownloader;
         private BeatSaverDownloader _beatSaverDownloader;
 
+        private FlowCoordinator _parentFlowCoordinator;
         private MainFlowCoordinator _mainFlowCoordinator;
         private RankedMapsView _rankedMapsView;
         private static SelectedMapView _selectedMapView;
@@ -93,7 +94,8 @@ namespace AccSaber.UI.MenuButton
             closeCancellationTokenSource?.Cancel();
             closeCancellationTokenSource = null;
             SelectedMapView.coverCancel?.Cancel();
-            _mainFlowCoordinator.DismissFlowCoordinator(this);
+            _selectedMapView.gameObject.SetActive(false);
+            _parentFlowCoordinator.DismissFlowCoordinator(this);
         }
 
         private void SongcoreSongsLoaded(object arg1, object arg2)
@@ -176,6 +178,12 @@ namespace AccSaber.UI.MenuButton
             {
                 _rankedMapsView.DownloadSongInternal(song);
             }
+        }
+
+        internal void Show()
+        {
+            _parentFlowCoordinator = _mainFlowCoordinator.YoungestChildFlowCoordinatorOrSelf();
+            _parentFlowCoordinator.PresentFlowCoordinator(this);
         }
     }
 }

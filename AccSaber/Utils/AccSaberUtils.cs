@@ -23,7 +23,7 @@ namespace AccSaber.Utils
             knownCategories.Add(category);
         }
 
-        public static AccSaberCategory GetCategoryByDisplayName(string categoryDisplayName)
+        internal static AccSaberCategory GetCategoryByDisplayName(string categoryDisplayName)
         {
             foreach (var category in knownCategories)
             {

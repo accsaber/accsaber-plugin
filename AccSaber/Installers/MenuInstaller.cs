@@ -1,7 +1,9 @@
 ﻿using AccSaber.Data;
 using AccSaber.Downloaders;
+using AccSaber.Interfaces;
 using AccSaber.Managers;
 using AccSaber.Models;
+using AccSaber.Sources;
 using AccSaber.UI.Leaderboard;
 using AccSaber.UI.MenuButton;
 using AccSaber.UI.MenuButton.ViewControllers;
@@ -29,15 +31,16 @@ namespace AccSaber.Installers
                 .FromNewComponentOnNewGameObject()
                 .AsSingle();
             
+            // Sources
+            Container.Bind<ILeaderboardSource>().To<GlobalLeaderboardSource>().AsSingle();
+            
             // Leaderboard
             Container.BindInterfacesAndSelfTo<AccSaberLeaderboardViewController>()
                 .FromNewComponentAsViewController().AsSingle();
-            Container.BindInterfacesAndSelfTo<AccSaberPanelController>()
+            Container.BindInterfacesAndSelfTo<AccSaberPanelViewController>()
                 .FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<AccSaberManager>()
-                .AsSingle().NonLazy();
-            
-            
+                .AsSingle();
         }
     }
 }

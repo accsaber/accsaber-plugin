@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AccSaber.Downloaders;
+using AccSaber.Interfaces;
 using BeatSaberMarkupLanguage.ViewControllers;
 using AccSaber.Models;
 using AccSaber.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
 using SiraUtil.Logging;
@@ -18,15 +22,17 @@ namespace AccSaber.UI.Leaderboard
 {
     [HotReload(RelativePathToLayout = @"..\Leaderboard\AccSaberLeaderboardView.bsml")]
     [ViewDefinition("AccSaber.UI.Leaderboard.AccSaberLeaderboardView.bsml")]
-    public class AccSaberLeaderboardViewController : BSMLAutomaticViewController
+    public class AccSaberLeaderboardViewController : BSMLAutomaticViewController, ILeaderboardEntriesUpdater
     {
         [Inject]
         private SiraLog _log;
         [Inject] 
         private LevelCollectionNavigationController _collectionNavigation;
-        private AccSaberDownloader _accSaberDownloader;
+        [Inject] 
+        private readonly List<ILeaderboardSource> _leaderboardSource;
+        private readonly AccSaberDownloader _accSaberDownloader;
         private GameObject _loadingControl;
-        private int _leaderboardPageNumber = 1;
+        private int pageNumber = 0;
         private int _selectedCellIndex;
         [Inject]
         private List<AccSaberLeaderboardEntries> _leaderboardEntries;
@@ -36,6 +42,9 @@ namespace AccSaber.UI.Leaderboard
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         
         private List<Button> infoButtons;
+        private IDifficultyBeatmap difficultyBeatmap;
+        
+        public event Action<string, string, string, int, int, CancellationToken> PageRequested;
         
         [UIComponent("leaderboard")]
         private readonly Transform leaderboardTransform;
@@ -63,7 +72,7 @@ namespace AccSaber.UI.Leaderboard
         [UIComponent("button6")]
         private readonly Button button6;
 
-        [UIComponent("button")]
+        [UIComponent("button7")]
         private readonly Button button7;
 
         [UIComponent("button8")]
@@ -85,15 +94,20 @@ namespace AccSaber.UI.Leaderboard
 
         private int PageNumber
         {
-            get => _leaderboardPageNumber;
+            get => pageNumber;
             set
             {
-                _leaderboardPageNumber = value;
+                pageNumber = value;
                 NotifyPropertyChanged(nameof(UpEnabled));
-                if (leaderboardTransform != null)
+                if (leaderboard != null && _loadingControl != null && difficultyBeatmap != null)
                 {
                     leaderboard.SetScores(new List<LeaderboardTableView.ScoreData>(), 0);
                     _loadingControl.SetActive(true);
+                    PageRequested?.Invoke(difficultyBeatmap.level.levelID.GetRankedSongHash(), 
+                        difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName, 
+                        difficultyBeatmap.difficulty.SerializedName(),
+                        pageNumber,
+                        10, _cancellationTokenSource.Token);
                 }
             }
         }
@@ -124,16 +138,6 @@ namespace AccSaber.UI.Leaderboard
                 });
             }
 
-            var beatmap = _collectionNavigation.selectedDifficultyBeatmap;
-
-            leaderboardEntries = await _accSaberDownloader.GetLeaderboardsAsync(
-                beatmap.level.levelID.GetRankedSongHash(),
-                beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName,
-                beatmap.difficulty.ToString(),
-                PageNumber,
-                10,
-                _cancellationTokenSource.Token);
-            
             _log.Info("Finished request.");
 
             if (leaderboardEntries == null || leaderboardEntries.Count == 0)
@@ -141,6 +145,7 @@ namespace AccSaber.UI.Leaderboard
                 scores.Add(new LeaderboardTableView.ScoreData(0, 
                     "<size=75%>Scores have yet to be refreshed. Please allow up to 15 minutes.</size>",
                     0, false));
+                _log.Info("Set non-refreshed leaderboard");
             }
             else
             {
@@ -155,11 +160,14 @@ namespace AccSaber.UI.Leaderboard
                             leaderboardEntries[i].rank,
                             false));
                         
+                        _log.Info("Set scores to leaderboard.");
+                        
                         if (infoButtons != null)
                         {
                             infoButtons[i].gameObject.SetActive(true);
                             var hoverHint = infoButtons[i].GetComponent<HoverHint>();
                             hoverHint.text = $"Score Set: {leaderboardEntries[i].timeSet}";
+                            _log.Info($"Set info hover hint to {hoverHint.text}");
                         }
 
                         if (leaderboardEntries[i].playerId == userID)
@@ -208,16 +216,16 @@ namespace AccSaber.UI.Leaderboard
             
             infoButtons = new List<Button>();
 
-            // ChangeButtonScale(button1, 0.425f);
-            // ChangeButtonScale(button2, 0.425f);
-            // ChangeButtonScale(button3, 0.425f);
-            // ChangeButtonScale(button4, 0.425f);
-            // ChangeButtonScale(button5, 0.425f);
-            // ChangeButtonScale(button6, 0.425f);
-            // ChangeButtonScale(button7, 0.425f);
-            // ChangeButtonScale(button8, 0.425f);
-            // ChangeButtonScale(button9, 0.425f);
-            // ChangeButtonScale(button10, 0.425f);
+            ChangeButtonScale(button1, 0.425f);
+            ChangeButtonScale(button2, 0.425f);
+            ChangeButtonScale(button3, 0.425f);
+            ChangeButtonScale(button4, 0.425f);
+            ChangeButtonScale(button5, 0.425f);
+            ChangeButtonScale(button6, 0.425f);
+            ChangeButtonScale(button7, 0.425f);
+            ChangeButtonScale(button8, 0.425f);
+            ChangeButtonScale(button9, 0.425f);
+            ChangeButtonScale(button10, 0.425f);
         }
         
         public void LeaderboardEntriesUpdated(List<AccSaberLeaderboardEntries> leaderboardEntries)
@@ -239,6 +247,7 @@ namespace AccSaber.UI.Leaderboard
             if (UpEnabled)
             {
                 PageNumber--;
+                _log.Debug("Gone up a page");
             }
         }
 
@@ -248,6 +257,7 @@ namespace AccSaber.UI.Leaderboard
             if (DownEnabled)
             {
                 PageNumber++;
+                _log.Debug("Gone down a page");
             }
         }
         
@@ -256,15 +266,15 @@ namespace AccSaber.UI.Leaderboard
         {
             get
             {
-                List<IconSegmentedControl.DataItem> list = new List<IconSegmentedControl.DataItem>();
-                return list;
+                return _leaderboardSource.Select(leaderboardSource => new IconSegmentedControl.DataItem(leaderboardSource.Icon, leaderboardSource.HoverHint)).ToList();
             }
         }
 
-        [UIValue("up-enabled")] 
-        private bool UpEnabled => PageNumber != 0;
+        [UIValue("up-enabled")]
+        private bool UpEnabled => PageNumber != 0 && _leaderboardSource[SelectedCellIndex].Scrollable;
         
         [UIValue("down-enabled")]
-        private bool DownEnabled => _leaderboardEntries is { Count: 10 };
+        private bool DownEnabled => _leaderboardEntries is { Count: 10 } && _leaderboardSource[SelectedCellIndex].Scrollable;
+        
     }
 }

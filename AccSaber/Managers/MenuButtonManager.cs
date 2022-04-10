@@ -9,13 +9,11 @@ namespace AccSaber.Managers
     internal class MenuButtonManager : IInitializable, IDisposable
     {
         private MenuButton _menuButton;
-        private readonly MainFlowCoordinator _mainFlowCoordinator;
-        private readonly AccSaberMainFlowCoordinator _accsaberFlowCoordinator;
+        private readonly AccSaberMainFlowCoordinator _accSaberFlowCoordinator;
 
-        public MenuButtonManager(MainFlowCoordinator mainFlowCoordinator, AccSaberMainFlowCoordinator accsaberFlowCoordinator)
+        public MenuButtonManager( AccSaberMainFlowCoordinator accSaberFlowCoordinator)
         {
-            _mainFlowCoordinator = mainFlowCoordinator;
-            _accsaberFlowCoordinator = accsaberFlowCoordinator;
+            _accSaberFlowCoordinator = accSaberFlowCoordinator;
             _menuButton = new MenuButton("AccSaber", PresentFlowCoordinator);
         }
 
@@ -26,7 +24,7 @@ namespace AccSaber.Managers
 
         private void PresentFlowCoordinator()
         {
-            _mainFlowCoordinator.PresentFlowCoordinator(_accsaberFlowCoordinator);
+            _accSaberFlowCoordinator.Show();
         }
 
         public void Dispose()

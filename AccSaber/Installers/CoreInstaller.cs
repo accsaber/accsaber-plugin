@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AccSaber.Interfaces;
 using Zenject;
 
 namespace AccSaber.Installers
@@ -26,7 +27,6 @@ namespace AccSaber.Installers
             Container.Bind<AccSaberCategory>().AsSingle();
             Container.Bind<AccSaberLeaderboardEntries>().AsSingle();
             Container.Bind<AccSaberSong>().AsSingle();
-            Container.Bind<AccSaberSongDiff>().AsSingle();
             Container.Bind<AccSaberUserModel>().AsSingle();
         }
     }

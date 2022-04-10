@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net48</TargetFramework>
         <OutputType>Library</OutputType>
-        <LangVersion>8</LangVersion>
+        <LangVersion>9</LangVersion>
         <Nullable>disable</Nullable>
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
         <LocalRefsDir Condition="Exists('..\Refs')">..\Refs</LocalRefsDir>
@@ -132,6 +132,10 @@
         <EmbeddedResource Include="Resources\pixel.png" />
         <None Remove="Resources\InfoIcon.png" />
         <EmbeddedResource Include="Resources\InfoIcon.png" />
+        <None Remove="Resources\GlobalIcon.png" />
+        <EmbeddedResource Include="Resources\GlobalIcon.png" />
+        <None Remove="Resources\download.png" />
+        <EmbeddedResource Include="Resources\download.png" />
     </ItemGroup>
 
     <ItemGroup>
