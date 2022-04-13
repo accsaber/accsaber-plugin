@@ -37,9 +37,9 @@ namespace AccSaber.Managers
         private AccSaberDownloader _accSaberDownloader;
         private readonly AccSaberData _accSaberData;
         private readonly List<AccSaberAPISong> _accSaberAPISong;
-        private List<AccSaberLeaderboardEntries> _leaderboardEntries;
+        private List<AccSaberLeaderboardEntry> _leaderboardEntries;
         private AccSaberPanelViewController _panelViewController;
-        
+
         private readonly List<IDifficultyBeatmapUpdater> difficultyBeatmapUpdaters;
 
         private readonly AccSaberLeaderboardViewController _accSaberLeaderboardViewController;
@@ -66,12 +66,12 @@ namespace AccSaber.Managers
             LevelCollectionNavigationController navigationController,
             AccSaberData accSaberData,
             AccSaberDownloader accSaberDownloader,
-            List<AccSaberAPISong> accSaberAPISong, 
-            List<AccSaberLeaderboardEntries> leaderboardEntries, 
-            List<INotifyViewActivated> notifyViewActivateds, 
-            AccSaberLeaderboardViewController accSaberLeaderboardViewController, 
-            LevelCollectionNavigationController beatmap, 
-            AccSaberPanelViewController panelViewController, 
+            List<AccSaberAPISong> accSaberAPISong,
+            List<AccSaberLeaderboardEntry> leaderboardEntries,
+            List<INotifyViewActivated> notifyViewActivateds,
+            AccSaberLeaderboardViewController accSaberLeaderboardViewController,
+            LevelCollectionNavigationController beatmap,
+            AccSaberPanelViewController panelViewController,
             LeaderboardDownloader leaderboardDownloader)
         {
             _customLeaderboardManager = customLeaderboardManager;
@@ -103,12 +103,12 @@ namespace AccSaber.Managers
         {
             _navigationController.didChangeLevelDetailContentEvent -= OnSongChange;
             _navigationController.didChangeDifficultyBeatmapEvent -= OnBeatmapChange;
-            
+
 
             _accSaberLeaderboardViewController.didActivateEvent -= OnViewActivated;
             // _accSaberLeaderboardViewController.PageRequested -= OnPageRequested;
         }
-        
+
 
         private void OnBeatmapChange(LevelCollectionNavigationController collectionNavigationController,
             IDifficultyBeatmap difficultyBeatmap)
@@ -118,7 +118,7 @@ namespace AccSaber.Managers
             HandleCategoryColorChange();
         }
 
-        private void OnSongChange(LevelCollectionNavigationController collectionNavigationController, 
+        private void OnSongChange(LevelCollectionNavigationController collectionNavigationController,
             StandardLevelDetailViewController.ContentType contentType)
         {
             if (contentType == OwnedAndReady)
@@ -126,7 +126,6 @@ namespace AccSaber.Managers
                 HandleRankedSongLeaderboard(collectionNavigationController);
                 HandleCategoryColorChange();
             }
-            
         }
 
         private void HandleCategoryColorChange()
@@ -138,16 +137,16 @@ namespace AccSaber.Managers
         private void HandleRankedSongLeaderboard(LevelCollectionNavigationController collectionNavigationController)
         {
             var difficultyBeatmap = collectionNavigationController.selectedDifficultyBeatmap;
-            
+
             if (difficultyBeatmap == null) return;
 
             if (!_accSaberData.IsMapDataInitialized)
             {
                 return;
             }
-            
-            if (_accSaberData.GetMapsFromHash(difficultyBeatmap.level.levelID.GetRankedSongHash()).Any(x => 
-                x.difficulty.Equals(difficultyBeatmap.difficulty.ToString(), StringComparison.InvariantCultureIgnoreCase)))
+
+            if (_accSaberData.GetMapsFromHash(difficultyBeatmap.level.levelID.GetRankedSongHash()).Any(x =>
+                    x.difficulty.Equals(difficultyBeatmap.difficulty.ToString(), StringComparison.InvariantCultureIgnoreCase)))
             {
                 _customLeaderboardManager.Register(this);
             }
@@ -164,20 +163,15 @@ namespace AccSaber.Managers
             if (difficultyBeatmap != null)
             {
                 selectedDifficultyBeatmap = difficultyBeatmap;
-                levelInfoTokenSource.Cancel();
-                levelInfoTokenSource.Dispose();
-                AccSaberLeaderboardEntries leaderboardDownloader = null;
+                // levelInfoTokenSource.Cancel();
+                // levelInfoTokenSource.Dispose();
 
                 if (difficultyBeatmap.level is CustomPreviewBeatmapLevel)
                 {
                     levelInfoTokenSource = new CancellationTokenSource();
-                    leaderboardDownloader = await _leaderboardDownloader.GetLeaderboardAsync(difficultyBeatmap, levelInfoTokenSource.Token);
+                    var accSaberLeaderboardEntries = await _leaderboardDownloader.GetLeaderboardAsync(difficultyBeatmap, levelInfoTokenSource.Token);
+                    await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(() => _accSaberLeaderboardViewController.LeaderboardEntriesUpdated(accSaberLeaderboardEntries));
                 }
-                foreach (var difficultyBeatmapUpdater in difficultyBeatmapUpdaters)
-                {
-                    await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(() => difficultyBeatmapUpdater.DifficultyBeatmapUpdated(difficultyBeatmap, leaderboardDownloader));
-                }
-
             }
         }
 
@@ -210,7 +204,7 @@ namespace AccSaber.Managers
         //         }
         //     }
         // }
-        
+
 
         private void OnViewActivated(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {

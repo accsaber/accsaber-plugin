@@ -31,7 +31,7 @@ namespace AccSaber.Installers
             Container.BindInterfacesAndSelfTo<AccSaberData>().AsSingle();
             Container.Bind<AccSaberAPISong>().AsSingle();
             Container.Bind<AccSaberCategory>().AsSingle();
-            Container.Bind<AccSaberLeaderboardEntries>().AsSingle();
+            Container.Bind<AccSaberLeaderboardEntry>().AsSingle();
             Container.Bind<AccSaberSong>().AsSingle();
             Container.Bind<AccSaberUserModel>().AsSingle();
             Container.Bind<AccSaberSongDiff>().AsSingle();

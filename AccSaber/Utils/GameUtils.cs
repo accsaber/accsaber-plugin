@@ -4,15 +4,15 @@ namespace AccSaber.Utils
     {
         public static string DifficultyBeatmapToString(IDifficultyBeatmap difficultyBeatmap)
         {
-            if (difficultyBeatmap.level is CustomPreviewBeatmapLevel customLevel)
+            if (difficultyBeatmap.level is not CustomPreviewBeatmapLevel customLevel)
             {
-                var hash = SongCore.Utilities.Hashing.GetCustomLevelHash(customLevel);
-                var difficulty = difficultyBeatmap.difficulty.ToString();
-                var characteristic = difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
-                return $"{hash}/{characteristic}/{difficulty}";   
+                return null;
             }
 
-            return null;
+            var hash = SongCore.Utilities.Hashing.GetCustomLevelHash(customLevel);
+            var difficulty = difficultyBeatmap.difficulty.ToString();
+            var characteristic = difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
+            return $"{hash}/{characteristic}/{difficulty}";
         }
     }
 }

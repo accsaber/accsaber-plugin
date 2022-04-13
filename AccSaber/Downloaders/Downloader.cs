@@ -43,8 +43,7 @@ namespace AccSaber.Downloaders
             }
         }
 
-        internal async Task<T> MakeJsonRequestAsync<T>(string url, CancellationToken cancellationToken,
-            Action<float> progressCallback = null)
+        internal async Task<T> MakeJsonRequestAsync<T>(string url, CancellationToken cancellationToken, Action<float> progressCallback = null)
         {
             var webRequest = await MakeRequestAsync(url, cancellationToken, progressCallback);
 
@@ -92,8 +91,7 @@ namespace AccSaber.Downloaders
             }
         }
 
-        internal async Task<UnityWebRequest> MakeRequestAsync(string url, CancellationToken cancellationToken,
-            Action<float> progressCallback = null)
+        internal async Task<UnityWebRequest> MakeRequestAsync(string url, CancellationToken cancellationToken, Action<float> progressCallback = null)
         {
             var webRequest = UnityWebRequest.Get(url);
             webRequest.SetRequestHeader("User-Agent", USER_AGENT);

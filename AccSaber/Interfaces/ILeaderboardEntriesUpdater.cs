@@ -5,6 +5,6 @@ namespace AccSaber.Interfaces
 {
     internal interface ILeaderboardEntriesUpdater
     {
-        public void LeaderboardEntriesUpdated(List<AccSaberLeaderboardEntries> leaderboardEntries);
+        public void LeaderboardEntriesUpdated(List<AccSaberLeaderboardEntry> leaderboardEntries);
     }
 }

@@ -8,7 +8,7 @@ using SiraUtil.Web;
 
 namespace AccSaber.Downloaders
 {
-    public class LeaderboardDownloader
+    public class LeaderboardDownloader : Downloader
     {
         private const string API_URL = "https://api.accsaber.com/";
         private const string CDN_URL = "https://cdn.accsaber.com/";
@@ -18,38 +18,27 @@ namespace AccSaber.Downloaders
         private const string PLAYERS_ENDPOINT = "players/";
         private const string PAGINATION_PAGE = "?page=";
         private const string PAGINATION_PAGESIZE = "&pageSize=";
-        
+
         private readonly IHttpService _httpService;
         private readonly SiraLog _log;
-        
-        public LeaderboardDownloader(SiraLog siraLog, IHttpService httpService, SiraLog log)
+
+        public LeaderboardDownloader(SiraLog siraLog, IHttpService httpService, SiraLog log) : base(siraLog)
         {
             _httpService = httpService;
             _log = log;
         }
 
-        public async Task<AccSaberLeaderboardEntries> GetLeaderboardAsync(IDifficultyBeatmap difficultyBeatmap, CancellationToken cancellationToken = default)
+        public async Task<List<AccSaberLeaderboardEntry>> GetLeaderboardAsync(IDifficultyBeatmap difficultyBeatmap, CancellationToken cancellationToken = default)
         {
-            var beatmapString = Utils.GameUtils.DifficultyBeatmapToString(difficultyBeatmap);
+            var beatmapString = GameUtils.DifficultyBeatmapToString(difficultyBeatmap);
             if (beatmapString == null)
             {
                 return null;
             }
 
-            try
-            {
-                var response = await _httpService
-                    .GetAsync(API_URL + LEADERBOARDS_ENDPOINT + beatmapString + PAGINATION_PAGE + 0 + PAGINATION_PAGESIZE + 10, cancellationToken: cancellationToken)
-                    .ConfigureAwait(false);
-                _log.Debug(response.Code);
-                var leaderboardInfo = await Utils.ResponseParser.ParseWebResponse<AccSaberLeaderboardEntries>(response);
-
-                return leaderboardInfo;
-            }
-            catch (TaskCanceledException)
-            {
-                return null;
-            }
+            var url = API_URL + LEADERBOARDS_ENDPOINT + beatmapString + PAGINATION_PAGE + 0 + PAGINATION_PAGESIZE + 10;
+            
+            return await MakeJsonRequestAsync<List<AccSaberLeaderboardEntry>>(url, cancellationToken);
         }
     }
 }

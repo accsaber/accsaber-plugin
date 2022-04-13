@@ -35,7 +35,7 @@ namespace AccSaber.UI.Leaderboard
         private int pageNumber = 0;
         private int _selectedCellIndex;
         [Inject]
-        private List<AccSaberLeaderboardEntries> _leaderboardEntries;
+        private List<AccSaberLeaderboardEntry> _leaderboardEntries;
         [Inject]
         private AccSaberCategory _categories;
         private UserIDUtils _userID;
@@ -123,7 +123,7 @@ namespace AccSaber.UI.Leaderboard
             }
         }
 
-        private async Task SetScores(List<AccSaberLeaderboardEntries> leaderboardEntries)
+        private async Task SetScores(List<AccSaberLeaderboardEntry> leaderboardEntries)
         {
             _leaderboardEntries = leaderboardEntries;
             var scores = new List<LeaderboardTableView.ScoreData>();
@@ -227,7 +227,7 @@ namespace AccSaber.UI.Leaderboard
             ChangeButtonScale(button10, 0.425f);
         }
         
-        public void LeaderboardEntriesUpdated(List<AccSaberLeaderboardEntries> leaderboardEntries)
+        public void LeaderboardEntriesUpdated(List<AccSaberLeaderboardEntry> leaderboardEntries)
         {
             _leaderboardEntries = leaderboardEntries;
             _log.Info(_leaderboardEntries);

@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace AccSaber.Models
 {
-    public class AccSaberLeaderboardEntries
+    public class AccSaberLeaderboardEntry
     {
         [JsonProperty("rank")]
         public int rank;
