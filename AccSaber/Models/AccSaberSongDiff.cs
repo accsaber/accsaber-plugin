@@ -10,7 +10,7 @@ namespace AccSaber.Models
         public string categoryDisplayName;
         public string difficulty;
         public float complexity;
-        [JsonIgnore] public string categoryComplexityString;
+        public string categoryComplexityString;
 
         public AccSaberSongDiff(string inCategoryDisplayName, string inDifficulty, float inComplexity)
         {

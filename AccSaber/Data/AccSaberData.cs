@@ -70,7 +70,7 @@ namespace AccSaber.Data
                 }
                 else
                 {
-                    _songHashMap.Add(hash, new List<AccSaberAPISong>() { rankedSong });
+                    _songHashMap.Add(hash, new List<AccSaberAPISong> { rankedSong });
                 }
             }
             _log.Info("Finished caching ranked maps");

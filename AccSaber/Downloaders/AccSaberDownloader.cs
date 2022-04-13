@@ -47,14 +47,6 @@ namespace AccSaber.Downloaders
             return await MakeJsonRequestAsync<List<AccSaberCategory>>(url, cancellationToken);
         }
 
-        public async Task<List<AccSaberLeaderboardEntries>> GetLeaderboardsAsync(
-            string hash, string characteristic, string difficulty, int page, int pageSize, CancellationToken cancellationToken)
-        {
-            var url = API_URL + LEADERBOARDS_ENDPOINT + hash + "/" + characteristic + "/" + difficulty +
-                      PAGINATION_PAGE + page + PAGINATION_PAGESIZE + pageSize;
-            return await MakeJsonRequestAsync<List<AccSaberLeaderboardEntries>>(url, cancellationToken);
-        }
-
         public async Task<List<AccSaberUserModel>> GetUserInfo(int userId, string category, CancellationToken cancellationToken)
         {
             var url = API_URL + PLAYERS_ENDPOINT + userId + "/" + category;

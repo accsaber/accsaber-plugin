@@ -90,6 +90,7 @@ namespace AccSaber.UI.Leaderboard
         {
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
             PageNumber = 0;
+            
         }
 
         private int PageNumber
@@ -124,6 +125,7 @@ namespace AccSaber.UI.Leaderboard
 
         private async Task SetScores(List<AccSaberLeaderboardEntries> leaderboardEntries)
         {
+            _leaderboardEntries = leaderboardEntries;
             var scores = new List<LeaderboardTableView.ScoreData>();
             var myScorePos = -1;
             
@@ -137,9 +139,6 @@ namespace AccSaber.UI.Leaderboard
                     }
                 });
             }
-
-            _log.Info("Finished request.");
-
             if (leaderboardEntries == null || leaderboardEntries.Count == 0)
             {
                 scores.Add(new LeaderboardTableView.ScoreData(0, 
@@ -231,6 +230,8 @@ namespace AccSaber.UI.Leaderboard
         public void LeaderboardEntriesUpdated(List<AccSaberLeaderboardEntries> leaderboardEntries)
         {
             _leaderboardEntries = leaderboardEntries;
+            _log.Info(_leaderboardEntries);
+            _log.Info(leaderboardEntries);
             NotifyPropertyChanged(nameof(DownEnabled));
             _ = SetScores(leaderboardEntries);
         }

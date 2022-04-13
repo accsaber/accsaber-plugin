@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AccSaber.Interfaces;
+using AccSaber.Utils;
 using Zenject;
 
 namespace AccSaber.Installers
@@ -20,6 +21,11 @@ namespace AccSaber.Installers
                 .AsSingle();
             Container.Bind<BeatSaverDownloader>()
                 .AsSingle();
+            Container.Bind<LeaderboardDownloader>()
+                .AsSingle();
+            
+            
+            Container.BindInterfacesTo<GameUtils>().AsSingle();
 
             // Data
             Container.BindInterfacesAndSelfTo<AccSaberData>().AsSingle();
@@ -28,6 +34,7 @@ namespace AccSaber.Installers
             Container.Bind<AccSaberLeaderboardEntries>().AsSingle();
             Container.Bind<AccSaberSong>().AsSingle();
             Container.Bind<AccSaberUserModel>().AsSingle();
+            Container.Bind<AccSaberSongDiff>().AsSingle();
         }
     }
 }

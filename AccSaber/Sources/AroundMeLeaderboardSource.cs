@@ -1,13 +1,16 @@
 using AccSaber.Downloaders;
 using AccSaber.Interfaces;
+using AccSaber.Utils;
+using HMUI;
 using UnityEngine;
 
 namespace AccSaber.Sources
 {
-    public class GlobalLeaderboardSource : ILeaderboardSource
+    public class AroundMeLeaderboardSource : ILeaderboardSource
     {
-        public string HoverHint => "Global";
-        private Sprite _icon;
+        public string HoverHint => "Around Me";
+        public Sprite _icon;
+        
         public Sprite Icon
         {
             get
@@ -19,7 +22,9 @@ namespace AccSaber.Sources
                 return _icon;
             }
         }
+
         public AccSaberDownloader AccSaberDownloader { get; }
-        public bool Scrollable => true;
+
+        public bool Scrollable { get; }
     }
 }

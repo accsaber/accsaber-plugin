@@ -14,11 +14,11 @@ namespace AccSaber.Models
         public string beatSaverKey;
         public string songHash;
         public List<AccSaberSongDiff> diffs;
-        [JsonIgnore] public bool downloaded = false;
-        [JsonIgnore] public string artistSongNameString;
-        [JsonIgnore] public string formattedName;
-        [JsonIgnore] public string levelID;
-        [JsonIgnore] public Sprite cover = null;
+        public bool downloaded = false;
+        public string artistSongNameString;
+        public string formattedName;
+        public string levelID;
+        public Sprite cover = null;
 
         public AccSaberSong(string inSongName, string inSongSubName, string inSongAuthorName, string inLevelAuthorName,
             string inBeatSaverKey, string inSongHash, List<AccSaberSongDiff> inDiffs)

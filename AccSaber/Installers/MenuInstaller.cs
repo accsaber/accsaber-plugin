@@ -8,6 +8,7 @@ using AccSaber.UI.Leaderboard;
 using AccSaber.UI.MenuButton;
 using AccSaber.UI.MenuButton.ViewControllers;
 using AccSaber.UI.Panel;
+using AccSaber.Utils;
 using SiraUtil;
 using Zenject;
 using ASDownloader = AccSaber.Downloaders.AccSaberDownloader;
@@ -32,7 +33,8 @@ namespace AccSaber.Installers
                 .AsSingle();
             
             // Sources
-            Container.Bind<ILeaderboardSource>().To<GlobalLeaderboardSource>().AsSingle();
+            Container.BindInterfacesTo<GlobalLeaderboardSource>().AsSingle();
+            Container.BindInterfacesTo<AroundMeLeaderboardSource>().AsSingle();
             
             // Leaderboard
             Container.BindInterfacesAndSelfTo<AccSaberLeaderboardViewController>()
