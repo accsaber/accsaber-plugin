@@ -14,5 +14,14 @@ namespace AccSaber.Utils
             var characteristic = difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
             return $"{hash}/{characteristic}/{difficulty}";
         }
+        
+        public static string GetCharacteristic(IDifficultyBeatmap difficultyBeatmap)
+        {
+            var characteristic = difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
+        
+            return $"{characteristic}";
+        }
     }
+    
+    
 }

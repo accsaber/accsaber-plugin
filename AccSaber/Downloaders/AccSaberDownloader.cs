@@ -47,12 +47,6 @@ namespace AccSaber.Downloaders
             return await MakeJsonRequestAsync<List<AccSaberCategory>>(url, cancellationToken);
         }
 
-        public async Task<List<AccSaberUserModel>> GetUserInfo(int userId, string category, CancellationToken cancellationToken)
-        {
-            var url = API_URL + PLAYERS_ENDPOINT + userId + "/" + category;
-            return await MakeJsonRequestAsync<List<AccSaberUserModel>>(url, cancellationToken);
-        }
-
         public async Task<Sprite> GetCoverImageAsync(string hash, CancellationToken cancellationToken)
         {
             hash = hash.ToUpper();

@@ -1,20 +1,28 @@
 using System.Threading.Tasks;
+using SiraUtil.Logging;
+using Zenject;
 
 namespace AccSaber.Utils
 {
-    public class UserIDUtils
+    public class UserIDUtils : IInitializable
     {
-        private readonly IPlatformUserModel _userModel;
+        private readonly IPlatformUserModel _userModel = null!;
+
+        public UserInfo UserInfo;
 
         public UserIDUtils(IPlatformUserModel userModel)
         {
             _userModel = userModel;
         }
 
-        public async Task<string> GetUserID()
+        public void Initialize()
         {
-            var userID = await _userModel.GetUserInfo();
-            return userID.platformUserId;
+            GetUserID();
+        }
+
+        private async void GetUserID()
+        {
+            UserInfo = await _userModel.GetUserInfo();
         }
     }
 }

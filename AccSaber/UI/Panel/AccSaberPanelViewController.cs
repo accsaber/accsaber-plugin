@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using AccSaber.Data;
 using AccSaber.Models;
 using AccSaber.UI.MenuButton;
@@ -26,7 +29,7 @@ namespace AccSaber.UI.Panel
 
         [Inject] private SiraLog _siraLog;
 
-        [Inject] private AccSaberUserModel _userModel;
+        [Inject] private List<AccSaberUserModel> _userModel;
 
         [Inject] private AccSaberData _accSaberData;
 
@@ -48,11 +51,15 @@ namespace AccSaber.UI.Panel
 
         private string _promptText = "";
         private bool _loadingActive;
+        private int i;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private CancellationTokenSource _cancellationToken;
+
         public void Initialize()
         {
+            _siraLog.Debug(_userModel.Count);
         }
 
         [UIAction("#post-parse")]
@@ -64,7 +71,6 @@ namespace AccSaber.UI.Panel
             {
                 background.material = Utilities.ImageResources.NoGlowMat;
                 RefreshAndSkewBannerColor();
-
                 background.color = Color.gray;
 
                 Accessors.GradientAccessor(ref background) = true;
@@ -121,7 +127,6 @@ namespace AccSaber.UI.Panel
             {
                 _siraLog.Debug(e);
             }
-            
         }
 
         [UIValue("loading-active")]
@@ -148,10 +153,10 @@ namespace AccSaber.UI.Panel
 
         [UIValue("pool-ranking-text")]
         private string PoolRankingText =>
-            $"<color=#EDFF55>Category Ranking:</color> #{_userModel.rank} <size=75%>(<color=#00FFAE>{_userModel.ap:F2}ap</color>)";
+            $"<color=#EDFF55>Category Ranking:</color> #{_userModel[i].rank}<size=75%> (<color=#00FFAE>{_userModel[i].ap:F2}ap</color>)";
 
         [UIValue("average-acc-text")]
-        private string AverageAccText => $"<color=#EDFF55>Map Complexity:</color> {_APISong.complexity}";
+        private string AverageAccText => $"<color=#EDFF55>Map Complexity:</color> {_APISong.complexity:F2}";
 
         [UIValue("download-hover")]
         private string DownloadHint => "Download all maps, including the ones \n that have been updated!";

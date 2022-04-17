@@ -1,12 +1,6 @@
 ﻿using AccSaber.Data;
 using AccSaber.Downloaders;
 using AccSaber.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AccSaber.Interfaces;
 using AccSaber.Utils;
 using Zenject;
 
@@ -23,9 +17,12 @@ namespace AccSaber.Installers
                 .AsSingle();
             Container.Bind<LeaderboardDownloader>()
                 .AsSingle();
-            
-            
-            Container.BindInterfacesTo<GameUtils>().AsSingle();
+            Container.BindInterfacesAndSelfTo<UserInfoDownloader>()
+                .AsSingle();
+
+            // Utilities
+            Container.Bind<GameUtils>().AsSingle();
+            Container.BindInterfacesAndSelfTo<UserIDUtils>().AsSingle();
 
             // Data
             Container.BindInterfacesAndSelfTo<AccSaberData>().AsSingle();

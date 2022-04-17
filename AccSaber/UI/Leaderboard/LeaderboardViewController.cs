@@ -24,73 +24,58 @@ namespace AccSaber.UI.Leaderboard
     [ViewDefinition("AccSaber.UI.Leaderboard.AccSaberLeaderboardView.bsml")]
     public class AccSaberLeaderboardViewController : BSMLAutomaticViewController, ILeaderboardEntriesUpdater
     {
-        [Inject]
-        private SiraLog _log;
-        [Inject] 
-        private LevelCollectionNavigationController _collectionNavigation;
-        [Inject] 
-        private readonly List<ILeaderboardSource> _leaderboardSource;
-        private readonly AccSaberDownloader _accSaberDownloader;
+        [Inject] private SiraLog _log;
+        [Inject] private LevelCollectionNavigationController _collectionNavigation;
+        [Inject] private readonly List<ILeaderboardSource> _leaderboardSource;
+        [Inject] private List<AccSaberLeaderboardEntry> _leaderboardEntries;
+        [Inject] private UserInfoDownloader _infoDownloader;
+        [Inject] private AccSaberCategory _categories;
+        [Inject] private UserIDUtils _userID;
+
         private GameObject _loadingControl;
-        private int pageNumber = 0;
+
         private int _selectedCellIndex;
-        [Inject]
-        private List<AccSaberLeaderboardEntry> _leaderboardEntries;
-        [Inject]
-        private AccSaberCategory _categories;
-        private UserIDUtils _userID;
-        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        
+
+
         private List<Button> infoButtons;
         private IDifficultyBeatmap difficultyBeatmap;
-        
-        public event Action<string, string, string, int, int, CancellationToken> PageRequested;
-        
-        [UIComponent("leaderboard")]
-        private readonly Transform leaderboardTransform;
+        private readonly CancellationTokenSource _cancellationToken = new();
 
-        [UIComponent("leaderboard")]
-        private readonly LeaderboardTableView leaderboard;
-        
+        private int pageNumber;
+        public event Action<IDifficultyBeatmap, ILeaderboardSource, int> PageRequested;
+
+        [UIComponent("leaderboard")] private readonly Transform leaderboardTransform;
+
+        [UIComponent("leaderboard")] private readonly LeaderboardTableView leaderboard;
+
         #region Info Buttons
 
-        [UIComponent("button1")] 
-        private readonly Button button1;
+        [UIComponent("button1")] private readonly Button button1;
 
-        [UIComponent("button2")]
-        private readonly Button button2;
+        [UIComponent("button2")] private readonly Button button2;
 
-        [UIComponent("button3")]
-        private readonly Button button3;
+        [UIComponent("button3")] private readonly Button button3;
 
-        [UIComponent("button4")]
-        private readonly Button button4;
+        [UIComponent("button4")] private readonly Button button4;
 
-        [UIComponent("button5")]
-        private readonly Button button5;
+        [UIComponent("button5")] private readonly Button button5;
 
-        [UIComponent("button6")]
-        private readonly Button button6;
+        [UIComponent("button6")] private readonly Button button6;
 
-        [UIComponent("button7")]
-        private readonly Button button7;
+        [UIComponent("button7")] private readonly Button button7;
 
-        [UIComponent("button8")]
-        private readonly Button button8;
+        [UIComponent("button8")] private readonly Button button8;
 
-        [UIComponent("button9")]
-        private readonly Button button9;
+        [UIComponent("button9")] private readonly Button button9;
 
-        [UIComponent("button10")]
-        private readonly Button button10;
+        [UIComponent("button10")] private readonly Button button10;
 
         #endregion
-        
+
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
             PageNumber = 0;
-            
         }
 
         private int PageNumber
@@ -104,12 +89,8 @@ namespace AccSaber.UI.Leaderboard
                 {
                     leaderboard.SetScores(new List<LeaderboardTableView.ScoreData>(), 0);
                     _loadingControl.SetActive(true);
-                    PageRequested?.Invoke(difficultyBeatmap.level.levelID.GetRankedSongHash(), 
-                        difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName, 
-                        difficultyBeatmap.difficulty.SerializedName(),
-                        pageNumber,
-                        10, _cancellationTokenSource.Token);
                 }
+                PageRequested?.Invoke(difficultyBeatmap, _leaderboardSource[SelectedCellIndex], value);
             }
         }
 
@@ -125,10 +106,9 @@ namespace AccSaber.UI.Leaderboard
 
         private async Task SetScores(List<AccSaberLeaderboardEntry> leaderboardEntries)
         {
-            _leaderboardEntries = leaderboardEntries;
             var scores = new List<LeaderboardTableView.ScoreData>();
             var myScorePos = -1;
-            
+
             if (infoButtons != null)
             {
                 await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(() =>
@@ -139,34 +119,35 @@ namespace AccSaber.UI.Leaderboard
                     }
                 });
             }
+
             if (leaderboardEntries == null || leaderboardEntries.Count == 0)
             {
-                scores.Add(new LeaderboardTableView.ScoreData(0, 
-                    "<size=75%>Scores have yet to be refreshed. Please allow up to 15 minutes.</size>",
+                scores.Add(new LeaderboardTableView.ScoreData(0,
+                    "<size=75%>Scores have yet to be refreshed. Please allow up to 15 min...</size>",
                     0, false));
-                _log.Info("Set non-refreshed leaderboard");
+                _log.Debug("Set non-refreshed leaderboard");
             }
             else
             {
-                var userID = await _userID.GetUserID();
-                
+                var userID = _userID.UserInfo.platformUserId;
+
                 await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(() =>
                 {
                     for (var i = 0; i < (leaderboardEntries.Count > 10 ? 10 : leaderboardEntries.Count); i++)
                     {
                         scores.Add(new LeaderboardTableView.ScoreData(leaderboardEntries[i].score,
-                            $"<color={leaderboardEntries[i].name}><size=85%>",
+                            $"<color=#FFFFFF><size=90%>{leaderboardEntries[i].name}</size></color> - <size=70%>(<color=yellow>{leaderboardEntries[i].acc:P2}</color>)</size> - <size=65%>(<color=#00FFAE>{leaderboardEntries[i].ap:F2}ap</color>)</size>",
                             leaderboardEntries[i].rank,
                             false));
-                        
-                        _log.Info("Set scores to leaderboard.");
-                        
+
+                        _log.Debug("Set scores to leaderboard.");
+
                         if (infoButtons != null)
                         {
                             infoButtons[i].gameObject.SetActive(true);
                             var hoverHint = infoButtons[i].GetComponent<HoverHint>();
                             hoverHint.text = $"Score Set: {leaderboardEntries[i].timeSet}";
-                            _log.Info($"Set info hover hint to {hoverHint.text}");
+                            _log.Debug($"Set info hover hint to {hoverHint.text}");
                         }
 
                         if (leaderboardEntries[i].playerId == userID)
@@ -176,18 +157,17 @@ namespace AccSaber.UI.Leaderboard
                     }
                 });
             }
-            
 
             if (_loadingControl != null && leaderboard != null)
             {
                 await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(() =>
                 {
-                    _loadingControl.SetActive(false);
                     leaderboard.SetScores(scores, myScorePos);
+                    _loadingControl.SetActive(false);
                 });
             }
         }
-        
+
         private void ChangeButtonScale(Button button, float scale)
         {
             var buttonTransform = button.transform;
@@ -195,16 +175,16 @@ namespace AccSaber.UI.Leaderboard
             buttonTransform.localScale = localScale * scale;
             infoButtons?.Add(button);
         }
-        
+
         [UIAction("#post-parse")]
         private void PostParse()
-        { 
+        {
             var leaderboardTableCells = leaderboardTransform!.GetComponentsInChildren<LeaderboardTableCell>(true);
             foreach (var leaderboardTableCell in leaderboardTableCells)
             {
                 leaderboardTableCell.transform.Find("PlayerName").GetComponent<CurvedTextMeshPro>().richText = true;
             }
-            
+
             _loadingControl = leaderboardTransform.Find("LoadingControl").gameObject;
 
             var loadingContainer = _loadingControl.transform.Find("LoadingContainer");
@@ -212,7 +192,7 @@ namespace AccSaber.UI.Leaderboard
             Destroy(loadingContainer.Find("Text").gameObject);
             Destroy(_loadingControl.transform.Find("RefreshContainer").gameObject);
             Destroy(_loadingControl.transform.Find("DownloadingContainer").gameObject);
-            
+
             infoButtons = new List<Button>();
 
             ChangeButtonScale(button1, 0.425f);
@@ -226,29 +206,39 @@ namespace AccSaber.UI.Leaderboard
             ChangeButtonScale(button9, 0.425f);
             ChangeButtonScale(button10, 0.425f);
         }
-        
+
+        public void DifficultyBeatmapUpdated(IDifficultyBeatmap difficultyBeatmap,
+            AccSaberLeaderboardEntry levelInfoEntry)
+        {
+            if (levelInfoEntry != null)
+            {
+                this.difficultyBeatmap = difficultyBeatmap;
+                if (isActiveAndEnabled)
+                {
+                    PageNumber = 0;
+                }
+            }
+        }
+
         public void LeaderboardEntriesUpdated(List<AccSaberLeaderboardEntry> leaderboardEntries)
         {
             _leaderboardEntries = leaderboardEntries;
-            _log.Info(_leaderboardEntries);
-            _log.Info(leaderboardEntries);
             NotifyPropertyChanged(nameof(DownEnabled));
             _ = SetScores(leaderboardEntries);
         }
-        
+
         [UIAction("cell-selected")]
         private void OnCellSelected(SegmentedControl _, int index)
         {
             SelectedCellIndex = index;
         }
-        
+
         [UIAction("up-clicked")]
         private void UpClicked()
         {
             if (UpEnabled)
             {
                 PageNumber--;
-                _log.Debug("Gone up a page");
             }
         }
 
@@ -258,24 +248,25 @@ namespace AccSaber.UI.Leaderboard
             if (DownEnabled)
             {
                 PageNumber++;
-                _log.Debug("Gone down a page");
             }
         }
-        
+
         [UIValue("cell-data")]
         private List<IconSegmentedControl.DataItem> CellData
         {
             get
             {
-                return _leaderboardSource.Select(leaderboardSource => new IconSegmentedControl.DataItem(leaderboardSource.Icon, leaderboardSource.HoverHint)).ToList();
+                return _leaderboardSource.Select(leaderboardSource => 
+                    new IconSegmentedControl.DataItem(leaderboardSource.Icon, leaderboardSource.HoverHint)).ToList();
             }
         }
 
         [UIValue("up-enabled")]
-        private bool UpEnabled => PageNumber != 0 && _leaderboardSource[SelectedCellIndex].Scrollable;
-        
+        private bool UpEnabled =>
+            PageNumber != 0 && _leaderboardSource[SelectedCellIndex].Scrollable;
+
         [UIValue("down-enabled")]
-        private bool DownEnabled => _leaderboardEntries is { Count: 10 } && _leaderboardSource[SelectedCellIndex].Scrollable;
-        
+        private bool DownEnabled =>
+            _leaderboardEntries is { Count: 10 } && _leaderboardSource[SelectedCellIndex].Scrollable;
     }
 }

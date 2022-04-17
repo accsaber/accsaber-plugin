@@ -19,7 +19,6 @@ namespace AccSaber.Sources
                 return _icon;
             }
         }
-        public AccSaberDownloader AccSaberDownloader { get; }
         public bool Scrollable => true;
     }
 }
