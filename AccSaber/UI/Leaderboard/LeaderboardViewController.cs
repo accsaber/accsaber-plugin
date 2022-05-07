@@ -26,7 +26,7 @@ namespace AccSaber.UI.Leaderboard
     {
         [Inject] private SiraLog _log;
         [Inject] private LevelCollectionNavigationController _collectionNavigation;
-        [Inject] private readonly List<ILeaderboardSource> _leaderboardSource;
+        [Inject] private readonly List<ILeaderboardSource> _leaderboardSources;
         [Inject] private List<AccSaberLeaderboardEntry> _leaderboardEntries;
         [Inject] private UserInfoDownloader _infoDownloader;
         [Inject] private AccSaberCategory _categories;
@@ -75,6 +75,10 @@ namespace AccSaber.UI.Leaderboard
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
+            foreach (var leaderboardSource in _leaderboardSources)
+            {
+                leaderboardSource.ClearCache();
+            }
             PageNumber = 0;
         }
 
@@ -90,7 +94,8 @@ namespace AccSaber.UI.Leaderboard
                     leaderboard.SetScores(new List<LeaderboardTableView.ScoreData>(), 0);
                     _loadingControl.SetActive(true);
                 }
-                PageRequested?.Invoke(difficultyBeatmap, _leaderboardSource[SelectedCellIndex], value);
+
+                PageRequested?.Invoke(difficultyBeatmap, _leaderboardSources[SelectedCellIndex], value);
             }
         }
 
@@ -104,7 +109,7 @@ namespace AccSaber.UI.Leaderboard
             }
         }
 
-        private async Task SetScores(List<AccSaberLeaderboardEntry> leaderboardEntries)
+        private async Task SetScores(IReadOnlyList<AccSaberLeaderboardEntry> leaderboardEntries)
         {
             var scores = new List<LeaderboardTableView.ScoreData>();
             var myScorePos = -1;
@@ -215,6 +220,10 @@ namespace AccSaber.UI.Leaderboard
                 this.difficultyBeatmap = difficultyBeatmap;
                 if (isActiveAndEnabled)
                 {
+                    foreach (var leaderboardSource in _leaderboardSources)
+                    {
+                        leaderboardSource.ClearCache();
+                    }
                     PageNumber = 0;
                 }
             }
@@ -256,17 +265,17 @@ namespace AccSaber.UI.Leaderboard
         {
             get
             {
-                return _leaderboardSource.Select(leaderboardSource => 
+                return _leaderboardSources.Select(leaderboardSource => 
                     new IconSegmentedControl.DataItem(leaderboardSource.Icon, leaderboardSource.HoverHint)).ToList();
             }
         }
 
         [UIValue("up-enabled")]
         private bool UpEnabled =>
-            PageNumber != 0 && _leaderboardSource[SelectedCellIndex].Scrollable;
+            PageNumber != 0 && _leaderboardSources[SelectedCellIndex].Scrollable;
 
         [UIValue("down-enabled")]
         private bool DownEnabled =>
-            _leaderboardEntries is { Count: 10 } && _leaderboardSource[SelectedCellIndex].Scrollable;
+            _leaderboardEntries is { Count: 10 } && _leaderboardSources[SelectedCellIndex].Scrollable;
     }
 }

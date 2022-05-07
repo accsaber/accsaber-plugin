@@ -8,34 +8,51 @@ using SiraUtil.Web;
 
 namespace AccSaber.Downloaders
 {
-    public class LeaderboardDownloader : Downloader
+    public class LeaderboardDownloader
     {
-        private const string API_URL = "https://api.accsaber.com/";
-        private const string CDN_URL = "https://cdn.accsaber.com/";
-        private const string COVERS_ENDPOINT = "covers/";
-        private const string RANKED_ENDPOINT = "ranked-maps";
-        private const string LEADERBOARDS_ENDPOINT = "map-leaderboards/";
-        private const string PLAYERS_ENDPOINT = "players/";
-        private const string PAGINATION_PAGE = "?page=";
-        private const string PAGINATION_PAGESIZE = "&pageSize=";
-        
-        private readonly SiraLog _log;
+        private readonly IHttpService _httpService;
+        private SiraLog _siraLog;
+        private readonly Dictionary<IDifficultyBeatmap, List<AccSaberLeaderboardEntry>> leaderboardCache = new();
 
-        public LeaderboardDownloader(SiraLog siraLog, SiraLog log) : base(siraLog)
+        public LeaderboardDownloader(IHttpService httpService, SiraLog siraLog)
         {
-            _log = log;
+            _httpService = httpService;
+            _siraLog = siraLog;
         }
-
-        public async Task<List<AccSaberLeaderboardEntry>> GetLeaderboardAsync(IDifficultyBeatmap difficultyBeatmap, int page = 0, CancellationToken cancellationToken = default)
+        
+        public async Task<List<AccSaberLeaderboardEntry>> GetLevelInfoAsync(IDifficultyBeatmap difficultyBeatmap, CancellationToken? cancellationToken = null)
         {
+            if (leaderboardCache.TryGetValue(difficultyBeatmap, out var cachedValue))
+            {
+                _siraLog.Debug($"returning {cachedValue}");
+                return cachedValue;
+            }
+            
             var beatmapString = GameUtils.DifficultyBeatmapToString(difficultyBeatmap);
             if (beatmapString == null)
             {
+                _siraLog.Warn("Variable \"beatmapString\" is null!");
                 return null;
             }
 
-            var url = API_URL + LEADERBOARDS_ENDPOINT + beatmapString + PAGINATION_PAGE + page + PAGINATION_PAGESIZE + 10;
-            return await MakeJsonRequestAsync<List<AccSaberLeaderboardEntry>>(url, cancellationToken);
+            try
+            {
+                var url = Constants.API_URL + Constants.LEADERBOARDS_ENDPOINT + beatmapString + Constants.PAGINATION_PAGE + 0 + Constants.PAGINATION_PAGESIZE + 10;
+                _siraLog.Debug(url);
+                var webResponse = 
+                    await _httpService.GetAsync(url, 
+                        cancellationToken: cancellationToken ?? CancellationToken.None);
+                _siraLog.Debug($"Received response with code {webResponse.Code}!");
+                var levelInfo = await ResponseParser.ParseWebResponse<List<AccSaberLeaderboardEntry>>(webResponse);
+                _siraLog.Debug(levelInfo);
+
+                leaderboardCache[difficultyBeatmap] = levelInfo;
+                return levelInfo;
+            }
+            catch (TaskCanceledException)
+            {
+                return null;
+            }
         }
     }
 }

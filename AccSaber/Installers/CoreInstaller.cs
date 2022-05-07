@@ -15,7 +15,7 @@ namespace AccSaber.Installers
                 .AsSingle();
             Container.Bind<BeatSaverDownloader>()
                 .AsSingle();
-            Container.Bind<LeaderboardDownloader>()
+            Container.BindInterfacesAndSelfTo<LeaderboardDownloader>()
                 .AsSingle();
             Container.BindInterfacesAndSelfTo<UserInfoDownloader>()
                 .AsSingle();

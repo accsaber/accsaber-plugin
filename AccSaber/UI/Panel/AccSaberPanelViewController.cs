@@ -29,7 +29,7 @@ namespace AccSaber.UI.Panel
 
         [Inject] private SiraLog _siraLog;
 
-        [Inject] private List<AccSaberUserModel> _userModel;
+        [Inject] private AccSaberUserModel _userModel;
 
         [Inject] private AccSaberData _accSaberData;
 
@@ -59,7 +59,6 @@ namespace AccSaber.UI.Panel
 
         public void Initialize()
         {
-            _siraLog.Debug(_userModel.Count);
         }
 
         [UIAction("#post-parse")]
@@ -125,7 +124,7 @@ namespace AccSaber.UI.Panel
             }
             catch (Exception e)
             {
-                _siraLog.Debug(e);
+                _siraLog.Debug(e.Message);
             }
         }
 
@@ -153,7 +152,7 @@ namespace AccSaber.UI.Panel
 
         [UIValue("pool-ranking-text")]
         private string PoolRankingText =>
-            $"<color=#EDFF55>Category Ranking:</color> #{_userModel[i].rank}<size=75%> (<color=#00FFAE>{_userModel[i].ap:F2}ap</color>)";
+            $"<color=#EDFF55>Category Ranking:</color> #{_userModel.rank}<size=75%> (<color=#00FFAE>{_userModel.ap:F2}ap</color>)";
 
         [UIValue("average-acc-text")]
         private string AverageAccText => $"<color=#EDFF55>Map Complexity:</color> {_APISong.complexity:F2}";
