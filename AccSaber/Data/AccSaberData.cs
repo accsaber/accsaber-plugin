@@ -11,7 +11,7 @@ using Zenject;
 namespace AccSaber.Data
 {
     // TODO: Switch over downloader to use this
-    public class AccSaberData : IInitializable, IDisposable
+    class AccSaberData : IInitializable, IDisposable
     {
         [Inject] private SiraLog _log;
         

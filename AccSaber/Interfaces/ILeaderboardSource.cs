@@ -10,6 +10,7 @@ namespace AccSaber.Interfaces
         public string HoverHint { get; }
         public Sprite Icon { get; }
 
+        public AccSaberDownloader AccSaberDownloader { get; }
         public bool Scrollable { get; }
     }
 }

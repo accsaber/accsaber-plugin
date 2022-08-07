@@ -18,15 +18,17 @@ namespace AccSaber.Downloaders
         private const string PLAYERS_ENDPOINT = "players/";
         private const string PAGINATION_PAGE = "?page=";
         private const string PAGINATION_PAGESIZE = "&pageSize=";
-        
+
+        private readonly IHttpService _httpService;
         private readonly SiraLog _log;
 
-        public LeaderboardDownloader(SiraLog siraLog, SiraLog log) : base(siraLog)
+        public LeaderboardDownloader(SiraLog siraLog, IHttpService httpService, SiraLog log) : base(siraLog)
         {
+            _httpService = httpService;
             _log = log;
         }
 
-        public async Task<List<AccSaberLeaderboardEntry>> GetLeaderboardAsync(IDifficultyBeatmap difficultyBeatmap, int page = 0, CancellationToken cancellationToken = default)
+        public async Task<List<AccSaberLeaderboardEntry>> GetLeaderboardAsync(IDifficultyBeatmap difficultyBeatmap, CancellationToken cancellationToken = default)
         {
             var beatmapString = GameUtils.DifficultyBeatmapToString(difficultyBeatmap);
             if (beatmapString == null)
@@ -34,7 +36,8 @@ namespace AccSaber.Downloaders
                 return null;
             }
 
-            var url = API_URL + LEADERBOARDS_ENDPOINT + beatmapString + PAGINATION_PAGE + page + PAGINATION_PAGESIZE + 10;
+            var url = API_URL + LEADERBOARDS_ENDPOINT + beatmapString + PAGINATION_PAGE + 0 + PAGINATION_PAGESIZE + 10;
+            
             return await MakeJsonRequestAsync<List<AccSaberLeaderboardEntry>>(url, cancellationToken);
         }
     }

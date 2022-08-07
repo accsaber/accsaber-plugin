@@ -17,12 +17,14 @@ namespace AccSaber.Sources
             {
                 if (_icon == null)
                 {
-                    _icon = BeatSaberMarkupLanguage.Utilities.FindSpriteInAssembly("AccSaber.Resources.PlayerIcon.png");
+                    _icon = BeatSaberMarkupLanguage.Utilities.FindSpriteInAssembly("AccSaber.Resources.GlobalIcon.png");
                 }
                 return _icon;
             }
         }
 
-        public bool Scrollable => false;
+        public AccSaberDownloader AccSaberDownloader { get; }
+
+        public bool Scrollable { get; }
     }
 }

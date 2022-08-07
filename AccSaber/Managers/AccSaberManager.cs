@@ -38,7 +38,6 @@ namespace AccSaber.Managers
         private readonly AccSaberData _accSaberData;
         private readonly List<AccSaberAPISong> _accSaberAPISong;
         private List<AccSaberLeaderboardEntry> _leaderboardEntries;
-        private List<AccSaberUserModel> _accSaberUserModels;
         private AccSaberPanelViewController _panelViewController;
 
         private readonly List<IDifficultyBeatmapUpdater> difficultyBeatmapUpdaters;
@@ -47,7 +46,6 @@ namespace AccSaber.Managers
         private readonly AccSaberPanelViewController _accSaberPanelViewController;
 
         private readonly List<INotifyViewActivated> _notifyViewActivateds;
-        private readonly List<ILeaderboardEntriesUpdater> _leaderboardEntriesUpdaters;
 
         private ILeaderboardSource _leaderboardSource;
         private LeaderboardDownloader _leaderboardDownloader;
@@ -58,7 +56,8 @@ namespace AccSaber.Managers
         private CancellationTokenSource leaderboardTokenSource;
         private readonly CancellationTokenSource _cancellationToken;
 
-        private int pageNumber;
+        public int page;
+        private LevelCollectionNavigationController beatmap;
 
         public AccSaberManager(AccSaberPanelViewController accSaberPanelController,
             AccSaberLeaderboardViewController mainLeaderboardViewController,
@@ -71,9 +70,9 @@ namespace AccSaber.Managers
             List<AccSaberLeaderboardEntry> leaderboardEntries,
             List<INotifyViewActivated> notifyViewActivateds,
             AccSaberLeaderboardViewController accSaberLeaderboardViewController,
+            LevelCollectionNavigationController beatmap,
             AccSaberPanelViewController panelViewController,
-            LeaderboardDownloader leaderboardDownloader, 
-            List<AccSaberUserModel> accSaberUserModels)
+            LeaderboardDownloader leaderboardDownloader)
         {
             _customLeaderboardManager = customLeaderboardManager;
             _log = log;
@@ -86,31 +85,35 @@ namespace AccSaber.Managers
             _leaderboardEntries = leaderboardEntries;
             _notifyViewActivateds = notifyViewActivateds;
             _accSaberLeaderboardViewController = accSaberLeaderboardViewController;
+            this.beatmap = beatmap;
             _panelViewController = panelViewController;
             _leaderboardDownloader = leaderboardDownloader;
-            _accSaberUserModels = accSaberUserModels;
         }
 
         public void Initialize()
         {
-            _accSaberLeaderboardViewController.didActivateEvent += OnViewActivated;
-            _accSaberLeaderboardViewController.PageRequested += OnPageRequested;
             _navigationController.didChangeLevelDetailContentEvent += OnSongChange;
             _navigationController.didChangeDifficultyBeatmapEvent += OnBeatmapChange;
+
+            _accSaberLeaderboardViewController.didActivateEvent += OnViewActivated;
+            // _accSaberLeaderboardViewController.PageRequested += OnPageRequested;
         }
 
         public void Dispose()
         {
-            _accSaberLeaderboardViewController.didActivateEvent -= OnViewActivated;
-            _accSaberLeaderboardViewController.PageRequested -= OnPageRequested;
             _navigationController.didChangeLevelDetailContentEvent -= OnSongChange;
             _navigationController.didChangeDifficultyBeatmapEvent -= OnBeatmapChange;
+
+
+            _accSaberLeaderboardViewController.didActivateEvent -= OnViewActivated;
+            // _accSaberLeaderboardViewController.PageRequested -= OnPageRequested;
         }
 
 
         private void OnBeatmapChange(LevelCollectionNavigationController collectionNavigationController,
             IDifficultyBeatmap difficultyBeatmap)
         {
+            _log.Info("Registering leaderboard..");
             HandleRankedSongLeaderboard(_navigationController);
             HandleCategoryColorChange();
         }
@@ -153,10 +156,9 @@ namespace AccSaber.Managers
             }
         }
 
-        public void OnLeaderboardSet(IDifficultyBeatmap difficultyBeatmap) => 
-            _ = OnLeaderboardSetAsync(difficultyBeatmap, pageNumber);
+        public void OnLeaderboardSet(IDifficultyBeatmap difficultyBeatmap) => _ = OnLeaderboardSetAsync(difficultyBeatmap);
 
-        private async Task OnLeaderboardSetAsync(IDifficultyBeatmap difficultyBeatmap, int page)
+        private async Task OnLeaderboardSetAsync(IDifficultyBeatmap difficultyBeatmap)
         {
             if (difficultyBeatmap != null)
             {
@@ -167,37 +169,43 @@ namespace AccSaber.Managers
                 if (difficultyBeatmap.level is CustomPreviewBeatmapLevel)
                 {
                     levelInfoTokenSource = new CancellationTokenSource();
-                    var accSaberLeaderboardEntries = 
-                        await _leaderboardDownloader.GetLeaderboardAsync(difficultyBeatmap, page, levelInfoTokenSource.Token);
-                    
-                    await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(() =>
-                        _accSaberLeaderboardViewController.LeaderboardEntriesUpdated(accSaberLeaderboardEntries));
+                    var accSaberLeaderboardEntries = await _leaderboardDownloader.GetLeaderboardAsync(difficultyBeatmap, levelInfoTokenSource.Token);
+                    await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(() => _accSaberLeaderboardViewController.LeaderboardEntriesUpdated(accSaberLeaderboardEntries));
                 }
             }
         }
 
-        private void OnPageRequested(IDifficultyBeatmap difficultyBeatmap, ILeaderboardSource leaderboardSource, int page) =>
-            _ = OnPageRequestedAsync(difficultyBeatmap, leaderboardSource, page);
-        
-        private async Task OnPageRequestedAsync(IDifficultyBeatmap difficultyBeatmap, ILeaderboardSource leaderboardSource, int page)
-        {
-            leaderboardTokenSource = new CancellationTokenSource();
+        // private void OnPageRequested(GameUtils beatmapUtils, int pageParams, int pageSize,
+        //     CancellationToken source) =>
+        //     _ = OnPageRequestedAsync(_leaderboardEntries, _leaderboardSource, pageParams);
+        //
+        // private async Task OnPageRequestedAsync(List<AccSaberLeaderboardEntries> leaderboardEntries, ILeaderboardSource leaderboardSource, int page)
+        // {
+        //     _log.Info("Hello..?");
+        //     
+        //     leaderboardTokenSource?.Cancel();
+        //     leaderboardTokenSource?.Dispose();
+        //     leaderboardTokenSource = new CancellationTokenSource();
+        //     
+        //     var leaderboardEntriesList = await leaderboardSource
+        //         .AccSaberDownloader
+        //         .GetLeaderboardsAsync(beatmap.selectedDifficultyBeatmap.level.levelID.GetRankedSongHash(),
+        //             beatmap.selectedDifficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName,
+        //             beatmap.selectedDifficultyBeatmap.difficulty.SerializedName(),
+        //             page, 
+        //             10,
+        //             leaderboardTokenSource.Token);
+        //     
+        //     if (leaderboardEntriesList != null)
+        //     {
+        //         if (leaderboardEntriesList.Count == 0 || leaderboardEntriesList[0].ap == 0)
+        //         {
+        //             leaderboardEntriesList = null;
+        //         }
+        //     }
+        // }
 
-            var leaderboardEntries = 
-                await _leaderboardDownloader.GetLeaderboardAsync(difficultyBeatmap, page, _cancellationToken.Token);
 
-            if (leaderboardEntries is { Count: 0 })
-            {
-                leaderboardEntries = null;
-            }
-
-            foreach (var updater in _leaderboardEntriesUpdaters)
-            {
-                await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(() => 
-                    updater.LeaderboardEntriesUpdated(leaderboardEntries));
-            }
-        }
-        
         private void OnViewActivated(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
             foreach (var notifyViewActivated in _notifyViewActivateds)

@@ -10,7 +10,7 @@
         <vertical pref-width='0.5' pref-height='10'>
             <image id='separator' src='AccSaber.Resources.pixel.png' pref-width='0.5' pref-height='10' size-delta-x='0.5' size-delta-y='10' />
         </vertical>
-        <vertical pref-width='70' pref-height='10'>
+        <vertical pref-width='70' pref-height='10' spacing='1'>
             <text text='~pool-ranking-text' font-size='3.5' italics='true' rich-text='true' />
             <text text='~average-acc-text' font-size='3.25' italics='true' rich-text='true' />
         </vertical>

@@ -55,8 +55,10 @@ namespace AccSaber.Downloaders
             try
             {
                 T response = JsonConvert.DeserializeObject<T>(webRequest.downloadHandler.text);
-                _siraLog.Info(webRequest.responseCode);
-                
+                if (response == null)
+                {
+                    _siraLog.Info(webRequest.responseCode);
+                }
 
                 return response;
             }

@@ -136,8 +136,6 @@
         <EmbeddedResource Include="Resources\GlobalIcon.png" />
         <None Remove="Resources\download.png" />
         <EmbeddedResource Include="Resources\download.png" />
-        <None Remove="Resources\PlayerIcon.png" />
-        <EmbeddedResource Include="Resources\PlayerIcon.png" />
     </ItemGroup>
 
     <ItemGroup>
