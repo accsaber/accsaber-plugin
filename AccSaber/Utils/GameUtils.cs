@@ -1,24 +1,27 @@
-using SiraUtil.Logging;
-using Zenject;
-
 namespace AccSaber.Utils
 {
     public class GameUtils
     {
-        
-        
         public static string DifficultyBeatmapToString(IDifficultyBeatmap difficultyBeatmap)
         {
-            if (difficultyBeatmap.level is CustomPreviewBeatmapLevel)
+            if (difficultyBeatmap.level is not CustomPreviewBeatmapLevel customLevel)
             {
-                var hash = difficultyBeatmap.level.levelID.GetRankedSongHash();
-                var difficulty = difficultyBeatmap.difficulty.ToString();
-                var characteristic = difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
-                return $"{hash}/{characteristic}/{difficulty}";
+                return null;
             }
 
-            return null;
+            var hash = SongCore.Utilities.Hashing.GetCustomLevelHash(customLevel);
+            var difficulty = difficultyBeatmap.difficulty.ToString();
+            var characteristic = difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
+            return $"{hash}/{characteristic}/{difficulty}";
         }
         
+        public static string GetCharacteristic(IDifficultyBeatmap difficultyBeatmap)
+        {
+            var characteristic = difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
+        
+            return $"{characteristic}";
+        }
     }
+    
+    
 }

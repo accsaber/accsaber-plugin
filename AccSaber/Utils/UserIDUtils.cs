@@ -1,11 +1,10 @@
-using System.Threading;
 using System.Threading.Tasks;
 using SiraUtil.Logging;
 using Zenject;
 
 namespace AccSaber.Utils
 {
-    internal class UserIDUtils : IInitializable
+    public class UserIDUtils : IInitializable
     {
         private readonly IPlatformUserModel _userModel = null!;
 

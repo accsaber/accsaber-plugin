@@ -21,7 +21,6 @@ namespace AccSaber
             _logger = logger;
 
             zenjector.UseLogger(_logger);
-            zenjector.UseHttpService();
 
             zenjector.Install<CoreInstaller>(Location.App);
             zenjector.Install<MenuInstaller>(Location.Menu);

@@ -13,6 +13,9 @@ using Zenject;
 using AccSaber.Data;
 using AccSaber.Interfaces;
 using AccSaber.Models;
+using AccSaber.Sources;
+using AccSaber.Utils;
+using JetBrains.Annotations;
 using LeaderboardCore.Interfaces;
 using SiraUtil.Logging;
 using static StandardLevelDetailViewController.ContentType;
@@ -45,8 +48,10 @@ namespace AccSaber.Managers
 
         private readonly List<INotifyViewActivated> _notifyViewActivateds;
         private readonly List<ILeaderboardEntriesUpdater> _leaderboardEntriesUpdaters;
-        
+
+        private ILeaderboardSource _leaderboardSource;
         private LeaderboardDownloader _leaderboardDownloader;
+        private IDifficultyBeatmap selectedDifficultyBeatmap;
 
         private readonly SiraLog _log;
         private CancellationTokenSource levelInfoTokenSource;
@@ -67,8 +72,8 @@ namespace AccSaber.Managers
             List<INotifyViewActivated> notifyViewActivateds,
             AccSaberLeaderboardViewController accSaberLeaderboardViewController,
             AccSaberPanelViewController panelViewController,
-            List<AccSaberUserModel> accSaberUserModels, 
-            LeaderboardDownloader leaderboardDownloader)
+            LeaderboardDownloader leaderboardDownloader, 
+            List<AccSaberUserModel> accSaberUserModels)
         {
             _customLeaderboardManager = customLeaderboardManager;
             _log = log;
@@ -82,8 +87,8 @@ namespace AccSaber.Managers
             _notifyViewActivateds = notifyViewActivateds;
             _accSaberLeaderboardViewController = accSaberLeaderboardViewController;
             _panelViewController = panelViewController;
-            _accSaberUserModels = accSaberUserModels;
             _leaderboardDownloader = leaderboardDownloader;
+            _accSaberUserModels = accSaberUserModels;
         }
 
         public void Initialize()
@@ -149,25 +154,25 @@ namespace AccSaber.Managers
         }
 
         public void OnLeaderboardSet(IDifficultyBeatmap difficultyBeatmap) => 
-            _ = OnLeaderboardSetAsync(difficultyBeatmap);
+            _ = OnLeaderboardSetAsync(difficultyBeatmap, pageNumber);
 
-        private async Task OnLeaderboardSetAsync(IDifficultyBeatmap difficultyBeatmap)
+        private async Task OnLeaderboardSetAsync(IDifficultyBeatmap difficultyBeatmap, int page)
         {
-            levelInfoTokenSource?.Cancel();
-            levelInfoTokenSource?.Dispose();
-            List<AccSaberLeaderboardEntry> accSaberLeaderboardEntries = null;
-
-            if (difficultyBeatmap.level is CustomPreviewBeatmapLevel)
+            if (difficultyBeatmap != null)
             {
-                levelInfoTokenSource = new CancellationTokenSource();
-                accSaberLeaderboardEntries = await _leaderboardDownloader.GetLevelInfoAsync(difficultyBeatmap, levelInfoTokenSource.Token);
-                _log.Debug("This is past the request.");
-            }
+                selectedDifficultyBeatmap = difficultyBeatmap;
+                // levelInfoTokenSource.Cancel();
+                // levelInfoTokenSource.Dispose();
 
-            foreach (var updater in difficultyBeatmapUpdaters)
-            {
-                await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(() =>
-                    updater.DifficultyBeatmapUpdated(difficultyBeatmap, accSaberLeaderboardEntries));
+                if (difficultyBeatmap.level is CustomPreviewBeatmapLevel)
+                {
+                    levelInfoTokenSource = new CancellationTokenSource();
+                    var accSaberLeaderboardEntries = 
+                        await _leaderboardDownloader.GetLeaderboardAsync(difficultyBeatmap, page, levelInfoTokenSource.Token);
+                    
+                    await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(() =>
+                        _accSaberLeaderboardViewController.LeaderboardEntriesUpdated(accSaberLeaderboardEntries));
+                }
             }
         }
 
@@ -176,16 +181,16 @@ namespace AccSaber.Managers
         
         private async Task OnPageRequestedAsync(IDifficultyBeatmap difficultyBeatmap, ILeaderboardSource leaderboardSource, int page)
         {
-            leaderboardTokenSource?.Cancel();
-            leaderboardTokenSource?.Dispose();
             leaderboardTokenSource = new CancellationTokenSource();
-            var leaderboardEntries = await leaderboardSource.GetScoresAsync(difficultyBeatmap, page, leaderboardTokenSource.Token);
 
-            if (leaderboardEntries is null)
+            var leaderboardEntries = 
+                await _leaderboardDownloader.GetLeaderboardAsync(difficultyBeatmap, page, _cancellationToken.Token);
+
+            if (leaderboardEntries is { Count: 0 })
             {
-                return;
+                leaderboardEntries = null;
             }
-        
+
             foreach (var updater in _leaderboardEntriesUpdaters)
             {
                 await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(() => 

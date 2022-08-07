@@ -16,7 +16,16 @@ namespace AccSaber.Downloaders
 {
     public class AccSaberDownloader : Downloader
     {
-        
+        private const string API_URL = "https://api.accsaber.com/";
+        private const string CDN_URL = "https://cdn.accsaber.com/";
+        private const string COVERS_ENDPOINT = "covers/";
+        private const string RANKED_ENDPOINT = "ranked-maps";
+        private const string LEADERBOARDS_ENDPOINT = "map-leaderboards/";
+        private const string PLAYERS_ENDPOINT = "players/";
+        private const string PAGINATION_PAGE = "?page=";
+        private const string PAGINATION_PAGESIZE = "&pageSize=";
+
+        private const string CATEGORY_ENDPOINT = "categories";
 
         private readonly SiraLog _siraLog;
         private static Dictionary<string, Sprite> _spriteCache = new Dictionary<string, Sprite>();
@@ -28,13 +37,13 @@ namespace AccSaber.Downloaders
 
         public async Task<List<AccSaberAPISong>> GetRankedMapsAsync(CancellationToken cancellationToken)
         {
-            string url = Constants.API_URL + Constants.RANKED_ENDPOINT;
+            string url = API_URL + RANKED_ENDPOINT;
             return await MakeJsonRequestAsync<List<AccSaberAPISong>>(url, cancellationToken);
         }
 
         public async Task<List<AccSaberCategory>> GetCategoriesAsync(CancellationToken cancellationToken)
         {
-            string url = Constants.API_URL + Constants.CATEGORY_ENDPOINT;
+            string url = API_URL + CATEGORY_ENDPOINT;
             return await MakeJsonRequestAsync<List<AccSaberCategory>>(url, cancellationToken);
         }
 
@@ -45,7 +54,7 @@ namespace AccSaber.Downloaders
             {
                 return _spriteCache[hash];
             }
-            string url = Constants.CDN_URL + Constants.COVERS_ENDPOINT + hash + ".png";
+            string url = CDN_URL + COVERS_ENDPOINT + hash + ".png";
 
             var sprite = await MakeImageRequestAsync(url, cancellationToken);
             if (sprite != null)

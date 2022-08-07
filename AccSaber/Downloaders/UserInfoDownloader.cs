@@ -11,7 +11,8 @@ namespace AccSaber.Downloaders
 {
     public class UserInfoDownloader : Downloader
     {
-        
+        private const string API_URL = "https://api.accsaber.com/";
+        private const string PLAYERS_ENDPOINT = "players/";
 
         private readonly SiraLog _siraLog;
         private UserIDUtils _userID;
@@ -24,7 +25,7 @@ namespace AccSaber.Downloaders
 
         public async Task<List<AccSaberUserModel>> GetUserInfoAsync(string userID, CancellationToken cancellationToken = default)
         {
-            var url = Constants.API_URL + Constants.PLAYERS_ENDPOINT + userID + Constants.OVERALL;
+            var url = API_URL + PLAYERS_ENDPOINT + userID + "/" + _category.GetCategoryString();
             _siraLog.Debug($"making request to: {url}");
             return await MakeJsonRequestAsync<List<AccSaberUserModel>>(url, cancellationToken);
         }
