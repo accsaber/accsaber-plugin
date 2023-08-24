@@ -4,7 +4,7 @@
         <ProjectGuid>{06B53B81-A8BD-4122-9224-B12A4ED6734A}</ProjectGuid>
         <RootNamespace>AccSaber</RootNamespace>
         <AssemblyName>AccSaber</AssemblyName>
-        <TargetFramework>net472</TargetFramework>
+        <TargetFramework>net48</TargetFramework>
         <DebugSymbols>true</DebugSymbols>
         <LocalRefsDir Condition="Exists('..\Refs')">..\Refs</LocalRefsDir>
         <BeatSaberDir>$(LocalRefsDir)</BeatSaberDir>
