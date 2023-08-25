@@ -1,4 +1,4 @@
-﻿using RuntimeUnityEditor.BSIPA4;
+﻿using AccSaber.Configuration;
 using Zenject;
 
 namespace AccSaber.Installers
@@ -15,6 +15,7 @@ namespace AccSaber.Installers
 		public override void InstallBindings()
 		{
 			Container.BindInstance(_pluginConfig).AsSingle();
+			Container.Bind<UserIDUtils>().AsSingle();
 		}
 	}
 }

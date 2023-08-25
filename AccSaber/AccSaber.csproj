@@ -12,6 +12,7 @@
         <AssemblyTitle>AccSaber</AssemblyTitle>
         <Product>AccSaber</Product>
         <Copyright>Copyright © $ModAuthor$</Copyright>
+        <LangVersion>9</LangVersion>
     </PropertyGroup>
     <PropertyGroup Condition="$(DefineConstants.Contains('CIBuild')) OR '$(NCrunch)' == '1'">
         <DisableCopyToPlugins>True</DisableCopyToPlugins>
@@ -21,9 +22,14 @@
         <DisableZipRelease>True</DisableZipRelease>
     </PropertyGroup>
     <ItemGroup>
-        <Reference Include="RuntimeUnityEditor.BSIPA4">
-            <HintPath>$(BeatSaberDir)\Plugins\RuntimeUnityEditor.BSIPA4.dll</HintPath>
-            <Private>false</Private>
+        <Reference Include="BeatmapCore">
+          <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
+        </Reference>
+        <Reference Include="Hive.Versioning">
+          <HintPath>$(BeatSaberDir)\Libs\Hive.Versioning.dll</HintPath>
+        </Reference>
+        <Reference Include="SongCore">
+          <HintPath>$(BeatSaberDir)\Plugins\SongCore.dll</HintPath>
         </Reference>
         <Reference Include="System.Data.DataSetExtensions"/>
         <Reference Include="0Harmony, Version=2.0.2.0, Culture=neutral, processorArchitecture=MSIL">
@@ -107,5 +113,9 @@
     </ItemGroup>
     <ItemGroup>
       <Folder Include="UI\" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Remove="manifest.json" />
+      <EmbeddedResource Include="manifest.json" />
     </ItemGroup>
 </Project>
