@@ -13,6 +13,7 @@
         <Product>AccSaber</Product>
         <Copyright>Copyright © $ModAuthor$</Copyright>
         <LangVersion>9</LangVersion>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
     <PropertyGroup Condition="$(DefineConstants.Contains('CIBuild')) OR '$(NCrunch)' == '1'">
         <DisableCopyToPlugins>True</DisableCopyToPlugins>
@@ -30,6 +31,9 @@
         </Reference>
         <Reference Include="SongCore">
           <HintPath>$(BeatSaberDir)\Plugins\SongCore.dll</HintPath>
+        </Reference>
+        <Reference Include="LeaderboardCore">
+          <HintPath>$(BeatSaberDir)\Plugins\LeaderboardCore.dll</HintPath>
         </Reference>
         <Reference Include="System.Data.DataSetExtensions"/>
         <Reference Include="0Harmony, Version=2.0.2.0, Culture=neutral, processorArchitecture=MSIL">

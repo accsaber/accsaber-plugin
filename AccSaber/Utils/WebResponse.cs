@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SiraUtil.Web;
 
-namespace AccSaber
+namespace AccSaber.Utils
 {
-    public static class WebResponse
+    internal static class WebResponse
     {
         public static async Task<T?> Parse<T>(IHttpResponse webResponse)
         {
