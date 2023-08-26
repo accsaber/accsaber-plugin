@@ -7,6 +7,6 @@ namespace AccSaber.Configuration
 {
 	internal class PluginConfig
 	{
-		
+		public virtual bool RainbowHeader { get; set; } = false;
 	}
 }

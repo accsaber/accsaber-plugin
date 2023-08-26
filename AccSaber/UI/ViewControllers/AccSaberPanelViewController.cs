@@ -1,4 +1,7 @@
-﻿using AccSaber.Interfaces;
+﻿using System;
+using System.Threading.Tasks;
+using AccSaber.Configuration;
+using AccSaber.Interfaces;
 using AccSaber.Models;
 using AccSaber.Utils;
 using BeatSaberMarkupLanguage;
@@ -21,15 +24,17 @@ namespace AccSaber.UI.ViewControllers
 
 		private bool _parsed;
 		private bool _firstShowing;
-		private AccSaberRankedMap? _accSaberMapInfo = null!;
+		private AccSaberRankedMap? _accSaberMapInfo;
 		
 		private SiraLog _log = null!;
+		private PluginConfig _pluginConfig = null!;
 		private TimeTweeningManager _timeTweeningManager = null!;
 
 		[Inject]
-		public void Construct(SiraLog siraLog, TimeTweeningManager timeTweeningManager)
+		public void Construct(SiraLog siraLog, PluginConfig pluginConfig, TimeTweeningManager timeTweeningManager)
 		{
 			_log = siraLog;
+			_pluginConfig = pluginConfig;
 			_timeTweeningManager = timeTweeningManager;
 		}
 
@@ -42,7 +47,7 @@ namespace AccSaber.UI.ViewControllers
 
 			_accSaberMapInfo = accSaberMapInfo;
 
-			if (!_parsed)
+			if (!_parsed || _pluginConfig.RainbowHeader)
 			{
 				return;
 			}
@@ -60,12 +65,26 @@ namespace AccSaber.UI.ViewControllers
 
 		private void OnEnable()
 		{
+			if (_pluginConfig.RainbowHeader && _parsed)
+			{
+				_ = ToggleRainbowBannerTween(true);
+			}
+		}
+
+		private void OnDisable()
+		{
+			if (!_parsed)
+			{
+				return;
+			}
+			
 			_firstShowing = true;
+			_ = ToggleRainbowBannerTween(false);
 		}
 
 		private void SetBannerColor(string category)
 		{
-			if (_container.background is not ImageView background)
+			if (_container.background is not ImageView background || _pluginConfig.RainbowHeader)
 			{
 				return;
 			}
@@ -94,6 +113,42 @@ namespace AccSaber.UI.ViewControllers
 			_timeTweeningManager.AddTween(secondTween, this);
 		}
 
+		private async Task ToggleRainbowBannerTween(bool enable)
+		{
+			if (_container.background is not ImageView background)
+			{
+				return;
+			}
+
+			if (enable)
+			{
+				var tween = new FloatTween(0f, 1, val => background.color0 = Color.HSVToRGB((val + 0.2f) % 1f, 1f, 1f), 6f, EaseType.Linear)
+				{
+					loop = true
+				};
+				var tween2 = new FloatTween(0f, 1, val => background.color1 = Color.HSVToRGB(val, 1f, 1f).ColorWithAlpha(0), 6f, EaseType.Linear)
+				{
+					loop = true
+				};
+				
+				_timeTweeningManager.AddTween(tween, this);
+				await Task.Delay(100);
+				if (tween.isKilled)
+				{
+					return;
+				}
+				_timeTweeningManager.AddTween(tween2, this);
+			}
+			else
+			{
+				_timeTweeningManager.KillAllTweens(this);
+				if (_accSaberMapInfo?.categoryDisplayName != null)
+				{
+					SetBannerColor(_accSaberMapInfo.categoryDisplayName);
+				}
+			}
+		}
+
 		private Color GetCategoryColor(string category)
 		{
 			return category switch
@@ -108,8 +163,6 @@ namespace AccSaber.UI.ViewControllers
 		[UIAction("#post-parse")]
 		public void PostParse()
 		{
-			_log.Info("post parse");
-			
 			if (_container.background is ImageView background)
 			{
 				background.material = Utilities.ImageResources.NoGlowMat;
@@ -120,9 +173,15 @@ namespace AccSaber.UI.ViewControllers
 			}
 
 			_parsed = true;
-
+            
 			if (_accSaberMapInfo is not null)
 			{
+				if (_pluginConfig.RainbowHeader)
+				{
+					_ = ToggleRainbowBannerTween(true);
+					return;
+				}
+				
 				SetBannerColor(_accSaberMapInfo.categoryDisplayName);
 				_firstShowing = false;
 			}
