@@ -21,8 +21,8 @@ namespace AccSaber.Managers
 			_notifyDifficultyBeatmapUpdateds = notifyDifficultyBeatmapUpdateds;
 		}
         
-		private Dictionary<string, AccSaberRankedMap> _rankedMaps = new();
-
+		private readonly Dictionary<string, AccSaberRankedMap> _rankedMaps = new();
+		
 		public async void Initialize()
 		{
 			var response = await _downloader.Get<List<AccSaberRankedMap>>("https://api.accsaber.com/ranked-maps/");

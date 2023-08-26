@@ -1,6 +1,7 @@
 ﻿using System;
 using AccSaber.Interfaces;
 using AccSaber.Models;
+using AccSaber.UI.ViewControllers;
 using HMUI;
 using LeaderboardCore.Managers;
 using LeaderboardCore.Models;
@@ -12,15 +13,17 @@ namespace AccSaber.UI
 	{
 		private readonly SiraLog _log;
 		private readonly CustomLeaderboardManager _customLeaderboardManager;
+		private readonly AccSaberPanelViewController _accSaberPanelViewController;
 
-		public AccSaberCustomLeaderboard(SiraLog log, CustomLeaderboardManager customLeaderboardManager)
+		public AccSaberCustomLeaderboard(SiraLog log, CustomLeaderboardManager customLeaderboardManager, AccSaberPanelViewController accSaberPanelViewController)
 		{
 			_log = log;
 			_customLeaderboardManager = customLeaderboardManager;
+			_accSaberPanelViewController = accSaberPanelViewController;
 		}
 
 		protected override ViewController panelViewController { get; }
-		protected override ViewController leaderboardViewController { get; }
+		protected override ViewController leaderboardViewController => _accSaberPanelViewController;
 
 		public void Dispose()
 		{
@@ -29,9 +32,6 @@ namespace AccSaber.UI
 
 		public void DifficultyBeatmapUpdated(IDifficultyBeatmap difficultyBeatmap, AccSaberRankedMap? accSaberMapInfo)
 		{
-			_log.Info(accSaberMapInfo);
-			return;
-			
 			if (accSaberMapInfo is not null)
 			{
 				_customLeaderboardManager.Register(this);

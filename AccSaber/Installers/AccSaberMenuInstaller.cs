@@ -2,6 +2,7 @@
 using AccSaber.Interfaces;
 using AccSaber.Managers;
 using AccSaber.UI;
+using AccSaber.UI.ViewControllers;
 using Zenject;
 
 namespace AccSaber.Installers
@@ -22,6 +23,8 @@ namespace AccSaber.Installers
 			Container.Bind<Downloader>().AsSingle();
 			Container.BindInterfacesAndSelfTo<AccSaberManager>().AsSingle();
 			Container.BindInterfacesTo<AccSaberCustomLeaderboard>().AsSingle();
+
+			Container.BindInterfacesAndSelfTo<AccSaberPanelViewController>().FromNewComponentAsViewController().AsSingle();
 		}
 	}
 }
