@@ -2,43 +2,23 @@ using System;
 using System.Collections.Generic;
 using AccSaber.Models;
 using SiraUtil.Logging;
-using AccSaber.Interfaces;
 using LeaderboardCore.Interfaces;
-using Zenject;
 
 namespace AccSaber.Managers
 {
-	internal class AccSaberManager : IInitializable, INotifyLeaderboardSet
+	internal class AccSaberManager : INotifyLeaderboardSet
 	{
 		private readonly SiraLog _log;
 		private readonly Downloader _downloader;
-		private readonly List<INotifyDifficultyBeatmapUpdated> _notifyDifficultyBeatmapUpdateds;
+		private readonly AccSaberStore _accSaberStore;
         
-		public AccSaberManager(SiraLog log, Downloader downloader, List<INotifyDifficultyBeatmapUpdated> notifyDifficultyBeatmapUpdateds)
+		public AccSaberManager(SiraLog log, Downloader downloader, AccSaberStore accSaberStore)
 		{
 			_log = log;
 			_downloader = downloader;
-			_notifyDifficultyBeatmapUpdateds = notifyDifficultyBeatmapUpdateds;
+			_accSaberStore = accSaberStore;
 		}
         
-		private readonly Dictionary<string, AccSaberRankedMap> _rankedMaps = new();
-		
-		public async void Initialize()
-		{
-			var response = await _downloader.Get<List<AccSaberRankedMap>>("https://api.accsaber.com/ranked-maps/");
-			
-			if (response == null)
-			{
-				_log.Error("Failed to get ranked maps from AccSaber API");
-				return;
-			}
-
-			foreach (var map in response)
-			{
-				_rankedMaps[$"{map.songHash}/{map.difficulty}".ToLower()] = map;
-			}
-		}
-
 		public void OnLeaderboardSet(IDifficultyBeatmap? difficultyBeatmap)
 		{
 			if (difficultyBeatmap is not {level: CustomPreviewBeatmapLevel level})
@@ -47,12 +27,9 @@ namespace AccSaber.Managers
 			}
 
 			var hash = $"{SongCore.Utilities.Hashing.GetCustomLevelHash(level)}/{difficultyBeatmap.difficulty}".ToLower();
-			var mapInfo = _rankedMaps.TryGetValue(hash, out var ret) ? ret : null;
-			
-			foreach (var notifyDifficultyBeatmapUpdated in _notifyDifficultyBeatmapUpdateds)
-			{
-				notifyDifficultyBeatmapUpdated.DifficultyBeatmapUpdated(difficultyBeatmap, mapInfo);
-			}
+			var mapInfo = _accSaberStore.RankedMaps.TryGetValue(hash, out var ret) ? ret : null;
+
+			_accSaberStore.CurrentRankedMap = mapInfo;
 		}
 	}
 }

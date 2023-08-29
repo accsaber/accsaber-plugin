@@ -1,7 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AccSaber.Configuration;
-using AccSaber.Interfaces;
+using AccSaber.Managers;
 using AccSaber.Models;
 using AccSaber.Utils;
 using BeatSaberMarkupLanguage;
@@ -18,35 +17,36 @@ namespace AccSaber.UI.ViewControllers
 {
 	[ViewDefinition("AccSaber.UI.Views.AccSaberPanelView.bsml")]
 	[HotReload(RelativePathToLayout = @"..\UI\Views\AccSaberPanelView.bsml")]
-	internal sealed class AccSaberPanelViewController : BSMLAutomaticViewController, INotifyDifficultyBeatmapUpdated
+	internal sealed class AccSaberPanelViewController : BSMLAutomaticViewController
 	{
 		[UIComponent("container")] private readonly Backgroundable _container = null!;
 
 		private bool _parsed;
 		private bool _firstShowing;
-		private AccSaberRankedMap? _accSaberMapInfo;
-		
+		private bool _loadingActive;
+		private string _promptText = "";
+
 		private SiraLog _log = null!;
 		private PluginConfig _pluginConfig = null!;
+		private AccSaberStore _accSaberStore = null!;
 		private TimeTweeningManager _timeTweeningManager = null!;
 
 		[Inject]
-		public void Construct(SiraLog siraLog, PluginConfig pluginConfig, TimeTweeningManager timeTweeningManager)
+		public void Construct(SiraLog siraLog, PluginConfig pluginConfig, AccSaberStore accSaberStore, TimeTweeningManager timeTweeningManager)
 		{
 			_log = siraLog;
 			_pluginConfig = pluginConfig;
+			_accSaberStore = accSaberStore;
 			_timeTweeningManager = timeTweeningManager;
 		}
-
-		public void DifficultyBeatmapUpdated(IDifficultyBeatmap difficultyBeatmap, AccSaberRankedMap? accSaberMapInfo)
+        
+		private void AccSaberStoreOnOnAccSaberRankedMapUpdated(AccSaberRankedMap? mapInfo)
 		{
-			if (accSaberMapInfo is null)
+			if (mapInfo is null)
 			{
 				return;
 			}
-
-			_accSaberMapInfo = accSaberMapInfo;
-
+            
 			if (!_parsed || _pluginConfig.RainbowHeader)
 			{
 				return;
@@ -54,17 +54,19 @@ namespace AccSaber.UI.ViewControllers
 
 			if (_firstShowing)
 			{
-				SetBannerColor(accSaberMapInfo.categoryDisplayName);
+				SetBannerColor(mapInfo.categoryDisplayName);
 				_firstShowing = false;
 			}
 			else
 			{
-				TweenBannerColor(accSaberMapInfo.categoryDisplayName);	
+				TweenBannerColor(mapInfo.categoryDisplayName);	
 			}
 		}
 
 		private void OnEnable()
 		{
+			_accSaberStore.OnAccSaberRankedMapUpdated += AccSaberStoreOnOnAccSaberRankedMapUpdated;
+			
 			if (_pluginConfig.RainbowHeader && _parsed)
 			{
 				_ = ToggleRainbowBannerTween(true);
@@ -73,6 +75,8 @@ namespace AccSaber.UI.ViewControllers
 
 		private void OnDisable()
 		{
+			_accSaberStore.OnAccSaberRankedMapUpdated -= AccSaberStoreOnOnAccSaberRankedMapUpdated;
+			
 			if (!_parsed)
 			{
 				return;
@@ -142,9 +146,9 @@ namespace AccSaber.UI.ViewControllers
 			else
 			{
 				_timeTweeningManager.KillAllTweens(this);
-				if (_accSaberMapInfo?.categoryDisplayName != null)
+				if (_accSaberStore.CurrentRankedMap?.categoryDisplayName != null)
 				{
-					SetBannerColor(_accSaberMapInfo.categoryDisplayName);
+					SetBannerColor(_accSaberStore.CurrentRankedMap.categoryDisplayName);
 				}
 			}
 		}
@@ -174,7 +178,7 @@ namespace AccSaber.UI.ViewControllers
 
 			_parsed = true;
             
-			if (_accSaberMapInfo is not null)
+			if (_accSaberStore.CurrentRankedMap is not null)
 			{
 				if (_pluginConfig.RainbowHeader)
 				{
@@ -182,7 +186,7 @@ namespace AccSaber.UI.ViewControllers
 					return;
 				}
 				
-				SetBannerColor(_accSaberMapInfo.categoryDisplayName);
+				SetBannerColor(_accSaberStore.CurrentRankedMap.categoryDisplayName);
 				_firstShowing = false;
 			}
 		}

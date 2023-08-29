@@ -1,5 +1,4 @@
 ﻿using AccSaber.Configuration;
-using AccSaber.Interfaces;
 using AccSaber.Managers;
 using AccSaber.UI;
 using AccSaber.UI.ViewControllers;
@@ -21,6 +20,7 @@ namespace AccSaber.Installers
 			Container.BindInstance(_pluginConfig).AsSingle();
 
 			Container.Bind<Downloader>().AsSingle();
+			Container.BindInterfacesAndSelfTo<AccSaberStore>().AsSingle();
 			Container.BindInterfacesAndSelfTo<AccSaberManager>().AsSingle();
 			Container.BindInterfacesTo<AccSaberCustomLeaderboard>().AsSingle();
 
