@@ -1,6 +1,4 @@
-using System;
-using System.Collections.Generic;
-using AccSaber.Models;
+using AccSaber.Utils;
 using SiraUtil.Logging;
 using LeaderboardCore.Interfaces;
 
@@ -9,13 +7,13 @@ namespace AccSaber.Managers
 	internal class AccSaberManager : INotifyLeaderboardSet
 	{
 		private readonly SiraLog _log;
-		private readonly Downloader _downloader;
+		private readonly WebUtils _webUtils;
 		private readonly AccSaberStore _accSaberStore;
         
-		public AccSaberManager(SiraLog log, Downloader downloader, AccSaberStore accSaberStore)
+		public AccSaberManager(SiraLog log, WebUtils webUtils, AccSaberStore accSaberStore)
 		{
 			_log = log;
-			_downloader = downloader;
+			_webUtils = webUtils;
 			_accSaberStore = accSaberStore;
 		}
         

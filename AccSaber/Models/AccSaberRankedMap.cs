@@ -1,11 +1,12 @@
 ﻿using System;
+using AccSaber.Managers;
 using AccSaber.Models.Base;
 using JetBrains.Annotations;
 
 namespace AccSaber.Models
 {
     [UsedImplicitly]
-    internal class AccSaberRankedMap : Model
+    internal sealed class AccSaberRankedMap : Model
     {
         public string songName;
         public string songSubName;

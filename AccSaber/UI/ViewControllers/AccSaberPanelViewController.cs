@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using AccSaber.Configuration;
 using AccSaber.Managers;
 using AccSaber.Models;
@@ -17,12 +18,11 @@ namespace AccSaber.UI.ViewControllers
 {
 	[ViewDefinition("AccSaber.UI.Views.AccSaberPanelView.bsml")]
 	[HotReload(RelativePathToLayout = @"..\UI\Views\AccSaberPanelView.bsml")]
-	internal sealed class AccSaberPanelViewController : BSMLAutomaticViewController
+	internal sealed class AccSaberPanelViewController : BSMLAutomaticViewController, IInitializable, IDisposable
 	{
 		[UIComponent("container")] private readonly Backgroundable _container = null!;
 
 		private bool _parsed;
-		private bool _firstShowing;
 		private bool _loadingActive;
 		private string _promptText = "";
 
@@ -42,48 +42,52 @@ namespace AccSaber.UI.ViewControllers
         
 		private void AccSaberStoreOnOnAccSaberRankedMapUpdated(AccSaberRankedMap? mapInfo)
 		{
-			if (mapInfo is null)
+			if (mapInfo is null || !_parsed)
 			{
 				return;
 			}
             
-			if (!_parsed || _pluginConfig.RainbowHeader)
+			NotifyPropertyChanged(nameof(CategoryRankingText));
+			NotifyPropertyChanged(nameof(MapComplexityText));
+			
+			if (_pluginConfig.RainbowHeader)
 			{
 				return;
 			}
 
-			if (_firstShowing)
+			if (!_container.gameObject.activeInHierarchy)
 			{
+				_log.Notice("set banner color");
 				SetBannerColor(mapInfo.categoryDisplayName);
-				_firstShowing = false;
 			}
 			else
 			{
+				_log.Notice("tween banner color");
 				TweenBannerColor(mapInfo.categoryDisplayName);	
 			}
 		}
-
-		private void OnEnable()
+		
+		public void Initialize()
 		{
 			_accSaberStore.OnAccSaberRankedMapUpdated += AccSaberStoreOnOnAccSaberRankedMapUpdated;
-			
-			if (_pluginConfig.RainbowHeader && _parsed)
+		}
+
+		public void Dispose()
+		{
+			_accSaberStore.OnAccSaberRankedMapUpdated -= AccSaberStoreOnOnAccSaberRankedMapUpdated;
+		}
+
+		public async void OnEnable()
+		{
+			if (_pluginConfig.RainbowHeader)
 			{
-				_ = ToggleRainbowBannerTween(true);
+				await ToggleRainbowBannerTween(true);
 			}
 		}
 
-		private void OnDisable()
+		public void OnDisable()
 		{
-			_accSaberStore.OnAccSaberRankedMapUpdated -= AccSaberStoreOnOnAccSaberRankedMapUpdated;
-			
-			if (!_parsed)
-			{
-				return;
-			}
-			
-			_firstShowing = true;
-			_ = ToggleRainbowBannerTween(false);
+			_timeTweeningManager.KillAllTweens(this);
 		}
 
 		private void SetBannerColor(string category)
@@ -187,37 +191,36 @@ namespace AccSaber.UI.ViewControllers
 				}
 				
 				SetBannerColor(_accSaberStore.CurrentRankedMap.categoryDisplayName);
-				_firstShowing = false;
 			}
 		}
 		
 		[UIValue("loading-active")]
 		public bool LoadingActive
 		{
-			get => false;
+			get => _loadingActive;
 			set
 			{
-				// _loadingActive = value;
-				// NotifyPropertyChanged(nameof(LoadingActive));
+				_loadingActive = value;
+				NotifyPropertyChanged();
 			}
 		}
 
 		[UIValue("prompt-text")]
 		public string PromptText
 		{
-			get => "_promptText";
+			get => _promptText;
 			set
 			{
-				// _promptText = value;
-				// NotifyPropertyChanged(nameof(PromptText));
+				_promptText = value;
+				NotifyPropertyChanged();
 			}
 		}
 
-		[UIValue("pool-ranking-text")]
-		private string PoolRankingText =>
-			$"<color=#EDFF55>Category Ranking:</color> #_userModel.rank <size=75%>(<color=#00FFAE>_userModel.ap:F2ap</color>)";
+		[UIValue("category-ranking-text")]
+		private string CategoryRankingText =>
+			$"<color=#EDFF55>Category Ranking:</color> #{_accSaberStore.GetCurrentCategoryUser().rank} <size=75%>(<color=#00FFAE>{_accSaberStore.GetCurrentCategoryUser().ap:F2}ap</color>)";
         
-		[UIValue("average-acc-text")]
-		private string AverageAccText => $"<color=#EDFF55>Map Complexity:</color> _APISong.complexity";
+		[UIValue("map-complexity-text")]
+		private string MapComplexityText => $"<color=#EDFF55>Map Complexity:</color> {Math.Round(_accSaberStore.CurrentRankedMap!.complexity, 2)}";
 	}
 }

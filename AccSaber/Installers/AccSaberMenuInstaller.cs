@@ -2,6 +2,7 @@
 using AccSaber.Managers;
 using AccSaber.UI;
 using AccSaber.UI.ViewControllers;
+using AccSaber.Utils;
 using Zenject;
 
 namespace AccSaber.Installers
@@ -19,7 +20,7 @@ namespace AccSaber.Installers
 		{
 			Container.BindInstance(_pluginConfig).AsSingle();
 
-			Container.Bind<Downloader>().AsSingle();
+			Container.Bind<WebUtils>().AsSingle();
 			Container.BindInterfacesAndSelfTo<AccSaberStore>().AsSingle();
 			Container.BindInterfacesAndSelfTo<AccSaberManager>().AsSingle();
 			Container.BindInterfacesTo<AccSaberCustomLeaderboard>().AsSingle();
