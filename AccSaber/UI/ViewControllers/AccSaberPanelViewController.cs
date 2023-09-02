@@ -21,6 +21,8 @@ namespace AccSaber.UI.ViewControllers
 	internal sealed class AccSaberPanelViewController : BSMLAutomaticViewController, IInitializable, IDisposable
 	{
 		[UIComponent("container")] private readonly Backgroundable _container = null!;
+		[UIComponent("logo")] private ImageView _logo = null!;
+		[UIComponent("separator")] private ImageView _separator = null!;
 
 		private bool _parsed;
 		private bool _loadingActive;
@@ -179,6 +181,12 @@ namespace AccSaber.UI.ViewControllers
 				Accessors.GradientAccessor(ref background) = true;
 				Accessors.SkewAccessor(ref background) = 0.18f;
 			}
+			
+			Accessors.SkewAccessor(ref _logo) = 0.18f;
+			_logo.SetVerticesDirty();
+
+			Accessors.SkewAccessor(ref _separator) = 0.18f;
+			_separator.SetVerticesDirty();
 
 			_parsed = true;
             
