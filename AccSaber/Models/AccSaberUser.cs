@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 namespace AccSaber.Models
 {
 	[UsedImplicitly]
-	internal class AccSaberUser : Model
+	internal sealed class AccSaberUser : Model
 	{
 		public int rank;
 		public string playerId;

@@ -81,7 +81,7 @@ namespace AccSaber.UI.ViewControllers
 
 		public async void OnEnable()
 		{
-			if (_pluginConfig.RainbowHeader)
+			if (_parsed && _pluginConfig.RainbowHeader)
 			{
 				await ToggleRainbowBannerTween(true);
 			}

@@ -55,7 +55,6 @@ namespace AccSaber.Managers
 			foreach (var map in response)
 			{
 				rankedMaps[$"{map.songHash}/{map.difficulty}".ToLower()] = map;
-				_log.Info(map.categoryDisplayName);
 			}
 
 			return rankedMaps;
