@@ -1,4 +1,5 @@
 ﻿using AccSaber.Configuration;
+using AccSaber.LeaderboardSources;
 using AccSaber.Managers;
 using AccSaber.UI;
 using AccSaber.UI.ViewControllers;
@@ -24,8 +25,11 @@ namespace AccSaber.Installers
 			Container.BindInterfacesAndSelfTo<AccSaberStore>().AsSingle();
 			Container.BindInterfacesAndSelfTo<AccSaberManager>().AsSingle();
 			Container.BindInterfacesTo<AccSaberCustomLeaderboard>().AsSingle();
-
+			
 			Container.BindInterfacesAndSelfTo<AccSaberPanelViewController>().FromNewComponentAsViewController().AsSingle();
+			Container.BindInterfacesAndSelfTo<AccSaberLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
+			Container.BindInterfacesTo<GlobalLeaderboardSource>().AsSingle();
+			Container.BindInterfacesTo<AroundMeLeaderboardSource>().AsSingle();
 		}
 	}
 }

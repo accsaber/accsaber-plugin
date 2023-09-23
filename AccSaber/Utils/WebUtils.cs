@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SiraUtil.Logging;
@@ -18,12 +19,19 @@ namespace AccSaber.Utils
             _httpService = httpService;
         }
 
-        internal async Task<T?> GetAsync<T>(string path)
+        internal async Task<T?> GetAsync<T>(string path, CancellationToken cancellationToken = default)
         {
-            var response = await _httpService.GetAsync(path);
+            try
+            {
+                var response = await _httpService.GetAsync(path, cancellationToken: cancellationToken);
 
-            var parsed = await ParseWebResponse<T>(response);
-            return parsed;
+                var parsed = await ParseWebResponse<T>(response);
+                return parsed;
+            }
+            catch (TaskCanceledException)
+            {
+                return default;
+            }
         }
 
         private async Task<T?> ParseWebResponse<T>(IHttpResponse webResponse)

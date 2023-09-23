@@ -5,28 +5,27 @@ using AccSaber.UI.ViewControllers;
 using HMUI;
 using LeaderboardCore.Managers;
 using LeaderboardCore.Models;
-using SiraUtil.Logging;
 using Zenject;
 
 namespace AccSaber.UI
 {
 	internal sealed class AccSaberCustomLeaderboard : CustomLeaderboard, IInitializable, IDisposable
 	{
-		private readonly SiraLog _log;
 		private readonly AccSaberStore _accSaberStore;
 		private readonly CustomLeaderboardManager _customLeaderboardManager;
 		private readonly AccSaberPanelViewController _accSaberPanelViewController;
+		private readonly AccSaberLeaderboardViewController _accSaberLeaderboardViewController;
 
-		public AccSaberCustomLeaderboard(SiraLog log, AccSaberStore accSaberStore, CustomLeaderboardManager customLeaderboardManager, AccSaberPanelViewController accSaberPanelViewController)
+		public AccSaberCustomLeaderboard(AccSaberStore accSaberStore, CustomLeaderboardManager customLeaderboardManager, AccSaberPanelViewController accSaberPanelViewController, AccSaberLeaderboardViewController accSaberLeaderboardViewController)
 		{
-			_log = log;
 			_accSaberStore = accSaberStore;
 			_customLeaderboardManager = customLeaderboardManager;
 			_accSaberPanelViewController = accSaberPanelViewController;
+			_accSaberLeaderboardViewController = accSaberLeaderboardViewController;
 		}
 
-		protected override ViewController panelViewController { get; }
-		protected override ViewController leaderboardViewController => _accSaberPanelViewController;
+		protected override ViewController panelViewController => _accSaberPanelViewController;
+		protected override ViewController leaderboardViewController => _accSaberLeaderboardViewController;
 
 		public void Initialize()
 		{

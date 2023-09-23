@@ -62,7 +62,7 @@ namespace AccSaber.Managers
 		
 		private async Task<AccSaberUser> GetCurrentUser(string? category = null)
 		{
-			var userInfo = await _platformUserModel.GetUserInfo();
+			var userInfo = await GetUserInfo();
 			if (userInfo is null)
 			{
 				_log.Error("userInfo is null");
@@ -72,7 +72,7 @@ namespace AccSaber.Managers
 			AccSaberUser? response;
 			if (category is null)
 			{
-				response = await _webUtils.GetAsync<AccSaberUser>($"https://api.accsaber.com/players/{userInfo.platformUserId}");
+				response = await _webUtils.GetAsync<AccSaberUser>($"https://api.accsaber.com/players/{userInfo.platformUserId}", default);
 			}
 			else
 			{
@@ -86,6 +86,12 @@ namespace AccSaber.Managers
 			}
             
 			return response;
+		}
+
+		public async Task<UserInfo?> GetUserInfo()
+		{
+			// GetUserInfo caches the result
+			return await _platformUserModel.GetUserInfo();
 		}
 
 		public AccSaberUser GetCurrentCategoryUser()

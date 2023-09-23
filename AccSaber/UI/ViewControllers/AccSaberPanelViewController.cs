@@ -59,12 +59,10 @@ namespace AccSaber.UI.ViewControllers
 
 			if (!_container.gameObject.activeInHierarchy)
 			{
-				_log.Notice("set banner color");
 				SetBannerColor(mapInfo.categoryDisplayName);
 			}
 			else
 			{
-				_log.Notice("tween banner color");
 				TweenBannerColor(mapInfo.categoryDisplayName);	
 			}
 		}
