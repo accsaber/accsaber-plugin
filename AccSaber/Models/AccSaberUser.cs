@@ -9,7 +9,8 @@ namespace AccSaber.Models
 		public int rank;
 		public string playerId;
 		public string playerName;
-		public string hmd;
+		public string avatarUrl;
+		public string? hmd;
 		public float averageAcc;
 		public float ap;
 		public float averageApPerMap;

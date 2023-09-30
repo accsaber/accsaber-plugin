@@ -30,6 +30,7 @@ namespace AccSaber.Installers
 			Container.BindInterfacesAndSelfTo<AccSaberLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
 			Container.BindInterfacesTo<GlobalLeaderboardSource>().AsSingle();
 			Container.BindInterfacesTo<AroundMeLeaderboardSource>().AsSingle();
+			Container.Bind<LeaderboardUserModalController>().AsSingle();
 		}
 	}
 }

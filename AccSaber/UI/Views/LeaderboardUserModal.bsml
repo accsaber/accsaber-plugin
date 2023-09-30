@@ -1,0 +1,20 @@
+﻿<bg xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd">
+    <modal id="modal" show-event="open-modal" hide-event="close-modal" clickerino-offerino-closerino="true" size-delta-x="65" size-delta-y="38" move-to-center="true">
+        <loading-indicator active="~is-loading" preserve-aspect="true" pref-width="10" pref-height="10"/>
+        <vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="63" pref-height="36" active="~is-not-loading">
+            <dropdown-list-setting id="category-dropdown" text="" value="category-value" choices="category-choices" formatter="format-category" bind-value="true" apply-on-change="true" pref-width="5"/>
+            <horizontal horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="65" spacing="-1">
+                <vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="25" pref-height="25">
+                    <img id="profile-image" preserve-aspect="true" pref-width="23" pref-height="23"/>
+                </vertical>
+                <vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="35" pref-height="25">
+                    <text text="~username" font-size="5" bold="true"/>
+                    <text text="~rank"/>
+                    <text text="~ap"/>
+                    <text text="~plays"/>
+                    <text text="~headset"/>
+                </vertical>
+            </horizontal>
+        </vertical>
+    </modal>
+</bg>

@@ -62,35 +62,42 @@ namespace AccSaber.Managers
 		
 		private async Task<AccSaberUser> GetCurrentUser(string? category = null)
 		{
-			var userInfo = await GetUserInfo();
-			if (userInfo is null)
+			var platformUser = await GetPlatformUserInfo();
+			if (platformUser is null)
 			{
-				_log.Error("userInfo is null");
+				_log.Error("platformUser is null");
 				return new AccSaberUser();
 			}
 
+			var userInfo = await GetUserFromId(platformUser.platformUserId, category);
+			return userInfo;
+		}
+
+		public async Task<AccSaberUser> GetUserFromId(string id, string? category = null)
+		{
 			AccSaberUser? response;
-			if (category is null)
+			if (category is null || category.ToLower() == "overall")
 			{
-				response = await _webUtils.GetAsync<AccSaberUser>($"https://api.accsaber.com/players/{userInfo.platformUserId}", default);
+				response = await _webUtils.GetAsync<AccSaberUser>($"https://api.accsaber.com/players/{id}", default);
 			}
 			else
 			{
-				response = await _webUtils.GetAsync<AccSaberUser>($"https://api.accsaber.com/players/{userInfo.platformUserId}/{category}");
+				response = await _webUtils.GetAsync<AccSaberUser>($"https://api.accsaber.com/players/{id}/{category}");
 			}
-			
-			if (response == null)
+
+			if (response != null)
 			{
-				_log.Error("Failed to get current user from AccSaber API");
-				return new AccSaberUser();
+				return response;
 			}
-            
-			return response;
+
+			_log.Error($"Failed to get user {id} from AccSaber API");
+			return new AccSaberUser();
+
 		}
 
-		public async Task<UserInfo?> GetUserInfo()
+		public async Task<UserInfo?> GetPlatformUserInfo()
 		{
-			// GetUserInfo caches the result
+			// GetUserInfo caches the result, no need to do it ourselves
 			return await _platformUserModel.GetUserInfo();
 		}
 

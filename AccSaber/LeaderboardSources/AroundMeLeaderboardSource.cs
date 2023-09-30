@@ -38,13 +38,12 @@ namespace AccSaber.LeaderboardSources
 				return _cachedEntries[page];
 			}
 
-			var userInfo = await _accSaberStore.GetUserInfo();
+			var userInfo = await _accSaberStore.GetPlatformUserInfo();
 			if (userInfo is null)
 			{
 				return null;
 			}
 			
-			_siraLog.Notice($"https://api.accsaber.com/map-leaderboards/{rankedMap.songHash}/standard/{rankedMap.difficulty}/around/{userInfo.platformUserId}");
 			var response = await _webUtils.GetAsync<List<AccSaberLeaderboardEntry>>($"https://api.accsaber.com/map-leaderboards/{rankedMap.songHash}/standard/{rankedMap.difficulty}/around/{userInfo.platformUserId}", cancellationToken);
 			if (response is null)
 			{

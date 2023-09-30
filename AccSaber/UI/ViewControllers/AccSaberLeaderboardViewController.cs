@@ -23,17 +23,19 @@ namespace AccSaber.UI.ViewControllers
 		private int _selectedCellIndex;
 		private List<Button>? _infoButtons;
 		private LoadingControl? _loadingControl;
-		
-		private SiraLog _log = null!;
+
+		private SiraLog _siraLog;
 		private AccSaberStore _accSaberStore = null!;
 		private List<ILeaderboardSource> _leaderboardSources = null!;
+		private LeaderboardUserModalController _leaderboardUserModalController = null!;
 
 		[Inject]
-        public void Construct(SiraLog log, AccSaberStore accSaberStore, List<ILeaderboardSource> leaderboardSources)
-		{
-			_log = log;
+        public void Construct(SiraLog siraLog, AccSaberStore accSaberStore, List<ILeaderboardSource> leaderboardSources, LeaderboardUserModalController leaderboardUserModalController)
+        {
+	        _siraLog = siraLog;
 			_accSaberStore = accSaberStore;
 			_leaderboardSources = leaderboardSources;
+			_leaderboardUserModalController = leaderboardUserModalController;
 		}
 
 		[UIComponent("leaderboard")]
@@ -227,6 +229,12 @@ namespace AccSaber.UI.ViewControllers
 		protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
 		{
 			base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
+
+			if (!firstActivation)
+			{
+				return;
+			}
+			
 			foreach (var leaderboardSource in _leaderboardSources)
 			{
 				leaderboardSource.ClearCache();
@@ -234,7 +242,13 @@ namespace AccSaber.UI.ViewControllers
 
 			PageNumber = 0;
 		}
-		
+
+		protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
+		{
+			base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
+			_leaderboardUserModalController.HideModal();
+		}
+
 		private async Task SetScores(List<AccSaberLeaderboardEntry>? leaderboardEntries = null)
 		{
 			if (leaderboardEntries is null && _accSaberStore.CurrentRankedMap is not null)
@@ -262,14 +276,14 @@ namespace AccSaber.UI.ViewControllers
 			}
 			else
 			{
-				var userInfo = await _accSaberStore.GetUserInfo();
+				var userInfo = await _accSaberStore.GetPlatformUserInfo();
 				var userId = userInfo?.platformUserId;
 				
 				await UnityMainThreadTaskScheduler.Factory.StartNew(() =>
 				{
 					for (var i = 0; i < (leaderboardEntries.Count > 10 ? 10 : leaderboardEntries.Count); i++)
 					{
-						scores.Add(new LeaderboardTableView.ScoreData(leaderboardEntries[i].score, $"<size=85%>{leaderboardEntries[i].playerName} - <size=75%>(<color=#FFD42A>{leaderboardEntries[i].accuracy * 100:F2}%</color>)</size></size> - <size=75%> (<color=#00FFAE>{leaderboardEntries[i].ap:F2}<size=55%>cr</size></color>)</size>", leaderboardEntries[i].rank, false));
+						scores.Add(new LeaderboardTableView.ScoreData(leaderboardEntries[i].score, $"<size=85%>{leaderboardEntries[i].playerName} - <size=75%>(<color=#FFD42A>{leaderboardEntries[i].accuracy * 100:F2}%</color>)</size></size> - <size=75%> (<color=#00FFAE>{leaderboardEntries[i].ap:F2}<size=55%> AP</size></color>)</size>", leaderboardEntries[i].rank, false));
 
 						if (_infoButtons != null)
 						{
@@ -308,7 +322,18 @@ namespace AccSaber.UI.ViewControllers
 		
 		private void InfoButtonClicked(int index)
 		{
-			// TODO: Add in user modals?
+			if (_infoButtons is null)
+			{
+				return;
+			}
+
+			var playerId = _leaderboardSources[SelectedCellIndex].GetLatestCachedScore()?[index].playerId;
+			if (playerId is null)
+			{
+				return;
+			}
+			
+			_leaderboardUserModalController.ShowModal(_infoButtons[index].transform, playerId);
 		}
 
 		private void AccSaberStoreOnOnAccSaberRankedMapUpdated(AccSaberRankedMap? rankedMap)

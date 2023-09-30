@@ -224,7 +224,7 @@ namespace AccSaber.UI.ViewControllers
 
 		[UIValue("category-ranking-text")]
 		private string CategoryRankingText =>
-			$"<color=#EDFF55>Category Ranking:</color> #{_accSaberStore.GetCurrentCategoryUser().rank} <size=75%>(<color=#00FFAE>{_accSaberStore.GetCurrentCategoryUser().ap:F2}ap</color>)";
+			$"<color=#EDFF55>Category Ranking:</color> #{_accSaberStore.GetCurrentCategoryUser().rank} <size=75%>(<color=#00FFAE>{_accSaberStore.GetCurrentCategoryUser().ap:N2} AP</color>)";
         
 		[UIValue("map-complexity-text")]
 		private string MapComplexityText => $"<color=#EDFF55>Map Complexity:</color> {Math.Round(_accSaberStore.CurrentRankedMap!.complexity, 2)}";
