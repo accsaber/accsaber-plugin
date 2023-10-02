@@ -66,15 +66,36 @@ namespace AccSaber.UI.ViewControllers
 				TweenBannerColor(mapInfo.categoryDisplayName);	
 			}
 		}
-		
+
+		private void AccSaberStoreOnOnFetchingCurrentUser()
+		{
+			LoadingActive = true;
+			PromptText = "Fetching new user data...";
+		}
+
+		private void AccSaberStoreOnOnFetchedCurrentUser(bool isNew)
+		{
+			if (isNew)
+			{
+				NotifyPropertyChanged(nameof(CategoryRankingText));
+			}
+			
+			PromptText = "";
+			LoadingActive = false;
+		}
+
 		public void Initialize()
 		{
 			_accSaberStore.OnAccSaberRankedMapUpdated += AccSaberStoreOnOnAccSaberRankedMapUpdated;
+			_accSaberStore.OnFetchingCurrentUser += AccSaberStoreOnOnFetchingCurrentUser;
+			_accSaberStore.OnFetchedCurrentUser += AccSaberStoreOnOnFetchedCurrentUser;
 		}
 
 		public void Dispose()
 		{
 			_accSaberStore.OnAccSaberRankedMapUpdated -= AccSaberStoreOnOnAccSaberRankedMapUpdated;
+			_accSaberStore.OnFetchingCurrentUser -= AccSaberStoreOnOnFetchingCurrentUser;
+			_accSaberStore.OnFetchedCurrentUser -= AccSaberStoreOnOnFetchedCurrentUser;
 		}
 
 		public async void OnEnable()

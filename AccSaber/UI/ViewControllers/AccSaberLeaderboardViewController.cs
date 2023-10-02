@@ -9,7 +9,6 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
 using IPA.Utilities.Async;
-using SiraUtil.Logging;
 using UnityEngine.UI;
 using Zenject;
 
@@ -23,16 +22,14 @@ namespace AccSaber.UI.ViewControllers
 		private int _selectedCellIndex;
 		private List<Button>? _infoButtons;
 		private LoadingControl? _loadingControl;
-
-		private SiraLog _siraLog;
+		
 		private AccSaberStore _accSaberStore = null!;
 		private List<ILeaderboardSource> _leaderboardSources = null!;
 		private LeaderboardUserModalController _leaderboardUserModalController = null!;
 
 		[Inject]
-        public void Construct(SiraLog siraLog, AccSaberStore accSaberStore, List<ILeaderboardSource> leaderboardSources, LeaderboardUserModalController leaderboardUserModalController)
+        public void Construct(AccSaberStore accSaberStore, List<ILeaderboardSource> leaderboardSources, LeaderboardUserModalController leaderboardUserModalController)
         {
-	        _siraLog = siraLog;
 			_accSaberStore = accSaberStore;
 			_leaderboardSources = leaderboardSources;
 			_leaderboardUserModalController = leaderboardUserModalController;

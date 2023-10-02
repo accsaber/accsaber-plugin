@@ -1,10 +1,12 @@
-﻿using AccSaber.Models.Base;
+﻿using System;
+using AccSaber.Models.Base;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace AccSaber.Models
 {
 	[UsedImplicitly]
-	internal sealed class AccSaberUser : Model
+	internal class AccSaberUser : Model
 	{
 		public int rank;
 		public string playerId;

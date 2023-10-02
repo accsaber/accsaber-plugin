@@ -14,7 +14,6 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Parser;
 using HMUI;
 using IPA.Utilities;
-using SiraUtil.Logging;
 using UnityEngine;
 
 namespace AccSaber.UI.ViewControllers
@@ -29,7 +28,7 @@ namespace AccSaber.UI.ViewControllers
 		private bool _parsed;
 		private bool _firstLoad;
 		private bool _isLoading;
-		private string _categoryValue = null!;
+		private string _categoryValue = "Overall";
 		private string _username = "";
 		private string _rank = null!;
 		private string _ap = null!;
@@ -42,23 +41,21 @@ namespace AccSaber.UI.ViewControllers
 		private ModalView _modalView = null!;
 
 		[UIComponent("category-dropdown")]
-		private Transform _categoryDropdown = null!;
+		private readonly Transform _categoryDropdown = null!;
 
 		[UIComponent("profile-image")]
 		private readonly ImageView _profileImage = null!;
 
 		[UIParams]
 		private readonly BSMLParserParams _parserParams = null!;
-
-		private readonly SiraLog _siraLog;
+		
         private readonly AccSaberStore _accSaberStore;
 		
-		public LeaderboardUserModalController(SiraLog siraLog, AccSaberStore accSaberStore)
+		public LeaderboardUserModalController(AccSaberStore accSaberStore)
 		{
-			_siraLog = siraLog;
 			_accSaberStore = accSaberStore;
 		}
-
+		
 		#region UI Values
 		
 		[UIValue("is-loading")]
@@ -204,6 +201,9 @@ namespace AccSaber.UI.ViewControllers
 			OnModalClosed();
 		}
 
+		// TODO: Feedback says the details changing immediately from cached data can be jarring
+		// Maybe add an animation to text whenever it's changed?, should be able to use AnimateCanvasAccessor from Accessors.cs
+		// Would be better than showing the loading icon for a second.
 		private async Task UpdateUserInfo()
 		{
 			if (_userId is null)
@@ -211,8 +211,49 @@ namespace AccSaber.UI.ViewControllers
 				return;
 			}
 			
-			// TODO: Implement checking if the userID is the current user and getting the already stored info from AccSaberStore
-			// Leaving this for later for when the user info has timer invalidation implemented.
+			// Rewrite this if statement mayhaps? :clueless:
+			var platformUserInfo = await _accSaberStore.GetPlatformUserInfo();
+			if (_userId == platformUserInfo?.platformUserId)
+			{
+				if (!_accSaberStore.IsStoredUserValid())
+				{
+					IsLoading = true;
+				}
+				
+				switch (CategoryValue)
+				{
+					case "Overall":
+					{
+						var userInfo = await _accSaberStore.GetCurrentUser();
+						_userOverall = userInfo;
+						SetUserInfo(_userOverall);
+						break;
+					}
+					case "True":
+					{
+						var userInfo = await _accSaberStore.GetCurrentUser(AccSaberStore.AccSaberMapCategories.True);
+						_userTrue = userInfo;
+						SetUserInfo(_userTrue);
+						break;
+					}
+					case "Standard":
+					{
+						var userInfo = await _accSaberStore.GetCurrentUser(AccSaberStore.AccSaberMapCategories.Standard);
+						_userStandard = userInfo;
+						SetUserInfo(_userStandard);
+						break;
+					}
+					case "Tech":
+					{
+						var userInfo = await _accSaberStore.GetCurrentUser(AccSaberStore.AccSaberMapCategories.Tech);
+						_userTech = userInfo;
+						SetUserInfo(_userTech);
+						break;
+					}
+				}
+
+				return;
+			}
 			
 			switch (CategoryValue)
 			{
@@ -221,7 +262,7 @@ namespace AccSaber.UI.ViewControllers
 					if (_userOverall is null)
 					{
 						IsLoading = true;
-						var userInfo = await _accSaberStore.GetUserFromId(_userId, CategoryValue);
+						var userInfo = await _accSaberStore.GetUserFromId(_userId);
 						_userOverall = userInfo;
 					}
 
@@ -234,7 +275,7 @@ namespace AccSaber.UI.ViewControllers
 					if (_userTrue is null)
 					{
 						IsLoading = true;
-						var userInfo = await _accSaberStore.GetUserFromId(_userId, CategoryValue);
+						var userInfo = await _accSaberStore.GetUserFromId(_userId, AccSaberStore.AccSaberMapCategories.True);
 						_userTrue = userInfo;
 					}
 
@@ -246,7 +287,7 @@ namespace AccSaber.UI.ViewControllers
 					if (_userStandard is null)
 					{
 						IsLoading = true;
-						var userInfo = await _accSaberStore.GetUserFromId(_userId, CategoryValue);
+						var userInfo = await _accSaberStore.GetUserFromId(_userId, AccSaberStore.AccSaberMapCategories.Standard);
 						_userStandard = userInfo;
 					}
 
@@ -258,7 +299,7 @@ namespace AccSaber.UI.ViewControllers
 					if (_userTech is null)
 					{
 						IsLoading = true;
-						var userInfo = await _accSaberStore.GetUserFromId(_userId, CategoryValue);
+						var userInfo = await _accSaberStore.GetUserFromId(_userId, AccSaberStore.AccSaberMapCategories.Tech);
 						_userTech = userInfo;
 					}
 

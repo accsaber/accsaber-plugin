@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using AccSaber.Managers;
 using AccSaber.Models;
 using AccSaber.Utils;
-using SiraUtil.Logging;
 using UnityEngine;
 
 namespace AccSaber.LeaderboardSources
@@ -14,16 +13,14 @@ namespace AccSaber.LeaderboardSources
 	{
 		private readonly List<List<AccSaberLeaderboardEntry>> _cachedEntries = new();
 		private Sprite? _icon;
-
-		private readonly SiraLog _siraLog;
+		
 		private readonly WebUtils _webUtils;
 		private readonly AccSaberStore _accSaberStore;
 
-		public AroundMeLeaderboardSource(WebUtils webUtils, AccSaberStore accSaberStore, SiraLog siraLog)
+		public AroundMeLeaderboardSource(WebUtils webUtils, AccSaberStore accSaberStore)
 		{
 			_webUtils = webUtils;
 			_accSaberStore = accSaberStore;
-			_siraLog = siraLog;
 		}
 		
 		public string HoverHint => "Around Me";
