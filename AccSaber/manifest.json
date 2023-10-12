@@ -3,7 +3,7 @@
   "id": "AccSaber",
   "name": "AccSaber",
   "author": "AccSaber Team",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "AccSaber Plugin",
   "gameVersion": "1.29.1",
   "dependsOn": {
