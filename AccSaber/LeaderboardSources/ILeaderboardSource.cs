@@ -12,6 +12,7 @@ namespace AccSaber.LeaderboardSources
 		public Sprite Icon { get; }
 		public bool Scrollable { get; }
 		public Task<List<AccSaberLeaderboardEntry>?> GetScoresAsync(AccSaberRankedMap rankedMap, CancellationToken cancellationToken = default, int page = 0);
+		public List<AccSaberLeaderboardEntry>? GetCachedScore(int page);
 		public List<AccSaberLeaderboardEntry>? GetLatestCachedScore();
 		public void ClearCache();
 	}

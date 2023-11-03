@@ -324,7 +324,7 @@ namespace AccSaber.UI.ViewControllers
 				return;
 			}
 
-			var playerId = _leaderboardSources[SelectedCellIndex].GetLatestCachedScore()?[index].playerId;
+			var playerId = _leaderboardSources[SelectedCellIndex].GetCachedScore(PageNumber)?[index].playerId;
 			if (playerId is null)
 			{
 				return;

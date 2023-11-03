@@ -50,6 +50,11 @@ namespace AccSaber.LeaderboardSources
 			_cachedEntries.Add(response);
 			return response;
 		}
+		
+		public List<AccSaberLeaderboardEntry>? GetCachedScore(int page)
+		{
+			return _cachedEntries[page];
+		}
 
 		public List<AccSaberLeaderboardEntry>? GetLatestCachedScore()
 		{
