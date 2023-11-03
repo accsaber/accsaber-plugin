@@ -8,15 +8,34 @@ namespace AccSaber.Models
 	[UsedImplicitly]
 	internal class AccSaberUser : Model
 	{
-		public int rank;
-		public string playerId;
-		public string playerName;
-		public string avatarUrl;
-		public string? hmd;
-		public float averageAcc;
-		public float ap;
-		public float averageApPerMap;
-		public int rankedPlays;
-		public bool accChamp;
+		[JsonProperty("rank")]
+		public int Rank { get; set; }
+
+		[JsonProperty("playerId")]
+		public string PlayerId { get; set; } = null!;
+
+		[JsonProperty("playerName")]
+		public string PlayerName { get; set; } = null!;
+
+		[JsonProperty("avatarUrl")]
+		public string AvatarUrl { get; set; } = null!;
+
+		[JsonProperty("hmd")]
+		public string? Hmd { get; set; }
+		
+		[JsonProperty("averageAcc")]
+		public float AverageAcc { get; set; }
+		
+		[JsonProperty("ap")]
+		public float AP { get; set; }
+		
+		[JsonProperty("averageApPerMap")]
+		public float AverageApPerMap { get; set; }
+		
+		[JsonProperty("rankedPlays")]
+		public int RankedPlays { get; set; }
+		
+		[JsonProperty("accChamp")]
+		public bool AccChamp { get; set; }
 	}
 }

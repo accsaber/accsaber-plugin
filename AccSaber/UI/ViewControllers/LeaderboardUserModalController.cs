@@ -311,15 +311,15 @@ namespace AccSaber.UI.ViewControllers
 
 		private void SetUserInfo(AccSaberUser userInfo)
 		{
-			Username = userInfo.playerName;
-			Rank = $"#{userInfo.rank}";
-			Ap = $"{userInfo.ap:N2} AP";
-			Plays = $"{userInfo.rankedPlays} ranked plays";
-			Headset = userInfo.hmd ?? "";
+			Username = userInfo.PlayerName;
+			Rank = $"#{userInfo.Rank}";
+			Ap = $"{userInfo.AP:N2} AP";
+			Plays = $"{userInfo.RankedPlays} ranked plays";
+			Headset = userInfo.Hmd ?? "";
 
 			if (_firstLoad)
 			{
-				_profileImage.SetImage(userInfo.avatarUrl, false, new BeatSaberUI.ScaleOptions(), () => IsLoading = false);	
+				_profileImage.SetImage(userInfo.AvatarUrl, false, new BeatSaberUI.ScaleOptions(), () => IsLoading = false);	
 			}
 			else
 			{

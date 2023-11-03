@@ -33,7 +33,7 @@ namespace AccSaber.LeaderboardSources
 				return _cachedEntries[page];
 			}
 
-			var response = await _webUtils.GetAsync<List<AccSaberLeaderboardEntry>>($"https://api.accsaber.com/map-leaderboards/{rankedMap.songHash}/standard/{rankedMap.difficulty}?page={page}&pageSize=10", cancellationToken);
+			var response = await _webUtils.GetAsync<List<AccSaberLeaderboardEntry>>($"https://api.accsaber.com/map-leaderboards/{rankedMap.SongHash}/standard/{rankedMap.Difficulty}?page={page}&pageSize=10", cancellationToken);
 			if (response is null)
 			{
 				return null;

@@ -16,7 +16,7 @@ namespace AccSaber.Managers
 		
 		public event Action<AccSaberRankedMap?>? OnAccSaberRankedMapUpdated;
 		public event Action? OnFetchingCurrentUser;
-		public event Action<bool> OnFetchedCurrentUser;
+		public event Action<bool>? OnFetchedCurrentUser;
 
 		public Dictionary<string, AccSaberRankedMap> RankedMaps = new();
 		private AccSaberUser _currentUserOverall = new();
@@ -69,7 +69,7 @@ namespace AccSaber.Managers
 			var rankedMaps = new Dictionary<string, AccSaberRankedMap>();
 			foreach (var map in response)
 			{
-				rankedMaps[$"{map.songHash}/{map.difficulty}".ToLower()] = map;
+				rankedMaps[$"{map.SongHash}/{map.Difficulty}".ToLower()] = map;
 			}
 
 			return rankedMaps;
@@ -91,7 +91,7 @@ namespace AccSaber.Managers
 			
 			// Check if the data fetched is the same as what we already have cached
 			// Saves us from calling the API three more times for the True, Standard and Tech user categories.
-			if (Math.Abs(newOverall.ap - _currentUserOverall.ap) < 0.01f)
+			if (Math.Abs(newOverall.AP - _currentUserOverall.AP) < 0.01f)
 			{
 				OnFetchedCurrentUser?.Invoke(false);
 				return;

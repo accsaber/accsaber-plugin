@@ -280,16 +280,16 @@ namespace AccSaber.UI.ViewControllers
 				{
 					for (var i = 0; i < (leaderboardEntries.Count > 10 ? 10 : leaderboardEntries.Count); i++)
 					{
-						scores.Add(new LeaderboardTableView.ScoreData(leaderboardEntries[i].score, $"<size=85%>{leaderboardEntries[i].playerName} - <size=75%>(<color=#FFD42A>{leaderboardEntries[i].accuracy * 100:F2}%</color>)</size></size> - <size=75%> (<color=#00FFAE>{leaderboardEntries[i].ap:F2}<size=55%> AP</size></color>)</size>", leaderboardEntries[i].rank, false));
+						scores.Add(new LeaderboardTableView.ScoreData(leaderboardEntries[i].Score, $"<size=85%>{leaderboardEntries[i].PlayerName} - <size=75%>(<color=#FFD42A>{leaderboardEntries[i].Accuracy * 100:F2}%</color>)</size></size> - <size=75%> (<color=#00FFAE>{leaderboardEntries[i].AP:F2}<size=55%> AP</size></color>)</size>", leaderboardEntries[i].Rank, false));
 
 						if (_infoButtons != null)
 						{
 							_infoButtons[i].gameObject.SetActive(true);
 							var hoverHint = _infoButtons[i].GetComponent<HoverHint>();
-							hoverHint.text = $"Score Set: {leaderboardEntries[i].timeSet}";
+							hoverHint.text = $"Score Set: {leaderboardEntries[i].TimeSet}";
 						}
 
-						if (leaderboardEntries[i].playerId == userId)
+						if (leaderboardEntries[i].PlayerId == userId)
 						{
 							userScorePos = i;
 						}
@@ -324,7 +324,7 @@ namespace AccSaber.UI.ViewControllers
 				return;
 			}
 
-			var playerId = _leaderboardSources[SelectedCellIndex].GetCachedScore(PageNumber)?[index].playerId;
+			var playerId = _leaderboardSources[SelectedCellIndex].GetCachedScore(PageNumber)?[index].PlayerId;
 			if (playerId is null)
 			{
 				return;

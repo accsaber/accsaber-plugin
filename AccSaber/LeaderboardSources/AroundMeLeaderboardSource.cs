@@ -41,7 +41,7 @@ namespace AccSaber.LeaderboardSources
 				return null;
 			}
 			
-			var response = await _webUtils.GetAsync<List<AccSaberLeaderboardEntry>>($"https://api.accsaber.com/map-leaderboards/{rankedMap.songHash}/standard/{rankedMap.difficulty}/around/{userInfo.platformUserId}", cancellationToken);
+			var response = await _webUtils.GetAsync<List<AccSaberLeaderboardEntry>>($"https://api.accsaber.com/map-leaderboards/{rankedMap.SongHash}/standard/{rankedMap.Difficulty}/around/{userInfo.platformUserId}", cancellationToken);
 			if (response is null)
 			{
 				return null;

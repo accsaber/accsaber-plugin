@@ -59,11 +59,11 @@ namespace AccSaber.UI.ViewControllers
 
 			if (!_container.gameObject.activeInHierarchy)
 			{
-				SetBannerColor(mapInfo.categoryDisplayName);
+				SetBannerColor(mapInfo.CategoryDisplayName);
 			}
 			else
 			{
-				TweenBannerColor(mapInfo.categoryDisplayName);	
+				TweenBannerColor(mapInfo.CategoryDisplayName);	
 			}
 		}
 
@@ -171,9 +171,9 @@ namespace AccSaber.UI.ViewControllers
 			else
 			{
 				_timeTweeningManager.KillAllTweens(this);
-				if (_accSaberStore.CurrentRankedMap?.categoryDisplayName != null)
+				if (_accSaberStore.CurrentRankedMap?.CategoryDisplayName != null)
 				{
-					SetBannerColor(_accSaberStore.CurrentRankedMap.categoryDisplayName);
+					SetBannerColor(_accSaberStore.CurrentRankedMap.CategoryDisplayName);
 				}
 			}
 		}
@@ -217,7 +217,7 @@ namespace AccSaber.UI.ViewControllers
 					return;
 				}
 				
-				SetBannerColor(_accSaberStore.CurrentRankedMap.categoryDisplayName);
+				SetBannerColor(_accSaberStore.CurrentRankedMap.CategoryDisplayName);
 			}
 		}
 		
@@ -245,9 +245,9 @@ namespace AccSaber.UI.ViewControllers
 
 		[UIValue("category-ranking-text")]
 		private string CategoryRankingText =>
-			$"<color=#EDFF55>Category Ranking:</color> #{_accSaberStore.GetCurrentCategoryUser().rank} <size=75%>(<color=#00FFAE>{_accSaberStore.GetCurrentCategoryUser().ap:N2} AP</color>)";
+			$"<color=#EDFF55>Category Ranking:</color> #{_accSaberStore.GetCurrentCategoryUser().Rank} <size=75%>(<color=#00FFAE>{_accSaberStore.GetCurrentCategoryUser().AP:N2} AP</color>)";
         
 		[UIValue("map-complexity-text")]
-		private string MapComplexityText => $"<color=#EDFF55>Map Complexity:</color> {Math.Round(_accSaberStore.CurrentRankedMap!.complexity, 2)}";
+		private string MapComplexityText => $"<color=#EDFF55>Map Complexity:</color> {Math.Round(_accSaberStore.CurrentRankedMap!.Complexity, 2)}";
 	}
 }
