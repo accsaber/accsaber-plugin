@@ -7,7 +7,7 @@
                 <vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="25" pref-height="25">
                     <img id="profile-image" preserve-aspect="true" pref-width="23" pref-height="23"/>
                 </vertical>
-                <vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="35" pref-height="25">
+                <vertical id="user-info" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="35" pref-height="25">
                     <text text="~username" font-size="5" bold="true"/>
                     <text text="~rank"/>
                     <text text="~ap"/>

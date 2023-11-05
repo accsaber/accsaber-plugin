@@ -14,6 +14,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Parser;
 using HMUI;
 using IPA.Utilities;
+using Tweening;
 using UnityEngine;
 
 namespace AccSaber.UI.ViewControllers
@@ -46,14 +47,21 @@ namespace AccSaber.UI.ViewControllers
 		[UIComponent("profile-image")]
 		private readonly ImageView _profileImage = null!;
 
+		[UIComponent("user-info")]
+		private readonly Transform _userInfo = null!;
+
 		[UIParams]
 		private readonly BSMLParserParams _parserParams = null!;
+
+		private CanvasGroup? _userInfoCanvasGroup;
 		
-        private readonly AccSaberStore _accSaberStore;
-		
-		public LeaderboardUserModalController(AccSaberStore accSaberStore)
+		private readonly AccSaberStore _accSaberStore;
+		private readonly TimeTweeningManager _timeTweeningManager;
+
+		public LeaderboardUserModalController(AccSaberStore accSaberStore, TimeTweeningManager timeTweeningManager)
 		{
 			_accSaberStore = accSaberStore;
+			_timeTweeningManager = timeTweeningManager;
 		}
 		
 		#region UI Values
@@ -169,6 +177,8 @@ namespace AccSaber.UI.ViewControllers
 				dropdownModalView.SetupView(_modalView.transform);
 				dropdownModalView.SetField("_parentCanvasGroup", canvasGroup);
 				
+				_userInfoCanvasGroup = _userInfo.gameObject.AddComponent<CanvasGroup>();
+				
 				_profileImage.material = Resources.FindObjectsOfTypeAll<Material>().Last(x => x.name == "UINoGlowRoundEdge");
 				
 				_parsed = true;
@@ -200,10 +210,7 @@ namespace AccSaber.UI.ViewControllers
 			_parserParams.EmitEvent("close-modal");
 			OnModalClosed();
 		}
-
-		// TODO: Feedback says the details changing immediately from cached data can be jarring
-		// Maybe add an animation to text whenever it's changed?, should be able to use AnimateCanvasAccessor from Accessors.cs
-		// Would be better than showing the loading icon for a second.
+		
 		private async Task UpdateUserInfo()
 		{
 			if (_userId is null)
@@ -319,12 +326,20 @@ namespace AccSaber.UI.ViewControllers
 
 			if (_firstLoad)
 			{
-				_profileImage.SetImage(userInfo.AvatarUrl, false, new BeatSaberUI.ScaleOptions(), () => IsLoading = false);	
+				_profileImage.SetImage(userInfo.AvatarUrl, false, new BeatSaberUI.ScaleOptions(), () => IsLoading = false);
+				_firstLoad = false;
 			}
 			else
 			{
-				_firstLoad = false;
 				IsLoading = false;
+
+				if (_userInfoCanvasGroup is null)
+				{
+					return;
+				}
+
+				var tween = new FloatTween(0f, 1f, val => _userInfoCanvasGroup.alpha = val, 0.5f, EaseType.OutSine);
+				_timeTweeningManager.AddTween(tween, this);
 			}
 		}
 
