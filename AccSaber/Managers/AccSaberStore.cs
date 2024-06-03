@@ -134,7 +134,7 @@ namespace AccSaber.Managers
 			}
 			else
 			{
-				response = await _webUtils.GetAsync<AccSaberUser>($"https://api.accsaber.com/players/{id}/{category}");
+				response = await _webUtils.GetAsync<AccSaberUser>($"https://api.accsaber.com/players/{id}/{category.ToString().ToLower()}");
 			}
 
 			if (response != null)

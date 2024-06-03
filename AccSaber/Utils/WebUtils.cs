@@ -19,11 +19,11 @@ namespace AccSaber.Utils
             _httpService = httpService;
         }
 
-        internal async Task<T?> GetAsync<T>(string path, CancellationToken cancellationToken = default)
+        internal async Task<T?> GetAsync<T>(string url, CancellationToken cancellationToken = default)
         {
             try
             {
-                var response = await _httpService.GetAsync(path, cancellationToken: cancellationToken);
+                var response = await _httpService.GetAsync(url, cancellationToken: cancellationToken);
 
                 var parsed = await ParseWebResponse<T>(response);
                 return parsed;
