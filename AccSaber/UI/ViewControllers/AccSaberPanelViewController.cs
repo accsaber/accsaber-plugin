@@ -113,7 +113,7 @@ namespace AccSaber.UI.ViewControllers
 
 		private void SetBannerColor(string category)
 		{
-			if (_container.background is not ImageView background || _pluginConfig.RainbowHeader)
+			if (_container.Background is not ImageView background || _pluginConfig.RainbowHeader)
 			{
 				return;
 			}
@@ -125,7 +125,7 @@ namespace AccSaber.UI.ViewControllers
 
 		private void TweenBannerColor(string category)
 		{
-			if (_container.background is not ImageView background)
+			if (_container.Background is not ImageView background)
 			{
 				return;
 			}
@@ -144,7 +144,7 @@ namespace AccSaber.UI.ViewControllers
 
 		private async Task ToggleRainbowBannerTween(bool enable)
 		{
-			if (_container.background is not ImageView background)
+			if (_container.Background is not ImageView background)
 			{
 				return;
 			}
@@ -192,7 +192,7 @@ namespace AccSaber.UI.ViewControllers
 		[UIAction("#post-parse")]
 		public void PostParse()
 		{
-			if (_container.background is ImageView background)
+			if (_container.Background is ImageView background)
 			{
 				background.material = Utilities.ImageResources.NoGlowMat;
                 background.color = Color.gray;

@@ -168,13 +168,13 @@ namespace AccSaber.UI.ViewControllers
 		{
 			if (!_parsed)
 			{
-				BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "AccSaber.UI.Views.LeaderboardUserModal.bsml"), parentTransform.gameObject, this);
+				BSMLParser.Instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "AccSaber.UI.Views.LeaderboardUserModal.bsml"), parentTransform.gameObject, this);
 				_modalView.name = "AccSaberLeaderboardUserModal";
 				_modalView.blockerClickedEvent += OnModalClosed;
-				
+
 				var canvasGroup = _modalView.gameObject.AddComponent<CanvasGroup>();
 				var dropdownModalView = _categoryDropdown.Find("DropdownTableView").GetComponent<ModalView>();
-				dropdownModalView.SetupView(_modalView.transform);
+				dropdownModalView.InvokeMethod<object, ModalView>("SetupView", _modalView.transform);
 				dropdownModalView.SetField("_parentCanvasGroup", canvasGroup);
 				
 				_userInfoCanvasGroup = _userInfo.gameObject.AddComponent<CanvasGroup>();

@@ -8,7 +8,9 @@ using AccSaber.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
+using IPA.Utilities;
 using IPA.Utilities.Async;
+using TMPro;
 using UnityEngine.UI;
 using Zenject;
 

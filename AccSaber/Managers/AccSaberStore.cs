@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using AccSaber.Models;
 using AccSaber.Utils;
@@ -150,7 +151,7 @@ namespace AccSaber.Managers
 		public async Task<UserInfo?> GetPlatformUserInfo()
 		{
 			// GetUserInfo caches the result, no need to do it ourselves
-			return await _platformUserModel.GetUserInfo();
+			return await _platformUserModel.GetUserInfo(CancellationToken.None);
 		}
 
 		public async Task<AccSaberUser> GetCurrentCategoryUserAsync()
