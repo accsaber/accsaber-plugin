@@ -174,7 +174,7 @@ namespace AccSaber.UI.ViewControllers
 
 				var canvasGroup = _modalView.gameObject.AddComponent<CanvasGroup>();
 				var dropdownModalView = _categoryDropdown.Find("DropdownTableView").GetComponent<ModalView>();
-				dropdownModalView.InvokeMethod<object, ModalView>("SetupView", _modalView.transform);
+				dropdownModalView.SetupView(_modalView.transform);
 				dropdownModalView.SetField("_parentCanvasGroup", canvasGroup);
 				
 				_userInfoCanvasGroup = _userInfo.gameObject.AddComponent<CanvasGroup>();
