@@ -233,28 +233,28 @@ namespace AccSaber.UI.ViewControllers
 					{
 						var userInfo = await _accSaberStore.GetCurrentUser();
 						_userOverall = userInfo;
-						SetUserInfo(_userOverall);
+						await SetUserInfo(_userOverall);
 						break;
 					}
 					case "True":
 					{
 						var userInfo = await _accSaberStore.GetCurrentUser(AccSaberStore.AccSaberMapCategories.True);
 						_userTrue = userInfo;
-						SetUserInfo(_userTrue);
+						await SetUserInfo(_userTrue);
 						break;
 					}
 					case "Standard":
 					{
 						var userInfo = await _accSaberStore.GetCurrentUser(AccSaberStore.AccSaberMapCategories.Standard);
 						_userStandard = userInfo;
-						SetUserInfo(_userStandard);
+						await SetUserInfo(_userStandard);
 						break;
 					}
 					case "Tech":
 					{
 						var userInfo = await _accSaberStore.GetCurrentUser(AccSaberStore.AccSaberMapCategories.Tech);
 						_userTech = userInfo;
-						SetUserInfo(_userTech);
+						await SetUserInfo(_userTech);
 						break;
 					}
 				}
@@ -273,7 +273,7 @@ namespace AccSaber.UI.ViewControllers
 						_userOverall = userInfo;
 					}
 
-					SetUserInfo(_userOverall);
+					await SetUserInfo(_userOverall);
 					
 					break;
 				}
@@ -286,7 +286,7 @@ namespace AccSaber.UI.ViewControllers
 						_userTrue = userInfo;
 					}
 
-					SetUserInfo(_userTrue);
+					await SetUserInfo(_userTrue);
 					break;
 				}
 				case "Standard":
@@ -298,7 +298,7 @@ namespace AccSaber.UI.ViewControllers
 						_userStandard = userInfo;
 					}
 
-					SetUserInfo(_userStandard);
+					await SetUserInfo(_userStandard);
 					break;
 				}
 				case "Tech":
@@ -310,13 +310,13 @@ namespace AccSaber.UI.ViewControllers
 						_userTech = userInfo;
 					}
 
-					SetUserInfo(_userTech);
+					await SetUserInfo(_userTech);
 					break;
 				}
 			}
 		}
 
-		private void SetUserInfo(AccSaberUser userInfo)
+		private async Task SetUserInfo(AccSaberUser userInfo)
 		{
 			Username = userInfo.PlayerName;
 			Rank = $"#{userInfo.Rank}";
@@ -326,7 +326,8 @@ namespace AccSaber.UI.ViewControllers
 
 			if (_firstLoad)
 			{
-				_profileImage.SetImage(userInfo.AvatarUrl, false, new BeatSaberUI.ScaleOptions(), () => IsLoading = false);
+				await _profileImage.SetImageAsync(userInfo.AvatarUrl, false);
+				IsLoading = false;
 				_firstLoad = false;
 			}
 			else

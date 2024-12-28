@@ -1,7 +1,7 @@
 ﻿<bg xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd">
     <horizontal horizontal-fit='PreferredSize' vertical-fit='PreferredSize' pref-width='100' pref-height='70'>
         <vertical horizontal-fit='PreferredSize' vertical-fit='PreferredSize' pref-width='10' pref-height='20'>
-            <vertical-icon-segments data='cell-data' select-cell='cell-selected' />
+            <vertical-icon-segments id='vertical-icon-segments' select-cell='cell-selected' />
         </vertical>
         <vertical horizontal-fit='PreferredSize' vertical-fit='PreferredSize' pref-width='80' pref-height='70'>
             <leaderboard id='leaderboard' cell-size='5.99' />

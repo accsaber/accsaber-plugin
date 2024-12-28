@@ -23,7 +23,7 @@ namespace AccSaber.Managers
         
 		public void OnLeaderboardSet(BeatmapKey beatmapKey)
 		{
-			BeatmapLevel level = _beatmapLevelsModel.GetBeatmapLevel(beatmapKey.levelId);
+			BeatmapLevel? level = _beatmapLevelsModel.GetBeatmapLevel(beatmapKey.levelId);
 
             if (level is null)
 			{

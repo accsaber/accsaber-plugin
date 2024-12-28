@@ -40,6 +40,9 @@ namespace AccSaber.UI.ViewControllers
 		[UIComponent("leaderboard")]
 		private readonly LeaderboardTableView? _leaderboard = null!;
 		
+		[UIComponent("vertical-icon-segments")]
+		private readonly IconSegmentedControl? _iconSegmentedControl = null!;
+		
 		#region Info Buttons
 
 		// Maybe get around to making a custom leaderboard and get rid of this misery
@@ -109,13 +112,17 @@ namespace AccSaber.UI.ViewControllers
 		[UIValue("down-enabled")]
 		private bool DownEnabled => _leaderboardSources[SelectedCellIndex].GetLatestCachedScore() is {Count: 10} && _leaderboardSources[SelectedCellIndex].Scrollable;
 		
-		[UIValue("cell-data")]
-		private List<IconSegmentedControl.DataItem> CellData => _leaderboardSources.Select(leaderboardSource =>
-			new IconSegmentedControl.DataItem(leaderboardSource.Icon, leaderboardSource.HoverHint)).ToList();
-
 		[UIAction("#post-parse")]
-		private void PostParse()
+		private async Task PostParse()
 		{
+			var list = new List<IconSegmentedControl.DataItem>();
+			foreach (var leaderboardSource in _leaderboardSources)
+			{
+				list.Add(new IconSegmentedControl.DataItem(await leaderboardSource.Icon, leaderboardSource.HoverHint));
+			}
+			
+			_iconSegmentedControl!.SetData(list.ToArray());
+			
 			// To set rich text, I have to iterate through all cells, set each cell to allow rich text and next time they will have it
 			var leaderboardTableCells = _leaderboard!.transform.GetComponentsInChildren<LeaderboardTableCell>(true);
 

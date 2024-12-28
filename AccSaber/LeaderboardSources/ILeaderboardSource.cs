@@ -9,7 +9,7 @@ namespace AccSaber.LeaderboardSources
 	internal interface ILeaderboardSource
 	{
 		public string HoverHint { get; }
-		public Sprite Icon { get; }
+		public Task<Sprite> Icon { get; }
 		public bool Scrollable { get; }
 		public Task<List<AccSaberLeaderboardEntry>?> GetScoresAsync(AccSaberRankedMap rankedMap, CancellationToken cancellationToken = default, int page = 0);
 		public List<AccSaberLeaderboardEntry>? GetCachedScore(int page);

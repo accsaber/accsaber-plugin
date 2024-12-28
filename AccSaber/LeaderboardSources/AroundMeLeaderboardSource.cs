@@ -12,7 +12,6 @@ namespace AccSaber.LeaderboardSources
 	internal sealed class AroundMeLeaderboardSource : ILeaderboardSource
 	{
 		private readonly List<List<AccSaberLeaderboardEntry>> _cachedEntries = new();
-		private Sprite? _icon;
 		
 		private readonly WebUtils _webUtils;
 		private readonly AccSaberStore _accSaberStore;
@@ -25,7 +24,7 @@ namespace AccSaber.LeaderboardSources
 		
 		public string HoverHint => "Around Me";
 
-		public Sprite Icon => _icon ??= BeatSaberMarkupLanguage.Utilities.FindSpriteInAssembly("AccSaber.Resources.PlayerIcon.png");
+		public Task<Sprite> Icon => BeatSaberMarkupLanguage.Utilities.LoadSpriteFromAssemblyAsync("AccSaber.Resources.PlayerIcon.png");
 		
 		public bool Scrollable => false;
 		public async Task<List<AccSaberLeaderboardEntry>?> GetScoresAsync(AccSaberRankedMap rankedMap, CancellationToken cancellationToken = default, int page = 0)

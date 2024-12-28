@@ -11,7 +11,6 @@ namespace AccSaber.LeaderboardSources
 	internal sealed class GlobalLeaderboardSource : ILeaderboardSource
 	{
 		private readonly List<List<AccSaberLeaderboardEntry>> _cachedEntries = new();
-		private Sprite? _icon;
 
 		private readonly WebUtils _webUtils;
 
@@ -22,7 +21,7 @@ namespace AccSaber.LeaderboardSources
 
 		public string HoverHint => "Global";
 
-		public Sprite Icon => _icon ??= BeatSaberMarkupLanguage.Utilities.FindSpriteInAssembly("AccSaber.Resources.GlobalIcon.png");
+		public Task<Sprite> Icon => BeatSaberMarkupLanguage.Utilities.LoadSpriteFromAssemblyAsync("AccSaber.Resources.GlobalIcon.png");
 		
 		public bool Scrollable => true;
 		
