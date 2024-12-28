@@ -144,6 +144,8 @@ namespace AccSaber.UI.ViewControllers
 			ChangeButtonScale(_button8!, 0.425f);
 			ChangeButtonScale(_button9!, 0.425f);
 			ChangeButtonScale(_button10!, 0.425f);
+			
+			PageNumber = 0;
 		}
 
 		[UIAction("up-clicked")]
@@ -245,8 +247,6 @@ namespace AccSaber.UI.ViewControllers
 			{
 				leaderboardSource.ClearCache();
 			}
-
-			PageNumber = 0;
 		}
 
 		protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
