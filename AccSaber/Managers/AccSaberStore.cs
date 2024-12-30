@@ -16,15 +16,15 @@ namespace AccSaber.Managers
 		private readonly IPlatformUserModel _platformUserModel;
 		
 		public event Action<AccSaberRankedMap?>? OnAccSaberRankedMapUpdated;
-		public event Action? OnFetchingCurrentUser;
-		public event Action<bool>? OnFetchedCurrentUser;
+		public event Action? OnUpdatingFromAccSaberAPI;
+		public event Action<bool>? OnUpdatedFromAccSaberAPI;
 
 		public Dictionary<string, AccSaberRankedMap> RankedMaps = new();
 		private AccSaberUser _currentUserOverall = new();
 		private AccSaberUser _currentUserTrue = new();
 		private AccSaberUser _currentUserStandard = new();
 		private AccSaberUser _currentUserTech = new();
-		private DateTime _lastRefresh;
+		private DateTime _lastUpdate;
 		
 		private AccSaberRankedMap? _currentRankedMap;
 
@@ -52,11 +52,6 @@ namespace AccSaber.Managers
 			}
 		}
 
-		public bool IsStoredUserValid()
-		{
-			return _lastRefresh.AddMinutes(20) > DateTime.Now;
-		}
-
 		private async Task<Dictionary<string, AccSaberRankedMap>> GetRankedMaps()
 		{
 			var response = await _webUtils.GetAsync<List<AccSaberRankedMap>>("https://api.accsaber.com/ranked-maps/");
@@ -76,11 +71,11 @@ namespace AccSaber.Managers
 			return rankedMaps;
 		}
 		
-		private async Task UpdateUserInfo()
+		private async Task UpdateAccSaberInfo()
 		{
-			OnFetchingCurrentUser?.Invoke();
+			OnUpdatingFromAccSaberAPI?.Invoke();
 			
-			_lastRefresh = DateTime.Now;
+			_lastUpdate = DateTime.UtcNow;
 			var platformUser = await GetPlatformUserInfo();
 			if (platformUser is null)
 			{
@@ -94,7 +89,7 @@ namespace AccSaber.Managers
 			// Saves us from calling the API three more times for the True, Standard and Tech user categories.
 			if (Math.Abs(newOverall.AP - _currentUserOverall.AP) < 0.01f)
 			{
-				OnFetchedCurrentUser?.Invoke(false);
+				OnUpdatedFromAccSaberAPI?.Invoke(false);
 				return;
 			}
 
@@ -106,24 +101,19 @@ namespace AccSaber.Managers
 			await Task.Delay(1000);
 			_currentUserTech = await GetUserFromId(platformUser.platformUserId, AccSaberMapCategories.Tech);
 			
-			OnFetchedCurrentUser?.Invoke(true);
+			OnUpdatedFromAccSaberAPI?.Invoke(true);
 		}
 		
-		public async Task<AccSaberUser> GetCurrentUser(AccSaberMapCategories? category = null)
+		public Task<AccSaberUser> GetCurrentUser(AccSaberMapCategories? category = null)
 		{
-			if (!IsStoredUserValid())
-			{
-				await UpdateUserInfo();
-			}
-
-			return category switch
+			return Task.FromResult(category switch
 			{
 				AccSaberMapCategories.True => _currentUserTrue,
 				AccSaberMapCategories.Standard => _currentUserStandard,
 				AccSaberMapCategories.Tech => _currentUserTech,
 				null => _currentUserOverall,
 				_ => throw new ArgumentOutOfRangeException(nameof(category), category, null)
-			};
+			});
 		}
 
 		public async Task<AccSaberUser> GetUserFromId(string id, AccSaberMapCategories? category = null)
@@ -165,17 +155,8 @@ namespace AccSaber.Managers
 			};
 		}
 		
-		/// <summary>
-		/// Gets category user from cached data, could return outdated user.
-		/// Check <see cref="IsStoredUserValid"/>, otherwise use <see cref="GetCurrentCategoryUserAsync"/>.
-		/// </summary>
 		public AccSaberUser GetCurrentCategoryUser()
 		{
-			if (!IsStoredUserValid())
-			{
-				_ = UpdateUserInfo();
-			}
-			
 			return _currentRankedMap?.Category switch
 			{
 				AccSaberMapCategories.True => _currentUserTrue,
@@ -184,15 +165,40 @@ namespace AccSaber.Managers
 				_ => _currentUserOverall
 			};
 		}
+
+		public async Task<bool> HasAccSaberUpdated()
+		{
+			var response = await _webUtils.GetAsync("https://api.accsaber.com/status/last-update");
+
+			if (response is null)
+			{
+				return false;
+			}
+			
+			// TODO: Replace this with ParseExact
+			// The format just doesn't want to work GRAHHH
+			/*_log.Error(await response.ReadAsStringAsync());
+			
+			const string format = "yyyy-MM-ddTHH:mm:ss.fffffffffZ";
+			var lastApiUpdate = DateTime.ParseExact("2024-12-29T14:57:56.827733630", "yyyy-MM-ddTHH:mm:ss.fffffffff", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeUniversal);*/
+			var lastApiUpdate = DateTime.Parse(await response.ReadAsStringAsync(), System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.RoundtripKind);
+			
+			if (lastApiUpdate < _lastUpdate)
+			{
+				return false;
+			}
+
+			await UpdateAccSaberInfo();
+			return true;
+		}
 		
 		public async void Initialize()
 		{
-			_lastRefresh = DateTime.Now;
 			// Not too sure if we need to refresh the ranked map list
 			// Chances of the ranked map list becoming outdated is pretty low
 			RankedMaps = await GetRankedMaps();
 			await Task.Delay(1000);
-			await UpdateUserInfo();
+			await UpdateAccSaberInfo();
 		}
 	}
 }

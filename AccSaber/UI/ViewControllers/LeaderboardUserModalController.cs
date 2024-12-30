@@ -222,11 +222,6 @@ namespace AccSaber.UI.ViewControllers
 			var platformUserInfo = await _accSaberStore.GetPlatformUserInfo();
 			if (_userId == platformUserInfo?.platformUserId)
 			{
-				if (!_accSaberStore.IsStoredUserValid())
-				{
-					IsLoading = true;
-				}
-				
 				switch (CategoryValue)
 				{
 					case "Overall":

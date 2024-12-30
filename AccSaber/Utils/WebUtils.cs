@@ -8,7 +8,7 @@ using SiraUtil.Web;
 
 namespace AccSaber.Utils
 {
-    internal class WebUtils
+    internal sealed class WebUtils
     {
         private readonly SiraLog _log;
         private readonly IHttpService _httpService;
@@ -18,12 +18,29 @@ namespace AccSaber.Utils
             _log = log;
             _httpService = httpService;
         }
+        
+        internal async Task<IHttpResponse?> GetAsync(string url, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                return await _httpService.GetAsync(url, cancellationToken: cancellationToken);
+            }
+            catch (TaskCanceledException)
+            {
+                return null;
+            }
+        }
 
         internal async Task<T?> GetAsync<T>(string url, CancellationToken cancellationToken = default)
         {
             try
             {
-                var response = await _httpService.GetAsync(url, cancellationToken: cancellationToken);
+                var response = await GetAsync(url, cancellationToken: cancellationToken);
+                
+                if (response is null)
+                {
+                    return default;
+                }
 
                 var parsed = await ParseWebResponse<T>(response);
                 return parsed;

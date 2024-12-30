@@ -10,8 +10,7 @@ namespace AccSaber.Managers
 		private readonly SiraLog _log;
 		private readonly WebUtils _webUtils;
 		private readonly AccSaberStore _accSaberStore;
-
-		private BeatmapLevelsModel _beatmapLevelsModel;
+		private readonly BeatmapLevelsModel _beatmapLevelsModel;
         
 		public AccSaberManager(SiraLog log, WebUtils webUtils, AccSaberStore accSaberStore, BeatmapLevelsModel beatmapLevelsModel)
 		{

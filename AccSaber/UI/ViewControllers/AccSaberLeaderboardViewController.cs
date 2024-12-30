@@ -234,12 +234,13 @@ namespace AccSaber.UI.ViewControllers
 		}
 		#endregion
 
-		protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+		protected override async void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
 		{
 			base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
 
 			if (!firstActivation)
 			{
+				_ = await _accSaberStore.HasAccSaberUpdated();
 				return;
 			}
 			

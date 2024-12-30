@@ -67,13 +67,13 @@ namespace AccSaber.UI.ViewControllers
 			}
 		}
 
-		private void AccSaberStoreOnOnFetchingCurrentUser()
+		private void AccSaberStoreOnOnUpdatingFromAccSaberAPI()
 		{
 			LoadingActive = true;
-			PromptText = "Fetching new user data...";
+			PromptText = "Updating leaderboard...";
 		}
 
-		private void AccSaberStoreOnOnFetchedCurrentUser(bool isNew)
+		private void AccSaberStoreOnOnUpdatedFromAccSaberAPI(bool isNew)
 		{
 			if (isNew)
 			{
@@ -87,15 +87,15 @@ namespace AccSaber.UI.ViewControllers
 		public void Initialize()
 		{
 			_accSaberStore.OnAccSaberRankedMapUpdated += AccSaberStoreOnOnAccSaberRankedMapUpdated;
-			_accSaberStore.OnFetchingCurrentUser += AccSaberStoreOnOnFetchingCurrentUser;
-			_accSaberStore.OnFetchedCurrentUser += AccSaberStoreOnOnFetchedCurrentUser;
+			_accSaberStore.OnUpdatingFromAccSaberAPI += AccSaberStoreOnOnUpdatingFromAccSaberAPI;
+			_accSaberStore.OnUpdatedFromAccSaberAPI += AccSaberStoreOnOnUpdatedFromAccSaberAPI;
 		}
 
 		public void Dispose()
 		{
 			_accSaberStore.OnAccSaberRankedMapUpdated -= AccSaberStoreOnOnAccSaberRankedMapUpdated;
-			_accSaberStore.OnFetchingCurrentUser -= AccSaberStoreOnOnFetchingCurrentUser;
-			_accSaberStore.OnFetchedCurrentUser -= AccSaberStoreOnOnFetchedCurrentUser;
+			_accSaberStore.OnUpdatingFromAccSaberAPI -= AccSaberStoreOnOnUpdatingFromAccSaberAPI;
+			_accSaberStore.OnUpdatedFromAccSaberAPI -= AccSaberStoreOnOnUpdatedFromAccSaberAPI;
 		}
 
 		public async void OnEnable()
