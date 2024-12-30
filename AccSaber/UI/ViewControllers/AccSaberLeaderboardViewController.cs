@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using AccSaber.LeaderboardSources;
 using AccSaber.Managers;
@@ -8,9 +7,6 @@ using AccSaber.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
-using IPA.Utilities;
-using IPA.Utilities.Async;
-using TMPro;
 using UnityEngine.UI;
 using Zenject;
 
@@ -24,7 +20,7 @@ namespace AccSaber.UI.ViewControllers
 		private int _selectedCellIndex;
 		private List<Button>? _infoButtons;
 		private LoadingControl? _loadingControl;
-		
+
 		private AccSaberStore _accSaberStore = null!;
 		private List<ILeaderboardSource> _leaderboardSources = null!;
 		private LeaderboardUserModalController _leaderboardUserModalController = null!;
@@ -101,7 +97,7 @@ namespace AccSaber.UI.ViewControllers
 				}
 
 				_leaderboard.SetScores(new List<LeaderboardTableView.ScoreData>(), 0);
-				_loadingControl.ShowLoading();
+				LeaderboardShowLoading();
 				_ = SetScores();
 			}
 		}
@@ -144,8 +140,6 @@ namespace AccSaber.UI.ViewControllers
 			ChangeButtonScale(_button8!, 0.425f);
 			ChangeButtonScale(_button9!, 0.425f);
 			ChangeButtonScale(_button10!, 0.425f);
-			
-			PageNumber = 0;
 		}
 
 		[UIAction("up-clicked")]
@@ -238,9 +232,10 @@ namespace AccSaber.UI.ViewControllers
 		{
 			base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
 
+			_ = await _accSaberStore.HasAccSaberUpdated();
+			
 			if (!firstActivation)
 			{
-				_ = await _accSaberStore.HasAccSaberUpdated();
 				return;
 			}
 			
@@ -268,13 +263,10 @@ namespace AccSaber.UI.ViewControllers
 			
 			if (_infoButtons != null)
 			{
-				await UnityMainThreadTaskScheduler.Factory.StartNew(() =>
+				foreach (var button in _infoButtons)
 				{
-					foreach (var button in _infoButtons)
-					{
-						button.gameObject.SetActive(false);
-					}
-				});
+					button.gameObject.SetActive(false);
+				}
 			}
 			
 			if (leaderboardEntries is null || leaderboardEntries.Count == 0)
@@ -286,36 +278,54 @@ namespace AccSaber.UI.ViewControllers
 				var userInfo = await _accSaberStore.GetPlatformUserInfo();
 				var userId = userInfo?.platformUserId;
 				
-				await UnityMainThreadTaskScheduler.Factory.StartNew(() =>
+				for (var i = 0; i < (leaderboardEntries.Count > 10 ? 10 : leaderboardEntries.Count); i++)
 				{
-					for (var i = 0; i < (leaderboardEntries.Count > 10 ? 10 : leaderboardEntries.Count); i++)
+					scores.Add(new LeaderboardTableView.ScoreData(leaderboardEntries[i].Score, $"<size=85%>{leaderboardEntries[i].PlayerName} - <size=75%>(<color=#FFD42A>{leaderboardEntries[i].Accuracy * 100:F2}%</color>)</size></size> - <size=75%> (<color=#00FFAE>{leaderboardEntries[i].AP:F2}<size=55%> AP</size></color>)</size>", leaderboardEntries[i].Rank, false));
+
+					if (_infoButtons != null)
 					{
-						scores.Add(new LeaderboardTableView.ScoreData(leaderboardEntries[i].Score, $"<size=85%>{leaderboardEntries[i].PlayerName} - <size=75%>(<color=#FFD42A>{leaderboardEntries[i].Accuracy * 100:F2}%</color>)</size></size> - <size=75%> (<color=#00FFAE>{leaderboardEntries[i].AP:F2}<size=55%> AP</size></color>)</size>", leaderboardEntries[i].Rank, false));
-
-						if (_infoButtons != null)
-						{
-							_infoButtons[i].gameObject.SetActive(true);
-							var hoverHint = _infoButtons[i].GetComponent<HoverHint>();
-							hoverHint.text = $"Score Set: {leaderboardEntries[i].TimeSet}";
-						}
-
-						if (leaderboardEntries[i].PlayerId == userId)
-						{
-							userScorePos = i;
-						}
+						_infoButtons[i].gameObject.SetActive(true);
+						var hoverHint = _infoButtons[i].GetComponent<HoverHint>();
+						hoverHint.text = $"Score Set: {leaderboardEntries[i].TimeSet}";
 					}
-				});
+
+					if (leaderboardEntries[i].PlayerId == userId)
+					{
+						userScorePos = i;
+					}
+				}
 			}
 
 			if (_loadingControl != null && _leaderboard != null)
 			{
-				await UnityMainThreadTaskScheduler.Factory.StartNew(() =>
-				{
-					_loadingControl.Hide();
-					_leaderboard.SetScores(scores, userScorePos);
-					NotifyPropertyChanged(nameof(UpEnabled));
-					NotifyPropertyChanged(nameof(DownEnabled));
-				});
+				LeaderboardHideLoading();
+				_leaderboard.SetScores(scores, userScorePos);
+				NotifyPropertyChanged(nameof(UpEnabled));
+				NotifyPropertyChanged(nameof(DownEnabled));
+			}
+		}
+
+		private void LeaderboardShowLoading()
+		{
+			if (_loadingControl == null || _infoButtons == null) 
+				return;
+			
+			_loadingControl?.ShowLoading();
+			foreach (var button in _infoButtons)
+			{
+				button.gameObject.SetActive(false);
+			}
+		}
+
+		private void LeaderboardHideLoading()
+		{
+			if (_loadingControl == null || _infoButtons == null) 
+				return;
+			
+			_loadingControl?.Hide();
+			foreach (var button in _infoButtons)
+			{
+				button.gameObject.SetActive(true);
 			}
 		}
 		
@@ -353,14 +363,28 @@ namespace AccSaber.UI.ViewControllers
 			PageNumber = 0;
 		}
 
+		private void AccSaberStoreOnOnUpdatingFromAccSaberAPI()
+		{
+			LeaderboardShowLoading();
+		}
+
+		private void AccSaberStoreOnOnUpdatedFromAccSaberAPI(bool obj)
+		{
+			PageNumber = 0;
+		}
+
 		public void Initialize()
 		{
 			_accSaberStore.OnAccSaberRankedMapUpdated += AccSaberStoreOnOnAccSaberRankedMapUpdated;
+			_accSaberStore.OnUpdatingFromAccSaberAPI += AccSaberStoreOnOnUpdatingFromAccSaberAPI;
+			_accSaberStore.OnUpdatedFromAccSaberAPI += AccSaberStoreOnOnUpdatedFromAccSaberAPI;
 		}
 
 		public void Dispose()
 		{
 			_accSaberStore.OnAccSaberRankedMapUpdated -= AccSaberStoreOnOnAccSaberRankedMapUpdated;
+			_accSaberStore.OnUpdatingFromAccSaberAPI -= AccSaberStoreOnOnUpdatingFromAccSaberAPI;
+			_accSaberStore.OnUpdatedFromAccSaberAPI -= AccSaberStoreOnOnUpdatedFromAccSaberAPI;
 		}
 	}
 }

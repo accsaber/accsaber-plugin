@@ -24,7 +24,7 @@ namespace AccSaber.Managers
 		private AccSaberUser _currentUserTrue = new();
 		private AccSaberUser _currentUserStandard = new();
 		private AccSaberUser _currentUserTech = new();
-		private DateTime _lastUpdate;
+		public  DateTime LastLocalUpdateTime { get; private set; } = DateTime.MinValue;
 		
 		private AccSaberRankedMap? _currentRankedMap;
 
@@ -71,11 +71,13 @@ namespace AccSaber.Managers
 			return rankedMaps;
 		}
 		
-		private async Task UpdateAccSaberInfo()
+		private async Task UpdateAccSaberInfo(DateTime? lastAPIUpdateTime = null)
 		{
 			OnUpdatingFromAccSaberAPI?.Invoke();
+
+			lastAPIUpdateTime ??= await GetLastApiUpdateTime();
+			LastLocalUpdateTime = lastAPIUpdateTime.Value;
 			
-			_lastUpdate = DateTime.UtcNow;
 			var platformUser = await GetPlatformUserInfo();
 			if (platformUser is null)
 			{
@@ -102,6 +104,24 @@ namespace AccSaber.Managers
 			_currentUserTech = await GetUserFromId(platformUser.platformUserId, AccSaberMapCategories.Tech);
 			
 			OnUpdatedFromAccSaberAPI?.Invoke(true);
+		}
+		private async Task<DateTime> GetLastApiUpdateTime()
+		{
+			var response = await _webUtils.GetAsync("https://api.accsaber.com/status/last-update");
+
+			if (response is null)
+			{
+				return DateTime.MinValue;
+			}
+			
+			// TODO: Replace this with ParseExact
+			// The format just doesn't want to work GRAHHH
+			/*_log.Error(await response.ReadAsStringAsync());
+			
+			const string format = "yyyy-MM-ddTHH:mm:ss.fffffffffZ";
+			var lastApiUpdate = DateTime.ParseExact("2024-12-29T14:57:56.827733630", "yyyy-MM-ddTHH:mm:ss.fffffffff", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeUniversal);*/
+			var lastApiUpdate = DateTime.Parse(await response.ReadAsStringAsync(), System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.RoundtripKind);
+			return lastApiUpdate;
 		}
 		
 		public Task<AccSaberUser> GetCurrentUser(AccSaberMapCategories? category = null)
@@ -168,37 +188,26 @@ namespace AccSaber.Managers
 
 		public async Task<bool> HasAccSaberUpdated()
 		{
-			var response = await _webUtils.GetAsync("https://api.accsaber.com/status/last-update");
-
-			if (response is null)
+			// AccSaber updates every 30 minutes~, so no need to check if we know it updated say 5 minutes ago
+			if (DateTime.UtcNow < LastLocalUpdateTime.AddMinutes(15))
 			{
 				return false;
 			}
 			
-			// TODO: Replace this with ParseExact
-			// The format just doesn't want to work GRAHHH
-			/*_log.Error(await response.ReadAsStringAsync());
+			var lastApiUpdate = await GetLastApiUpdateTime();
 			
-			const string format = "yyyy-MM-ddTHH:mm:ss.fffffffffZ";
-			var lastApiUpdate = DateTime.ParseExact("2024-12-29T14:57:56.827733630", "yyyy-MM-ddTHH:mm:ss.fffffffff", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeUniversal);*/
-			var lastApiUpdate = DateTime.Parse(await response.ReadAsStringAsync(), System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.RoundtripKind);
-			
-			if (lastApiUpdate < _lastUpdate)
+			if (lastApiUpdate <= LastLocalUpdateTime)
 			{
 				return false;
 			}
 
-			await UpdateAccSaberInfo();
+			await UpdateAccSaberInfo(lastApiUpdate);
 			return true;
 		}
 		
 		public async void Initialize()
 		{
-			// Not too sure if we need to refresh the ranked map list
-			// Chances of the ranked map list becoming outdated is pretty low
 			RankedMaps = await GetRankedMaps();
-			await Task.Delay(1000);
-			await UpdateAccSaberInfo();
 		}
 	}
 }

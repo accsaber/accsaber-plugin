@@ -70,7 +70,7 @@ namespace AccSaber.UI.ViewControllers
 		private void AccSaberStoreOnOnUpdatingFromAccSaberAPI()
 		{
 			LoadingActive = true;
-			PromptText = "Updating leaderboard...";
+			PromptText = "<color=#00FF00>Updating leaderboard...</color>";
 		}
 
 		private void AccSaberStoreOnOnUpdatedFromAccSaberAPI(bool isNew)
@@ -98,16 +98,25 @@ namespace AccSaber.UI.ViewControllers
 			_accSaberStore.OnUpdatedFromAccSaberAPI -= AccSaberStoreOnOnUpdatedFromAccSaberAPI;
 		}
 
-		public async void OnEnable()
+		protected override async void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
 		{
-			if (_parsed && _pluginConfig.RainbowHeader)
+			base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
+			
+			if (firstActivation || !_parsed) 
+				return;
+			
+			if (_pluginConfig.RainbowHeader)
 			{
 				await ToggleRainbowBannerTween(true);
 			}
+				
+			SetTimeSinceLastLeaderboardUpdateText();
 		}
 
-		public void OnDisable()
+		protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
 		{
+			base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
+			
 			_timeTweeningManager.KillAllTweens(this);
 		}
 
@@ -187,6 +196,25 @@ namespace AccSaber.UI.ViewControllers
 				"Tech Acc" => new Color(0.902f, 0.027f, 0.027f, 1),
 				_ => Color.gray
 			};
+		}
+
+		private void SetTimeSinceLastLeaderboardUpdateText()
+		{
+			string displayText;
+			var timeSinceUpdate = DateTime.UtcNow - _accSaberStore.LastLocalUpdateTime;
+			
+			if (timeSinceUpdate.TotalSeconds >= 60)
+			{
+				var totalMinutes = (int) timeSinceUpdate.TotalMinutes;
+				displayText = totalMinutes == 1 ? "1 minute" : $"{totalMinutes} minutes";
+			}
+			else
+			{
+				var totalSeconds = (int) timeSinceUpdate.TotalSeconds;
+				displayText = totalSeconds == 1 ? "1 second" : $"{totalSeconds} seconds";
+			}
+			
+			PromptText = $"<color=#7D7D7D>Leaderboard last updated {displayText} ago</color>";
 		}
 
 		[UIAction("#post-parse")]

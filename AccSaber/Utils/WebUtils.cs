@@ -21,6 +21,8 @@ namespace AccSaber.Utils
         
         internal async Task<IHttpResponse?> GetAsync(string url, CancellationToken cancellationToken = default)
         {
+            _log.Debug($"Sending GET request to {url}");
+            
             try
             {
                 return await _httpService.GetAsync(url, cancellationToken: cancellationToken);
