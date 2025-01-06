@@ -31,6 +31,7 @@ namespace AccSaber.Installers
 			Container.BindInterfacesTo<GlobalLeaderboardSource>().AsSingle();
 			Container.BindInterfacesTo<AroundMeLeaderboardSource>().AsSingle();
 			Container.Bind<LeaderboardUserModalController>().AsSingle();
+			Container.Bind<WhereScoreModalController>().AsSingle();
 		}
 	}
 }

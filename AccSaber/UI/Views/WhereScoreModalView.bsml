@@ -1,0 +1,13 @@
+﻿<bg xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd">
+    <modal id="modal" show-event="open-modal" hide-event="close-modal" clickerino-offerino-closerino="true" size-delta-x="95" size-delta-y="52" move-to-center="true">
+        <vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="90" pref-height="50" spacing="2">
+            <text text="I just set a score! Where is it?" bold="true" font-align="Center" font-size="7" />
+            <text
+                    text="AccSaber's backend works by periodically fetching new scores from ScoreSaber, so your scores may not appear instantly.&lt;br&gt;Check back on this leaderboard after playing a few more songs, or view your scores on the AccSaber website at the end of your session!"
+                    word-wrapping="true" 
+                    align="Center"
+            />
+            <button text="Okay" click-event="close-modal" />
+        </vertical>
+    </modal>
+</bg>

@@ -78,9 +78,13 @@ namespace AccSaber.UI.ViewControllers
 			if (isNew)
 			{
 				NotifyPropertyChanged(nameof(CategoryRankingText));
+				PromptText = "<color=#00FF00>Leaderboard Updated!</color>";
+			}
+			else
+			{
+				PromptText = "";
 			}
 			
-			PromptText = "";
 			LoadingActive = false;
 		}
 

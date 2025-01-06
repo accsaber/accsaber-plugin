@@ -7,6 +7,7 @@ using AccSaber.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
+using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 
@@ -23,13 +24,15 @@ namespace AccSaber.UI.ViewControllers
 
 		private AccSaberStore _accSaberStore = null!;
 		private List<ILeaderboardSource> _leaderboardSources = null!;
+		private WhereScoreModalController _whereScoreModalController = null!;
 		private LeaderboardUserModalController _leaderboardUserModalController = null!;
 
 		[Inject]
-        public void Construct(AccSaberStore accSaberStore, List<ILeaderboardSource> leaderboardSources, LeaderboardUserModalController leaderboardUserModalController)
+        public void Construct(AccSaberStore accSaberStore, List<ILeaderboardSource> leaderboardSources, WhereScoreModalController whereScoreModalController, LeaderboardUserModalController leaderboardUserModalController)
         {
 			_accSaberStore = accSaberStore;
 			_leaderboardSources = leaderboardSources;
+			_whereScoreModalController = whereScoreModalController;
 			_leaderboardUserModalController = leaderboardUserModalController;
 		}
 
@@ -73,6 +76,9 @@ namespace AccSaber.UI.ViewControllers
 		private readonly Button? _button10 = null!;
 
 		#endregion
+		
+		[UIObject("no-score-button")]
+		private readonly GameObject _noScoreButton = null!;
 
 		private int SelectedCellIndex
 		{
@@ -227,6 +233,15 @@ namespace AccSaber.UI.ViewControllers
 			InfoButtonClicked(9);
 		}
 		#endregion
+		
+		[UIAction("no-score-clicked")]
+		private void NoScoreClicked()
+		{
+			if (_leaderboard is null)
+				return;
+				
+			_whereScoreModalController.ShowModal(_leaderboard.transform);
+		}
 
 		protected override async void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
 		{
@@ -249,6 +264,7 @@ namespace AccSaber.UI.ViewControllers
 		{
 			base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
 			_leaderboardUserModalController.HideModal();
+			_whereScoreModalController.HideModal();
 		}
 
 		private async Task SetScores(List<AccSaberLeaderboardEntry>? leaderboardEntries = null)
@@ -261,17 +277,13 @@ namespace AccSaber.UI.ViewControllers
 			var scores = new List<LeaderboardTableView.ScoreData>();
 			var userScorePos = -1;
 			
-			if (_infoButtons != null)
-			{
-				foreach (var button in _infoButtons)
-				{
-					button.gameObject.SetActive(false);
-				}
-			}
+			_noScoreButton.SetActive(false);
 			
 			if (leaderboardEntries is null || leaderboardEntries.Count == 0)
 			{
 				scores.Add(new LeaderboardTableView.ScoreData(0, "You haven't set a score on this leaderboard - <size=75%>(<color=#FFD42A>0%</color>)</size>", 0, false));
+				_noScoreButton.SetActive(true);
+				ToggleInfoButtons(false);
 			}
 			else
 			{
@@ -298,7 +310,7 @@ namespace AccSaber.UI.ViewControllers
 
 			if (_loadingControl != null && _leaderboard != null)
 			{
-				LeaderboardHideLoading();
+				_loadingControl?.Hide();
 				_leaderboard.SetScores(scores, userScorePos);
 				NotifyPropertyChanged(nameof(UpEnabled));
 				NotifyPropertyChanged(nameof(DownEnabled));
@@ -311,21 +323,17 @@ namespace AccSaber.UI.ViewControllers
 				return;
 			
 			_loadingControl?.ShowLoading();
-			foreach (var button in _infoButtons)
-			{
-				button.gameObject.SetActive(false);
-			}
+			ToggleInfoButtons(false);
 		}
 
-		private void LeaderboardHideLoading()
+		private void ToggleInfoButtons(bool value)
 		{
-			if (_loadingControl == null || _infoButtons == null) 
+			if (_infoButtons == null) 
 				return;
 			
-			_loadingControl?.Hide();
 			foreach (var button in _infoButtons)
 			{
-				button.gameObject.SetActive(true);
+				button.gameObject.SetActive(value);
 			}
 		}
 		
